@@ -84,11 +84,11 @@ class Lexer:
                 column = mo.start() - line_start
                 if kind == TokenType.PRINTSTRING:
                     yield Token(kind, value[:6], line_num, column)
-                    yield Token(TokenType.STRING, value[7:], line_num, column + 7)
+                    yield Token(TokenType.STRING, value[7:], line_num, column + 8)
                 elif kind == TokenType.KEYPRESS:
                     yield Token(kind, value.strip(), line_num, 0)
                 elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-            if line.strip():  # Only yield NEWLINE for non-empty lines
+            if line.strip() and line[-1] == '\n':  # Only yield NEWLINE for non-empty lines if the line ends with a newline
                 yield Token(TokenType.NEWLINE, '\n', line_num, len(line))
-        yield Token(TokenType.EOF, '', len(lines) + 1, 0)
+        yield Token(TokenType.EOF, '', len(lines), len(line))

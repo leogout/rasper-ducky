@@ -5,15 +5,46 @@ from lexer import Lexer, TokenType, Token  # Assurez-vous que ces imports corres
 def lexer():
     return Lexer()
 
+
+def test_eof_token_empty_code(lexer):
+    code = ""
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(TokenType.EOF, '', 1, 0)
+    ]
+    assert tokens == expected_tokens
+
+
+def test_eof_token_one_line_code(lexer):
+    code = "VAR $x = 8"
+    tokens = list(lexer.tokenize(code))
+    assert tokens[-1] == Token(TokenType.EOF, '', 1, 10)
+
+
+def test_eof_token_multiple_lines_code(lexer):
+    code = """
+    VAR $x = 8
+    VAR $y = $x * 2 + 5
+    """
+    tokens = list(lexer.tokenize(code))
+    assert tokens[-1] == Token(TokenType.EOF, '', 3, 0)
+
+
+def test_eof_token_with_empty_lines(lexer):
+    code = "\n\n\n\n\n\n"
+    tokens = list(lexer.tokenize(code))
+    assert tokens[-1] == Token(TokenType.EOF, '', 7, 0)
+
+
 def test_var_declaration(lexer):
-    code = "VAR $x = MAX_VALUE"
+    code = "VAR $x = 8"
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
         Token(TokenType.VAR, 'VAR', 1, 0),
         Token(TokenType.ID, '$x', 1, 4),
         Token(TokenType.ASSIGN, '=', 1, 7),
-        Token(TokenType.ID, 'MAX_VALUE', 1, 9),
-        Token(TokenType.EOF, '', 1, 18)
+        Token(TokenType.NUMBER, '8', 1, 9),
+        Token(TokenType.EOF, '', 1, 10)
     ]
 
     assert tokens == expected_tokens
@@ -44,23 +75,14 @@ def test_string_statement(lexer):
     ]
     assert tokens == expected_tokens
 
-def test_var_assignment(lexer):
-    code = "VAR $spam = 5"
-    tokens = list(lexer.tokenize(code))
-    expected_tokens = [
-        Token(TokenType.VAR, 'VAR', 1, 0),
-        Token(TokenType.ID, '$spam', 1, 4),
-        Token(TokenType.ASSIGN, '=', 1, 10),
-        Token(TokenType.NUMBER, '5', 1, 12),
-        Token(TokenType.EOF, '', 1, 13)
-    ]
-    
-    assert tokens == expected_tokens
 
 def test_all_keypress_commands(lexer):
     code = '\n'.join(Lexer.COMMANDS)
     tokens = list(lexer.tokenize(code))
-    
+
+    for token in tokens:
+        print(token)
+
     expected_tokens = []
     for i, command in enumerate(Lexer.COMMANDS):
         expected_tokens.append(Token(TokenType.KEYPRESS, command, i + 1, 0))
