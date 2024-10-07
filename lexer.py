@@ -9,7 +9,6 @@ class TokenType(Enum):
     NUMBER = auto()
     OP = auto()
     ASSIGN = auto()
-    NEWLINE = auto()
     SKIP = auto()
     MISMATCH = auto()
     PRINTSTRING = auto()
@@ -63,10 +62,9 @@ class Lexer:
             (TokenType.VAR,           r'VAR'),
             (TokenType.DELAY,         r'DELAY'),
             (TokenType.PRINTSTRING,   r'STRING\s.*'),
-            (TokenType.NEWLINE,       r'\n'),
             (TokenType.ID,            r'\$[a-zA-Z_][a-zA-Z0-9_]*'),
             (TokenType.NUMBER,        r'\d+'),
-            (TokenType.OP,            r'==|!=|>|<|>=|<=|&&|\|\||&|\||<<|>>|\+|\-|\*|/'),
+            (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),
             (TokenType.KEYPRESS,      r'(?:^|\n)?' + '|'.join(re.escape(cmd) for cmd in self.COMMANDS) + r'(?:\n|$)'),
@@ -89,6 +87,4 @@ class Lexer:
                     yield Token(kind, value.strip(), line_num, 0)
                 elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-            if line.strip() and line[-1] == '\n':  # Only yield NEWLINE for non-empty lines if the line ends with a newline
-                yield Token(TokenType.NEWLINE, '\n', line_num, len(line))
         yield Token(TokenType.EOF, '', len(lines), len(line))
