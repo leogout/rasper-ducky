@@ -64,7 +64,7 @@ class Parser:
             value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
             return PrintStringNode(StringNode(value.value))
         else:
-            raise SyntaxError(f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}")
+            raise SyntaxError(f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}")
 
     def expression(self) -> ExpressionNode:
         left = self.term()

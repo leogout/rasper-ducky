@@ -9,7 +9,6 @@ class TokenType(Enum):
     NUMBER = auto()
     OP = auto()
     ASSIGN = auto()
-    NEWLINE = auto()
     SKIP = auto()
     MISMATCH = auto()
     PRINTSTRING = auto()
@@ -57,39 +56,35 @@ class Lexer:
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     ]
+
     def __init__(self):
         self.token_specification = [
             (TokenType.VAR,           r'VAR'),
             (TokenType.DELAY,         r'DELAY'),
-            (TokenType.KEYPRESS,      r'(?:^|\n)?' + '|'.join(re.escape(cmd) for cmd in self.COMMANDS) + r'(?:\n|$)'),
             (TokenType.PRINTSTRING,   r'STRING\s.*'),
-            (TokenType.NEWLINE,       r'\n'),
-            (TokenType.ID,            r'\$?[a-zA-Z_][a-zA-Z0-9_]*'),
+            (TokenType.ID,            r'\$[a-zA-Z_][a-zA-Z0-9_]*'),
             (TokenType.NUMBER,        r'\d+'),
-            (TokenType.OP,            r'==|!=|>|<|>=|<=|&&|\|\||&|\||<<|>>|\+|\-|\*|/'),
+            (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),
+            (TokenType.KEYPRESS,      r'(?:^|\n)?' + '|'.join(re.escape(cmd) for cmd in self.COMMANDS) + r'(?:\n|$)'),
             (TokenType.MISMATCH,      r'.'),
         ]
         self.token_regex = '|'.join('(?P<%s>%s)' % (t.name, r) for t, r in self.token_specification)
 
     def tokenize(self, code):
-        line_num = 1
-        line_start = 0
-        for mo in re.finditer(self.token_regex, code):
-            kind = TokenType[mo.lastgroup]
-            value = mo.group()
-            column = mo.start() - line_start
-            if kind == TokenType.NEWLINE:
-                if column > 0:  # Ignorer les lignes vides
+        lines = code.split('\n')
+        for line_num, line in enumerate(lines, 1):
+            line_start = 0
+            for mo in re.finditer(self.token_regex, line):
+                kind = TokenType[mo.lastgroup]
+                value = mo.group()
+                column = mo.start() - line_start
+                if kind == TokenType.PRINTSTRING:
+                    yield Token(kind, value[:6], line_num, column)
+                    yield Token(TokenType.STRING, value[7:], line_num, column + 8)
+                elif kind == TokenType.KEYPRESS:
+                    yield Token(kind, value.strip(), line_num, 0)
+                elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-                line_start = mo.end()
-                line_num += 1
-            elif kind == TokenType.PRINTSTRING:
-                yield Token(kind, value[:6], line_num, column)
-                yield Token(TokenType.STRING, value[7:], line_num, 8)
-            elif kind != TokenType.SKIP:
-                yield Token(kind, value, line_num, column)
-            elif kind == TokenType.KEYPRESS:
-                yield Token(kind, value, line_num, 0)
-        yield Token(TokenType.EOF, '', line_num, mo.end())
+        yield Token(TokenType.EOF, '', len(lines), len(line))
