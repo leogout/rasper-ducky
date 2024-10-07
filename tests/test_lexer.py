@@ -88,6 +88,23 @@ def test_all_keypress_commands(lexer):
 
     assert tokens == expected_tokens
 
+def test_if_statement(lexer):
+    code = """IF 1 THEN
+STRING Hello, World!
+END_IF
+"""
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(TokenType.IF, 'IF', 1, 0),
+        Token(TokenType.NUMBER, '1', 1, 3),
+        Token(TokenType.THEN, 'THEN', 1, 5),
+        Token(TokenType.PRINTSTRING, 'STRING', 2, 0),
+        Token(TokenType.STRING, 'Hello, World!', 2, 8),
+        Token(TokenType.END_IF, 'END_IF', 3, 0),
+        Token(TokenType.EOF, '', 4, 0)
+    ]
+    assert tokens == expected_tokens
+
 def test_all_keywords_tokens(lexer):
     code = """STRING Hello, World!
 VAR $x = 1 + 2 * 3 / 4 - 5 & 6 | 7 << 8 >> 9

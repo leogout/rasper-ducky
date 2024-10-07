@@ -42,6 +42,12 @@ class ExpressionNode(ASTNode):
     right: ASTNode
     __repr__ = lambda self: f"EXPR({self.left}, {self.operator}, {self.right})"
 
+@dataclass
+class IfStatementNode(ASTNode):
+    condition: ExpressionNode
+    then_block: list[ASTNode]
+    __repr__ = lambda self: f"IF({self.condition}, {self.then_block})"
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -51,7 +57,6 @@ class Parser:
         statements = []
         while not self.is_at_end():
             statements.append(self.statement())
-            self.consume(TokenType.NEWLINE, "Attendu un saut de ligne après l'instruction")
         return statements
 
     def statement(self) -> ASTNode:
@@ -63,6 +68,14 @@ class Parser:
         elif self.match(TokenType.PRINTSTRING):
             value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
             return PrintStringNode(StringNode(value.value))
+        elif self.match(TokenType.IF):
+            condition = self.expression()
+            self.consume(TokenType.THEN, "Attendu 'THEN'")
+            then_branch = []
+            while not self.check(TokenType.END_IF):
+                then_branch.append(self.statement())
+            self.consume(TokenType.END_IF, "Attendu 'END_IF'")
+            return IfStatementNode(condition, then_branch)
         else:
             raise SyntaxError(f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}")
 

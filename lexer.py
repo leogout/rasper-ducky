@@ -17,11 +17,11 @@ class TokenType(Enum):
     KEYPRESS = auto()
     # for later
 
-    # IF = auto()
-    # THEN = auto()
+    IF = auto()
+    THEN = auto()
+    END_IF = auto()
     # ELSE = auto()
     # ELIF = auto()
-    # END_IF = auto()
 
     # WHILE = auto()
     # END_WHILE = auto()
@@ -41,9 +41,6 @@ class Token:
     column: int
 
 
-
-
-
 class Lexer:
     # WARNING: the order of the commands is important
     COMMANDS = [
@@ -61,6 +58,9 @@ class Lexer:
         self.token_specification = [
             (TokenType.VAR,           r'VAR'),
             (TokenType.DELAY,         r'DELAY'),
+            (TokenType.IF,            r'IF'),
+            (TokenType.THEN,          r'THEN'),
+            (TokenType.END_IF,        r'END_IF'),
             (TokenType.PRINTSTRING,   r'STRING\s.*'),
             (TokenType.ID,            r'\$[a-zA-Z_][a-zA-Z0-9_]*'),
             (TokenType.NUMBER,        r'\d+'),
