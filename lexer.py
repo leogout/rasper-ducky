@@ -77,11 +77,10 @@ class Lexer:
     def tokenize(self, code):
         lines = code.split('\n')
         for line_num, line in enumerate(lines, 1):
-            line_start = 0
             for mo in re.finditer(self.token_regex, line.strip()):
                 kind = TokenType[mo.lastgroup]
                 value = mo.group()
-                column = mo.start() - line_start
+                column = mo.start()
                 if kind == TokenType.MISMATCH:
                     raise SyntaxError(f"Unexpected character '{value}' at line {line_num}, column {column}")
                     
