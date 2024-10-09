@@ -15,7 +15,6 @@ class TokenType(Enum):
     STRING = auto()
     EOF = auto()
     KEYPRESS = auto()
-    # for later
 
     # IF = auto()
     # THEN = auto()
@@ -40,10 +39,6 @@ class Token:
     line: int
     column: int
 
-
-
-
-
 class Lexer:
     # WARNING: the order of the commands is important
     COMMANDS = [
@@ -67,24 +62,23 @@ class Lexer:
             (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),
-            (TokenType.KEYPRESS,      r'(?:^|\n)?' + '|'.join(re.escape(cmd) for cmd in self.COMMANDS) + r'(?:\n|$)'),
+            (TokenType.KEYPRESS,      r'|'.join(re.escape(cmd) for cmd in self.COMMANDS)),
             (TokenType.MISMATCH,      r'.'),
         ]
         self.token_regex = '|'.join('(?P<%s>%s)' % (t.name, r) for t, r in self.token_specification)
 
     def tokenize(self, code):
-        lines = code.split('\n')
+        lines = code.splitlines()
         for line_num, line in enumerate(lines, 1):
-            line_start = 0
             for mo in re.finditer(self.token_regex, line):
                 kind = TokenType[mo.lastgroup]
                 value = mo.group()
-                column = mo.start() - line_start
+                column = mo.start()
                 if kind == TokenType.PRINTSTRING:
-                    yield Token(kind, value[:6], line_num, column)
+                    yield Token(kind, 'STRING', line_num, column)
                     yield Token(TokenType.STRING, value[7:], line_num, column + 8)
                 elif kind == TokenType.KEYPRESS:
-                    yield Token(kind, value.strip(), line_num, 0)
+                    yield Token(kind, value, line_num, column)
                 elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-        yield Token(TokenType.EOF, '', len(lines), len(line))
+        yield Token(TokenType.EOF, '', len(lines) + 1, 0)
