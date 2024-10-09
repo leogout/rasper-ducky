@@ -10,11 +10,11 @@ def parser():
 
 def test_var_declaration(parser):
     tokens = [
-        Token(TokenType.VAR, 'VAR', 1, 0),
-        Token(TokenType.ID, '$x', 1, 4),
-        Token(TokenType.ASSIGN, '=', 1, 7),
-        Token(TokenType.NUMBER, '10', 1, 9),
-        Token(TokenType.EOF, '', 1, 12)
+        Token(TokenType.VAR, 'VAR'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.ASSIGN, '='),
+        Token(TokenType.NUMBER, '10'),
+        Token(TokenType.EOF, '')
     ]
     ast = parser(tokens).parse()
     expected_ast = [
@@ -24,13 +24,13 @@ def test_var_declaration(parser):
 
 def test_expression(parser):
     tokens = [
-        Token(TokenType.VAR, 'VAR', 1, 0),
-        Token(TokenType.ID, '$y', 1, 4),
-        Token(TokenType.ASSIGN, '=', 1, 7),
-        Token(TokenType.ID, '$x', 1, 9),
-        Token(TokenType.OP, '*', 1, 12),
-        Token(TokenType.NUMBER, '2', 1, 14),
-        Token(TokenType.EOF, '', 1, 16)
+        Token(TokenType.VAR, 'VAR'),
+        Token(TokenType.ID, '$y'),
+        Token(TokenType.ASSIGN, '='),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '*'),
+        Token(TokenType.NUMBER, '2'),
+        Token(TokenType.EOF, '')
     ]
     ast = parser(tokens).parse()
     expected_ast = [
@@ -38,34 +38,88 @@ def test_expression(parser):
     ]
     assert ast == expected_ast
 
-def test_if_statement(parser):
+def test_if_else_statement(parser):
     tokens = [
-        Token(TokenType.IF, 'IF', 1, 0),
-        Token(TokenType.ID, '$x', 1, 3),
-        Token(TokenType.OP, '>', 1, 6),
-        Token(TokenType.NUMBER, '0', 1, 8),
-        Token(TokenType.THEN, 'THEN', 1, 10),
-        Token(TokenType.VAR, 'VAR', 2, 0),
-        Token(TokenType.ID, '$y', 2, 4),
-        Token(TokenType.ASSIGN, '=', 2, 7),
-        Token(TokenType.NUMBER, '1', 2, 9),
-        Token(TokenType.END_IF, 'END_IF', 3, 0),
-        Token(TokenType.EOF, '', 3, 7)
+        Token(TokenType.IF, 'IF'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '>'),
+        Token(TokenType.NUMBER, '0'),
+        Token(TokenType.THEN, 'THEN'),
+        Token(TokenType.VAR, 'VAR'),
+        Token(TokenType.ID, '$y'),
+        Token(TokenType.ASSIGN, '='),
+        Token(TokenType.NUMBER, '1'),
+        Token(TokenType.ELSE, 'ELSE'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'Hey there!'),
+        Token(TokenType.END_IF, 'END_IF'),
+        Token(TokenType.EOF, '')
     ]
     ast = parser(tokens).parse()
     expected_ast = [
         IfStatementNode(
             ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
-            [VarDeclarationNode("$y", NumberNode('1'))]
+            [VarDeclarationNode("$y", NumberNode('1'))],
+            [],
+            [PrintStringNode(StringNode('Hey there!'))]
         )
     ]
     assert ast == expected_ast
-                                                                   
+
+def test_if_else_if_else_statement(parser):
+    tokens = [
+        Token(TokenType.IF, 'IF'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '>'),
+        Token(TokenType.NUMBER, '0'),
+        Token(TokenType.THEN, 'THEN'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'A'),
+        Token(TokenType.ELSE_IF, 'ELSE IF'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '<'),
+        Token(TokenType.NUMBER, '1'),
+        Token(TokenType.THEN, 'THEN'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'B'),
+        Token(TokenType.ELSE_IF, 'ELSE IF'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '<'),
+        Token(TokenType.NUMBER, '1'),
+        Token(TokenType.THEN, 'THEN'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'C'),
+        Token(TokenType.ELSE, 'ELSE'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'D'),
+        Token(TokenType.END_IF, 'END_IF'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        IfStatementNode(
+            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
+            [PrintStringNode(StringNode('A'))],
+            [
+                IfStatementNode(
+                    ExpressionNode(VarNode("$x"), OperatorNode('<'), NumberNode('1')),
+                    [PrintStringNode(StringNode('B'))],
+                ),
+                IfStatementNode(
+                    ExpressionNode(VarNode("$x"), OperatorNode('<'), NumberNode('1')),
+                    [PrintStringNode(StringNode('C'))],
+                )
+            ],
+            [PrintStringNode(StringNode('D'))]
+        )
+    ]
+    assert ast == expected_ast
+
 def test_print_string(parser):
     tokens = [
-        Token(TokenType.PRINTSTRING, 'PRINTSTRING', 1, 0),
-        Token(TokenType.STRING, 'Hello, World!', 1, 12),
-        Token(TokenType.EOF, '', 1, 28)
+        Token(TokenType.PRINTSTRING, 'PRINTSTRING'),
+        Token(TokenType.STRING, 'Hello, World!'),
+        Token(TokenType.EOF, '')
     ]
     ast = parser(tokens).parse()
     expected_ast = [
