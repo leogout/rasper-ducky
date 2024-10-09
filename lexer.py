@@ -15,6 +15,7 @@ class TokenType(Enum):
     STRING = auto()
     EOF = auto()
     KEYPRESS = auto()
+    # for later
 
     IF = auto()
     THEN = auto()
@@ -38,6 +39,7 @@ class Token:
     value: str
     line: int = 0
     column: int = 0
+
 
 class Lexer:
     # WARNING: the order of the commands is important
@@ -73,7 +75,7 @@ class Lexer:
         self.token_regex = '|'.join('(?P<%s>%s)' % (t.name, r) for t, r in self.token_specification)
 
     def tokenize(self, code):
-        lines = code.splitlines()
+        lines = code.split('\n')
         for line_num, line in enumerate(lines, 1):
             for mo in re.finditer(self.token_regex, line.strip()):
                 kind = TokenType[mo.lastgroup]
@@ -86,7 +88,8 @@ class Lexer:
                     yield Token(kind, 'STRING', line_num, column)
                     yield Token(TokenType.STRING, value[7:], line_num, column + 8)
                 elif kind == TokenType.KEYPRESS:
-                    yield Token(kind, value, line_num, column)
+                    yield Token(kind, value.strip(), line_num, column)
                 elif kind != TokenType.SKIP:
-                    yield Token(kind, value, line_num, column)         
+                    yield Token(kind, value, line_num, column)
+                
         yield Token(TokenType.EOF, '', len(lines), len(line))
