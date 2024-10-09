@@ -16,11 +16,11 @@ class TokenType(Enum):
     EOF = auto()
     KEYPRESS = auto()
 
-    # IF = auto()
-    # THEN = auto()
-    # ELSE = auto()
-    # ELIF = auto()
-    # END_IF = auto()
+    IF = auto()
+    THEN = auto()
+    END_IF = auto()
+    ELSE = auto()
+    ELSE_IF = auto()
 
     # WHILE = auto()
     # END_WHILE = auto()
@@ -36,8 +36,8 @@ class TokenType(Enum):
 class Token:
     type: TokenType
     value: str
-    line: int
-    column: int
+    line: int = 0
+    column: int = 0
 
 class Lexer:
     # WARNING: the order of the commands is important
@@ -54,15 +54,20 @@ class Lexer:
 
     def __init__(self):
         self.token_specification = [
-            (TokenType.VAR,           r'VAR'),
-            (TokenType.DELAY,         r'DELAY'),
-            (TokenType.PRINTSTRING,   r'STRING\s.*'),
-            (TokenType.ID,            r'\$[a-zA-Z_][a-zA-Z0-9_]*'),
+            (TokenType.VAR,           r'^\bVAR\b'),
+            (TokenType.DELAY,         r'^\bDELAY\b'),
+            (TokenType.IF,            r'^\bIF\b'),
+            (TokenType.THEN,          r'\bTHEN\b'),
+            (TokenType.END_IF,        r'^\bEND_IF\b'),
+            (TokenType.ELSE_IF,       r'^\bELSE\s+IF\b'),
+            (TokenType.ELSE,          r'^\bELSE\b'),
+            (TokenType.PRINTSTRING,   r'^\bSTRING\b\s.*'),
+            (TokenType.ID,            r'\$[a-zA-Z0-9_]+'),
             (TokenType.NUMBER,        r'\d+'),
             (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),
-            (TokenType.KEYPRESS,      r'|'.join(re.escape(cmd) for cmd in self.COMMANDS)),
+            (TokenType.KEYPRESS,      r'\b(' + '|'.join(re.escape(cmd) for cmd in self.COMMANDS) + r')\b'),
             (TokenType.MISMATCH,      r'.'),
         ]
         self.token_regex = '|'.join('(?P<%s>%s)' % (t.name, r) for t, r in self.token_specification)
@@ -70,15 +75,18 @@ class Lexer:
     def tokenize(self, code):
         lines = code.splitlines()
         for line_num, line in enumerate(lines, 1):
-            for mo in re.finditer(self.token_regex, line):
+            for mo in re.finditer(self.token_regex, line.strip()):
                 kind = TokenType[mo.lastgroup]
                 value = mo.group()
                 column = mo.start()
+                if kind == TokenType.MISMATCH:
+                    raise SyntaxError(f"Unexpected character '{value}' at line {line_num}, column {column}")
+                    
                 if kind == TokenType.PRINTSTRING:
                     yield Token(kind, 'STRING', line_num, column)
                     yield Token(TokenType.STRING, value[7:], line_num, column + 8)
                 elif kind == TokenType.KEYPRESS:
                     yield Token(kind, value, line_num, column)
                 elif kind != TokenType.SKIP:
-                    yield Token(kind, value, line_num, column)
-        yield Token(TokenType.EOF, '', len(lines) + 1, 0)
+                    yield Token(kind, value, line_num, column)         
+        yield Token(TokenType.EOF, '', len(lines), len(line))

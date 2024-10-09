@@ -88,6 +88,35 @@ def test_all_keypress_commands(lexer):
 
     assert tokens == expected_tokens
 
+def test_if_else_statement(lexer):
+    code = """IF 1 THEN
+STRING Hello, World!
+ELSE IF 1 THEN
+STRING Hey ho!
+ELSE
+STRING Hey there!
+END_IF
+"""
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(TokenType.IF, 'IF', 1, 0),
+        Token(TokenType.NUMBER, '1', 1, 3),
+        Token(TokenType.THEN, 'THEN', 1, 5),
+        Token(TokenType.PRINTSTRING, 'STRING', 2, 0),
+        Token(TokenType.STRING, 'Hello, World!', 2, 8),
+        Token(TokenType.ELSE_IF, 'ELSE IF', 3, 0),
+        Token(TokenType.NUMBER, '1', 3, 8),
+        Token(TokenType.THEN, 'THEN', 3, 10),
+        Token(TokenType.PRINTSTRING, 'STRING', 4, 0),
+        Token(TokenType.STRING, 'Hey ho!', 4, 8),
+        Token(TokenType.ELSE, 'ELSE', 5, 0),
+        Token(TokenType.PRINTSTRING, 'STRING', 6, 0),
+        Token(TokenType.STRING, 'Hey there!', 6, 8),
+        Token(TokenType.END_IF, 'END_IF', 7, 0),
+        Token(TokenType.EOF, '', 8, 0)
+    ]
+    assert tokens == expected_tokens
+
 def test_all_keywords_tokens(lexer):
     code = """STRING Hello, World!
 VAR $x = 1 + 2 * 3 / 4 - 5 & 6 | 7 << 8 >> 9
@@ -142,3 +171,23 @@ DELAY 10"""
         Token(TokenType.EOF, '', 5, 0)
     ]
     assert tokens == expected_tokens
+
+def test_unexpected_character(lexer):
+    code = "VAR $x = 8 @"
+    with pytest.raises(SyntaxError, match=r"Unexpected character '@' at line 1, column 11"):
+        list(lexer.tokenize(code))
+
+def test_invalid_operator(lexer):
+    code = "VAR $x = 8 ^ 2"
+    with pytest.raises(SyntaxError, match=r"Unexpected character '\^' at line 1, column 11"):
+        list(lexer.tokenize(code))
+
+def test_invalid_keyword(lexer):
+    code = "VOR $x = 8"
+    with pytest.raises(SyntaxError, match=r"Unexpected character 'V' at line 1, column 0"):
+        list(lexer.tokenize(code))
+
+def test_invalid_keyword_position(lexer):
+    code = "VAR $x VAR"
+    with pytest.raises(SyntaxError, match=r"Unexpected character 'V' at line 1, column 7"):
+        list(lexer.tokenize(code))
