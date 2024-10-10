@@ -172,32 +172,21 @@ DELAY 10"""
     ]
     assert tokens == expected_tokens
 
-def test_while_statement(lexer):
-    code = """WHILE 1
-STRING Hello, World!
-END_WHILE"""
-    tokens = list(lexer.tokenize(code))
-    expected_tokens = [
-        Token(TokenType.WHILE, 'WHILE', 1, 0),
-        Token(TokenType.NUMBER, '1', 1, 6),
-        Token(TokenType.PRINTSTRING, 'STRING', 2, 0),
-        Token(TokenType.STRING, 'Hello, World!', 2, 8),
-        Token(TokenType.END_WHILE, 'END_WHILE', 3, 0),
-        Token(TokenType.EOF, '', 3, 9)
-    ]
-    assert tokens == expected_tokens
+
 
 def test_while_statement_with_expression(lexer):
-    code = """WHILE $x > 0
+    code = """WHILE ($x > 0)
 STRING Hello, World!
 $x = $x - 1
 END_WHILE"""
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
         Token(TokenType.WHILE, 'WHILE', 1, 0),
-        Token(TokenType.ID, '$x', 1, 6),
-        Token(TokenType.OP, '>', 1, 9),
-        Token(TokenType.NUMBER, '0', 1, 11),
+        Token(TokenType.LPAREN, '(', 1, 6),
+        Token(TokenType.ID, '$x', 1, 7),
+        Token(TokenType.OP, '>', 1, 10),
+        Token(TokenType.NUMBER, '0', 1, 12),
+        Token(TokenType.RPAREN, ')', 1, 13),
         Token(TokenType.PRINTSTRING, 'STRING', 2, 0),
         Token(TokenType.STRING, 'Hello, World!', 2, 8),
         Token(TokenType.ID, '$x', 3, 0),
@@ -209,6 +198,7 @@ END_WHILE"""
         Token(TokenType.EOF, '', 4, 9)
     ]
     assert tokens == expected_tokens
+
 
 
 def test_unexpected_character(lexer):

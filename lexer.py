@@ -24,13 +24,15 @@ class TokenType(Enum):
 
     WHILE = auto()
     END_WHILE = auto()
+
+    LPAREN = auto()
+    RPAREN = auto()
     
     # REM = auto()
     # CONTINUE = auto()
     # FUNCTION = auto()
     # END_FUNCTION = auto()
-    # LPAREN = auto()
-    # RPAREN = auto()
+
 
 
 @dataclass
@@ -68,6 +70,8 @@ class Lexer:
             (TokenType.END_WHILE,     r'^\bEND_WHILE\b'),
             (TokenType.ID,            r'\$[a-zA-Z0-9_]+'),
             (TokenType.NUMBER,        r'\d+'),
+            (TokenType.LPAREN,        r'\('),
+            (TokenType.RPAREN,        r'\)'),
             (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),
