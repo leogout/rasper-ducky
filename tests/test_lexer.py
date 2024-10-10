@@ -173,7 +173,6 @@ DELAY 10"""
     assert tokens == expected_tokens
 
 
-
 def test_while_statement_with_expression(lexer):
     code = """WHILE ($x > 0)
 STRING Hello, World!
@@ -198,7 +197,6 @@ END_WHILE"""
         Token(TokenType.EOF, '', 4, 9)
     ]
     assert tokens == expected_tokens
-
 
 
 def test_unexpected_character(lexer):

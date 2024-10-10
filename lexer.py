@@ -33,6 +33,8 @@ class TokenType(Enum):
     # FUNCTION = auto()
     # END_FUNCTION = auto()
 
+    # Not in duckyscript 3.0 but why not implement it later
+    # BREAK = auto()
 
 
 @dataclass
