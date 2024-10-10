@@ -108,5 +108,7 @@ class Interpreter:
 
         if operator.value in operators:
             return operators[operator.value](left, right)
+        elif operator.value == "=":
+            return right
         else:
             raise RuntimeError(f"Opérateur inconnu : {operator.value}")

@@ -161,9 +161,9 @@ def test_else_statement_with_else_if(interpreter):
 
 def test_division_by_zero(interpreter):
     ast = [
-        VarDeclarationNode("$x", NumberNode(10)),
+        VarDeclarationNode("$x", NumberNode("10")),
         VarDeclarationNode(
-            "$y", ExpressionNode(VarNode("$x"), OperatorNode("/"), NumberNode(0))
+            "$y", ExpressionNode(VarNode("$x"), OperatorNode("/"), NumberNode("0"))
         ),
     ]
     with pytest.raises(ZeroDivisionError):
@@ -171,13 +171,13 @@ def test_division_by_zero(interpreter):
 
 
 def test_unknown_operator(interpreter):
-    ast = [ExpressionNode(NumberNode(1), OperatorNode("unknown"), NumberNode(2))]
+    ast = [ExpressionNode(NumberNode("1"), OperatorNode("unknown"), NumberNode("2"))]
     with pytest.raises(RuntimeError, match="Opérateur inconnu"):
         interpreter.interpret(ast)
 
 
 def test_undefined_variable(interpreter):
-    ast = [ExpressionNode(VarNode("$undefined"), OperatorNode("+"), NumberNode(2))]
+    ast = [ExpressionNode(VarNode("$undefined"), OperatorNode("+"), NumberNode("2"))]
     with pytest.raises(RuntimeError, match="Variable non définie"):
         interpreter.interpret(ast)
 
@@ -185,10 +185,10 @@ def test_undefined_variable(interpreter):
 def test_logical_operators(interpreter):
     ast = [
         VarDeclarationNode(
-            "$x", ExpressionNode(NumberNode(1), OperatorNode("&&"), NumberNode(0))
+            "$x", ExpressionNode(NumberNode("1"), OperatorNode("&&"), NumberNode("0"))
         ),
         VarDeclarationNode(
-            "$y", ExpressionNode(NumberNode(1), OperatorNode("||"), NumberNode(0))
+            "$y", ExpressionNode(NumberNode("1"), OperatorNode("||"), NumberNode("0"))
         ),
     ]
     interpreter.interpret(ast)
@@ -199,16 +199,16 @@ def test_logical_operators(interpreter):
 def test_bitwise_operators(interpreter):
     ast = [
         VarDeclarationNode(
-            "$x", ExpressionNode(NumberNode(1), OperatorNode("&"), NumberNode(1))
+            "$x", ExpressionNode(NumberNode("1"), OperatorNode("&"), NumberNode("1"))
         ),
         VarDeclarationNode(
-            "$y", ExpressionNode(NumberNode(1), OperatorNode("|"), NumberNode(0))
+            "$y", ExpressionNode(NumberNode("1"), OperatorNode("|"), NumberNode("0"))
         ),
         VarDeclarationNode(
-            "$z", ExpressionNode(NumberNode(1), OperatorNode("<<"), NumberNode(2))
+            "$z", ExpressionNode(NumberNode("1"), OperatorNode("<<"), NumberNode("2"))
         ),
         VarDeclarationNode(
-            "$w", ExpressionNode(NumberNode(4), OperatorNode(">>"), NumberNode(1))
+            "$w", ExpressionNode(NumberNode("4"), OperatorNode(">>"), NumberNode("1"))
         ),
     ]
     interpreter.interpret(ast)
@@ -221,7 +221,7 @@ def test_bitwise_operators(interpreter):
 def test_empty_block(interpreter):
     ast = [
         IfStatementNode(
-            ExpressionNode(NumberNode(1), OperatorNode("=="), NumberNode(1)), []
+            ExpressionNode(NumberNode("1"), OperatorNode("=="), NumberNode("1")), []
         )
     ]
     interpreter.interpret(ast)
@@ -231,10 +231,10 @@ def test_empty_block(interpreter):
 def test_equality_and_inequality(interpreter):
     ast = [
         VarDeclarationNode(
-            "$x", ExpressionNode(NumberNode(1), OperatorNode("=="), NumberNode(1))
+            "$x", ExpressionNode(NumberNode("1"), OperatorNode("=="), NumberNode("1"))
         ),
         VarDeclarationNode(
-            "$y", ExpressionNode(NumberNode(1), OperatorNode("!="), NumberNode(2))
+            "$y", ExpressionNode(NumberNode("1"), OperatorNode("!="), NumberNode("2"))
         ),
     ]
     interpreter.interpret(ast)
@@ -244,16 +244,18 @@ def test_equality_and_inequality(interpreter):
 
 def test_while_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", NumberNode(0)),
+        VarDeclarationNode("$x", NumberNode("0")),
         WhileStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode("<"), NumberNode(5)),
+            ExpressionNode(VarNode("$x"), OperatorNode("<"), NumberNode("5")),
             [
+                PrintStringNode(StringNode("Hello, World!")),
                 VarDeclarationNode(
                     "$x",
-                    ExpressionNode(VarNode("$x"), OperatorNode("+"), NumberNode(1)),
-                )
+                    ExpressionNode(VarNode("$x"), OperatorNode("+"), NumberNode("1")),
+                ),
             ],
         ),
     ]
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == 5
+    assert interpreter.execution_stack == ["Hello, World!"] * 5
