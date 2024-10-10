@@ -105,9 +105,11 @@ class Parser:
             return self.if_statement()
         elif self.match(TokenType.WHILE):
             return self.while_statement()
+        elif self.match(TokenType.ID):
+            return self.assignment()
         else:
             raise SyntaxError(
-                f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}"
+                f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek()}"
             )
 
     def var_declaration(self) -> VarDeclarationNode:
@@ -144,6 +146,12 @@ class Parser:
         body = self.block()
         self.consume(TokenType.END_WHILE, "Attendu 'END_WHILE'")
         return WhileStatementNode(condition, body)
+
+    def assignment(self) -> VarDeclarationNode:
+        name = self.previous()
+        self.consume(TokenType.ASSIGN, "Attendu '=' après l'identifiant")
+        value = self.expression()
+        return VarDeclarationNode(name.value, value)
 
     def block(self) -> list[ASTNode]:
         statements = []
