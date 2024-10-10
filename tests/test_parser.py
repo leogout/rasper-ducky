@@ -3,12 +3,12 @@ from parser import (
     Parser,
     VarDeclarationNode,
     VarNode,
-    NumberNode,
-    ExpressionNode,
-    OperatorNode,
+    Binary,
+    Unary,
+    Literal,
+    Grouping,
     IfStatementNode,
     PrintStringNode,
-    StringNode,
     WhileStatementNode,
 )
 from lexer import Token, TokenType
@@ -31,7 +31,7 @@ def test_var_declaration(parser):
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [VarDeclarationNode("$x", NumberNode("10"))]
+    expected_ast = [VarDeclarationNode("$x", Literal("10"))]
     assert ast == expected_ast
 
 
@@ -41,14 +41,15 @@ def test_expression(parser):
         Token(TokenType.ID, "$y"),
         Token(TokenType.ASSIGN, "="),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, "*"),
+        Token(TokenType.OP_MULTIPLY, "*"),
         Token(TokenType.NUMBER, "2"),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
     expected_ast = [
         VarDeclarationNode(
-            "$y", ExpressionNode(VarNode("$x"), OperatorNode("*"), NumberNode("2"))
+            "$y",
+            Binary(VarNode("$x"), Token(TokenType.OP_MULTIPLY, "*"), Literal("2")),
         )
     ]
     assert ast == expected_ast
@@ -58,7 +59,7 @@ def test_if_else_statement(parser):
     tokens = [
         Token(TokenType.IF, "IF"),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, ">"),
+        Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.THEN, "THEN"),
         Token(TokenType.VAR, "VAR"),
@@ -74,10 +75,10 @@ def test_if_else_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         IfStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode(">"), NumberNode("0")),
-            [VarDeclarationNode("$y", NumberNode("1"))],
+            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")),
+            [VarDeclarationNode("$y", Literal("1"))],
             [],
-            [PrintStringNode(StringNode("Hey there!"))],
+            [PrintStringNode(Literal("Hey there!"))],
         )
     ]
     assert ast == expected_ast
@@ -87,21 +88,21 @@ def test_if_else_if_else_statement(parser):
     tokens = [
         Token(TokenType.IF, "IF"),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, ">"),
+        Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.THEN, "THEN"),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "A"),
         Token(TokenType.ELSE_IF, "ELSE IF"),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, "<"),
+        Token(TokenType.OP_LESS, "<"),
         Token(TokenType.NUMBER, "1"),
         Token(TokenType.THEN, "THEN"),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "B"),
         Token(TokenType.ELSE_IF, "ELSE IF"),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, "<"),
+        Token(TokenType.OP_LESS, "<"),
         Token(TokenType.NUMBER, "1"),
         Token(TokenType.THEN, "THEN"),
         Token(TokenType.PRINTSTRING, "STRING"),
@@ -115,19 +116,19 @@ def test_if_else_if_else_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         IfStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode(">"), NumberNode("0")),
-            [PrintStringNode(StringNode("A"))],
+            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")),
+            [PrintStringNode(Literal("A"))],
             [
                 IfStatementNode(
-                    ExpressionNode(VarNode("$x"), OperatorNode("<"), NumberNode("1")),
-                    [PrintStringNode(StringNode("B"))],
+                    Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("1")),
+                    [PrintStringNode(Literal("B"))],
                 ),
                 IfStatementNode(
-                    ExpressionNode(VarNode("$x"), OperatorNode("<"), NumberNode("1")),
-                    [PrintStringNode(StringNode("C"))],
+                    Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("1")),
+                    [PrintStringNode(Literal("C"))],
                 ),
             ],
-            [PrintStringNode(StringNode("D"))],
+            [PrintStringNode(Literal("D"))],
         )
     ]
     assert ast == expected_ast
@@ -140,7 +141,7 @@ def test_print_string(parser):
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [PrintStringNode(StringNode("Hello, World!"))]
+    expected_ast = [PrintStringNode(Literal("Hello, World!"))]
     assert ast == expected_ast
 
 
@@ -149,7 +150,7 @@ def test_while_statement(parser):
         Token(TokenType.WHILE, "WHILE"),
         Token(TokenType.LPAREN, "("),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, ">"),
+        Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.RPAREN, ")"),
         Token(TokenType.PRINTSTRING, "STRING"),
@@ -160,8 +161,8 @@ def test_while_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         WhileStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode(">"), NumberNode("0")),
-            [PrintStringNode(StringNode("Hello, World!"))],
+            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")),
+            [PrintStringNode(Literal("Hello, World!"))],
         )
     ]
     assert ast == expected_ast
@@ -173,10 +174,10 @@ def test_parentheses_priority_in_expression(parser):
         Token(TokenType.ID, "$y"),
         Token(TokenType.ASSIGN, "="),
         Token(TokenType.NUMBER, "3"),
-        Token(TokenType.OP, "*"),
+        Token(TokenType.OP_MULTIPLY, "*"),
         Token(TokenType.LPAREN, "("),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, "+"),
+        Token(TokenType.OP_PLUS, "+"),
         Token(TokenType.NUMBER, "2"),
         Token(TokenType.RPAREN, ")"),
         Token(TokenType.EOF, ""),
@@ -185,10 +186,10 @@ def test_parentheses_priority_in_expression(parser):
     expected_ast = [
         VarDeclarationNode(
             "$y",
-            ExpressionNode(
-                NumberNode("3"),
-                OperatorNode("*"),
-                ExpressionNode(VarNode("$x"), OperatorNode("+"), NumberNode("2")),
+            Binary(
+                Literal("3"),
+                Token(TokenType.OP_MULTIPLY, "*"),
+                Binary(VarNode("$x"), Token(TokenType.OP_PLUS, "+"), Literal("2")),
             ),
         )
     ]
@@ -206,7 +207,7 @@ def test_parentheses_in_simple_expression(parser):
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [VarDeclarationNode("$y", NumberNode("1"))]
+    expected_ast = [VarDeclarationNode("$y", Literal("1"))]
     assert ast == expected_ast
 
 
@@ -215,7 +216,7 @@ def test_parentheses_in_while_statement(parser):
         Token(TokenType.WHILE, "WHILE"),
         Token(TokenType.LPAREN, "("),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, ">"),
+        Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.RPAREN, ")"),
         Token(TokenType.END_WHILE, "END_WHILE"),
@@ -224,7 +225,7 @@ def test_parentheses_in_while_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         WhileStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode(">"), NumberNode("0")), []
+            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")), []
         )
     ]
     assert ast == expected_ast
@@ -238,7 +239,7 @@ def test_while_statement_with_number(parser):
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [WhileStatementNode(NumberNode("10"), [])]
+    expected_ast = [WhileStatementNode(Literal("10"), [])]
     assert ast == expected_ast
 
 
@@ -246,7 +247,7 @@ def test_while_statement_without_parentheses(parser):
     tokens = [
         Token(TokenType.WHILE, "WHILE"),
         Token(TokenType.ID, "$x"),
-        Token(TokenType.OP, ">"),
+        Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.END_WHILE, "END_WHILE"),
         Token(TokenType.EOF, ""),
@@ -254,7 +255,7 @@ def test_while_statement_without_parentheses(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         WhileStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode(">"), NumberNode("0")), []
+            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")), []
         )
     ]
     assert ast == expected_ast

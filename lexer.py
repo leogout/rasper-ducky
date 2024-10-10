@@ -7,13 +7,10 @@ class TokenType(Enum):
     VAR = auto()
     DELAY = auto()
     ID = auto()
-    NUMBER = auto()
-    OP = auto()
     ASSIGN = auto()
     SKIP = auto()
     MISMATCH = auto()
     PRINTSTRING = auto()
-    STRING = auto()
     EOF = auto()
     KEYPRESS = auto()
 
@@ -29,6 +26,32 @@ class TokenType(Enum):
     LPAREN = auto()
     RPAREN = auto()
 
+    # OPERATORS
+    OP_SHIFT_LEFT = auto()
+    OP_SHIFT_RIGHT = auto()
+    OP_GREATER_EQUAL = auto()
+    OP_LESS_EQUAL = auto()
+    OP_EQUAL = auto()
+    OP_NOT_EQUAL = auto()
+    OP_GREATER = auto()
+    OP_LESS = auto()
+    OP_OR = auto()
+    OP_BITWISE_AND = auto()
+    OP_BITWISE_OR = auto()
+    OP_PLUS = auto()
+    OP_MINUS = auto()
+    OP_MULTIPLY = auto()
+    OP_DIVIDE = auto()
+    OP_MODULO = auto()
+    OP_POWER = auto()
+    OP_NOT = auto()
+    OP_AND = auto()
+
+    # LITERALS
+    STRING = auto()
+    NUMBER = auto()
+    TRUE = auto()
+    FALSE = auto()
     # REM = auto()
     # CONTINUE = auto()
     # FUNCTION = auto()
@@ -139,7 +162,25 @@ class Lexer:
             (TokenType.NUMBER, r"\d+"),
             (TokenType.LPAREN, r"\("),
             (TokenType.RPAREN, r"\)"),
-            (TokenType.OP, r"<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/"),
+            (TokenType.OP_SHIFT_LEFT, r"<<"),
+            (TokenType.OP_SHIFT_RIGHT, r">>"),
+            (TokenType.OP_GREATER_EQUAL, r">="),
+            (TokenType.OP_LESS_EQUAL, r"<="),
+            (TokenType.OP_EQUAL, r"=="),
+            (TokenType.OP_AND, r"&&"),
+            (TokenType.OP_NOT_EQUAL, r"!="),
+            (TokenType.OP_GREATER, r">"),
+            (TokenType.OP_LESS, r"<"),
+            (TokenType.OP_OR, r"\|\|"),
+            (TokenType.OP_BITWISE_AND, r"&"),
+            (TokenType.OP_BITWISE_OR, r"\|"),
+            (TokenType.OP_PLUS, r"\+"),
+            (TokenType.OP_MINUS, r"\-"),
+            (TokenType.OP_MULTIPLY, r"\*"),
+            (TokenType.OP_DIVIDE, r"/"),
+            (TokenType.OP_MODULO, r"%"),
+            (TokenType.OP_POWER, r"\^"),
+            (TokenType.OP_NOT, r"!"),
             (TokenType.ASSIGN, r"="),
             (TokenType.SKIP, r"[ \t]+"),
             (
