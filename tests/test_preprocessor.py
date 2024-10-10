@@ -1,9 +1,13 @@
 import pytest
-from preprocessor import Preprocessor  # Assurez-vous que c'est le bon chemin d'importation
+from preprocessor import (
+    Preprocessor,
+)  # Assurez-vous que c'est le bon chemin d'importation
+
 
 @pytest.fixture
 def preprocessor():
     return Preprocessor()
+
 
 def test_simple_define(preprocessor):
     code = """
@@ -14,6 +18,7 @@ def test_simple_define(preprocessor):
     VAR $x = 100
     """
     assert preprocessor.process(code).strip() == expected.strip()
+
 
 def test_multiple_defines(preprocessor):
     code = """
@@ -28,6 +33,7 @@ def test_multiple_defines(preprocessor):
     """
     assert preprocessor.process(code).strip() == expected.strip()
 
+
 def test_define_with_expression(preprocessor):
     code = """
     DEFINE DOUBLE_MAX 100 * 2
@@ -37,6 +43,7 @@ def test_define_with_expression(preprocessor):
     VAR $x = 100 * 2
     """
     assert preprocessor.process(code).strip() == expected.strip()
+
 
 def test_define_not_replacing_substrings(preprocessor):
     code = """
@@ -50,6 +57,7 @@ def test_define_not_replacing_substrings(preprocessor):
     """
     assert preprocessor.process(code).strip() == expected.strip()
 
+
 def test_define_case_sensitivity(preprocessor):
     code = """
     DEFINE max 100
@@ -61,6 +69,7 @@ def test_define_case_sensitivity(preprocessor):
     VAR $y = MAX
     """
     assert preprocessor.process(code).strip() == expected.strip()
+
 
 def test_multiple_uses_of_define(preprocessor):
     code = """
@@ -76,6 +85,7 @@ def test_multiple_uses_of_define(preprocessor):
     """
     assert preprocessor.process(code).strip() == expected.strip()
 
+
 def test_define_order(preprocessor):
     code = """
     VAR $x = VALUE
@@ -87,6 +97,7 @@ def test_define_order(preprocessor):
     VAR $y = 100
     """
     assert preprocessor.process(code).strip() == expected.strip()
+
 
 def test_redefine(preprocessor):
     code = """

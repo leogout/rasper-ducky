@@ -1,5 +1,16 @@
 import operator as op
-from parser import VarDeclarationNode, ExpressionNode, NumberNode, VarNode, PrintStringNode, OperatorNode, IfStatementNode, WhileStatementNode, ASTNode
+from parser import (
+    VarDeclarationNode,
+    ExpressionNode,
+    NumberNode,
+    VarNode,
+    PrintStringNode,
+    OperatorNode,
+    IfStatementNode,
+    WhileStatementNode,
+    ASTNode,
+)
+
 
 class Interpreter:
     def __init__(self):
@@ -40,7 +51,7 @@ class Interpreter:
                 self._execute_block(else_if.then_block)
                 return
         self._execute_block(node.else_block)
-    
+
     def _execute_block(self, block: list[ASTNode]):
         for statement in block:
             self._execute(statement)
@@ -66,7 +77,9 @@ class Interpreter:
             except KeyError:
                 raise RuntimeError(f"Variable non définie : {node.name}")
         else:
-            raise RuntimeError(f"Type de noeud inconnu pour l'évaluation : {type(node)}")
+            raise RuntimeError(
+                f"Type de noeud inconnu pour l'évaluation : {type(node)}"
+            )
 
     def _evaluate_expression(self, node: ExpressionNode):
         left = self._evaluate(node.left)
@@ -75,22 +88,22 @@ class Interpreter:
 
     def _apply_operator(self, operator: OperatorNode, left, right):
         operators = {
-            '+': op.add,
-            '-': op.sub,
-            '*': op.mul,
-            '/': op.truediv,
-            '<': op.lt,
-            '>': op.gt,
-            '<=': op.le,
-            '>=': op.ge,
-            '==': op.eq,
-            '!=': op.ne,
-            '&&': lambda l, r: l and r,
-            '||': lambda l, r: l or r,
-            '&': op.and_,
-            '|': op.or_,
-            '<<': op.lshift,
-            '>>': op.rshift
+            "+": op.add,
+            "-": op.sub,
+            "*": op.mul,
+            "/": op.truediv,
+            "<": op.lt,
+            ">": op.gt,
+            "<=": op.le,
+            ">=": op.ge,
+            "==": op.eq,
+            "!=": op.ne,
+            "&&": lambda l, r: l and r,
+            "||": lambda l, r: l or r,
+            "&": op.and_,
+            "|": op.or_,
+            "<<": op.lshift,
+            ">>": op.rshift,
         }
 
         if operator.value in operators:
