@@ -1,6 +1,6 @@
 import pytest
 from interpreter import Interpreter
-from parser import VarDeclarationNode, ExpressionNode, NumberNode, VarNode, PrintStringNode, StringNode, OperatorNode, IfStatementNode
+from parser import VarDeclarationNode, ExpressionNode, NumberNode, VarNode, PrintStringNode, StringNode, OperatorNode, IfStatementNode, WhileStatementNode
 
 
 @pytest.fixture
@@ -206,3 +206,17 @@ def test_equality_and_inequality(interpreter):
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == True
     assert interpreter.variables["$y"] == True
+
+def test_while_statement(interpreter):
+    ast = [
+        VarDeclarationNode("$x", NumberNode(0)),
+        WhileStatementNode(
+            ExpressionNode(VarNode("$x"), OperatorNode('<'), NumberNode(5)),
+            [
+                VarDeclarationNode("$x", ExpressionNode(VarNode("$x"), OperatorNode('+'), NumberNode(1)))
+            ]
+        )
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 5
+

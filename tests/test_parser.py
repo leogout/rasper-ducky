@@ -1,5 +1,5 @@
 import pytest
-from parser import Parser, VarDeclarationNode, VarNode, NumberNode, ExpressionNode, OperatorNode, IfStatementNode, PrintStringNode, StringNode
+from parser import Parser, VarDeclarationNode, VarNode, NumberNode, ExpressionNode, OperatorNode, IfStatementNode, PrintStringNode, StringNode, WhileStatementNode
 from lexer import Token, TokenType
 
 @pytest.fixture
@@ -124,5 +124,117 @@ def test_print_string(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         PrintStringNode(StringNode('Hello, World!'))
+    ]
+    assert ast == expected_ast
+
+def test_while_statement(parser):
+    tokens = [
+        Token(TokenType.WHILE, 'WHILE'),
+        Token(TokenType.LPAREN, '('),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '>'),
+        Token(TokenType.NUMBER, '0'),
+        Token(TokenType.RPAREN, ')'),
+        Token(TokenType.PRINTSTRING, 'STRING'),
+        Token(TokenType.STRING, 'Hello, World!'),
+        Token(TokenType.END_WHILE, 'END_WHILE'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        WhileStatementNode(
+            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
+            [PrintStringNode(StringNode('Hello, World!'))]
+        )
+    ]
+    assert ast == expected_ast
+
+def test_parentheses_priority_in_expression(parser):
+    tokens = [
+        Token(TokenType.VAR, 'VAR'),
+        Token(TokenType.ID, '$y'),
+        Token(TokenType.ASSIGN, '='),
+        Token(TokenType.NUMBER, '3'),
+        Token(TokenType.OP, '*'),
+        Token(TokenType.LPAREN, '('),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '+'),
+        Token(TokenType.NUMBER, '2'),
+        Token(TokenType.RPAREN, ')'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        VarDeclarationNode("$y", ExpressionNode(NumberNode('3'), OperatorNode('*'), ExpressionNode(VarNode("$x"), OperatorNode('+'), NumberNode('2'))))
+    ]
+    assert ast == expected_ast
+
+def test_parentheses_in_simple_expression(parser):
+    tokens = [
+        Token(TokenType.VAR, 'VAR'),
+        Token(TokenType.ID, '$y'),
+        Token(TokenType.ASSIGN, '='),
+        Token(TokenType.LPAREN, '('),
+        Token(TokenType.NUMBER, '1'),
+        Token(TokenType.RPAREN, ')'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        VarDeclarationNode("$y", NumberNode('1'))
+    ]
+    assert ast == expected_ast
+
+def test_parentheses_in_while_statement(parser):
+    tokens = [
+        Token(TokenType.WHILE, 'WHILE'),
+        Token(TokenType.LPAREN, '('),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '>'),
+        Token(TokenType.NUMBER, '0'),
+        Token(TokenType.RPAREN, ')'),
+        Token(TokenType.END_WHILE, 'END_WHILE'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        WhileStatementNode(
+            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
+            []
+        )
+    ]
+    assert ast == expected_ast
+
+def test_while_statement_with_number(parser):
+    tokens = [
+        Token(TokenType.WHILE, 'WHILE'),
+        Token(TokenType.NUMBER, '10'),
+        Token(TokenType.END_WHILE, 'END_WHILE'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        WhileStatementNode(
+            NumberNode('10'),
+            []
+        )
+    ]
+    assert ast == expected_ast
+
+def test_while_statement_without_parentheses(parser):
+    tokens = [
+        Token(TokenType.WHILE, 'WHILE'),
+        Token(TokenType.ID, '$x'),
+        Token(TokenType.OP, '>'),
+        Token(TokenType.NUMBER, '0'),
+        Token(TokenType.END_WHILE, 'END_WHILE'),
+        Token(TokenType.EOF, '')
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        WhileStatementNode(
+            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
+            []
+        )
     ]
     assert ast == expected_ast

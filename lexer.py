@@ -15,7 +15,6 @@ class TokenType(Enum):
     STRING = auto()
     EOF = auto()
     KEYPRESS = auto()
-    # for later
 
     IF = auto()
     THEN = auto()
@@ -23,14 +22,19 @@ class TokenType(Enum):
     ELSE = auto()
     ELSE_IF = auto()
 
-    # WHILE = auto()
-    # END_WHILE = auto()
-    # LBREAK = auto()
+    WHILE = auto()
+    END_WHILE = auto()
+
+    LPAREN = auto()
+    RPAREN = auto()
+    
+    # REM = auto()
     # CONTINUE = auto()
     # FUNCTION = auto()
     # END_FUNCTION = auto()
-    # LPAREN = auto()
-    # RPAREN = auto()
+
+    # Not in duckyscript 3.0 but why not implement it later
+    # BREAK = auto()
 
 
 @dataclass
@@ -63,8 +67,12 @@ class Lexer:
             (TokenType.ELSE_IF,       r'^\bELSE\s+IF\b'),
             (TokenType.ELSE,          r'^\bELSE\b'),
             (TokenType.PRINTSTRING,   r'^\bSTRING\b\s.*'),
+            (TokenType.WHILE,         r'^\bWHILE\b'),
+            (TokenType.END_WHILE,     r'^\bEND_WHILE\b'),
             (TokenType.ID,            r'\$[a-zA-Z0-9_]+'),
             (TokenType.NUMBER,        r'\d+'),
+            (TokenType.LPAREN,        r'\('),
+            (TokenType.RPAREN,        r'\)'),
             (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),
             (TokenType.ASSIGN,        r'='),
             (TokenType.SKIP,          r'[ \t]+'),

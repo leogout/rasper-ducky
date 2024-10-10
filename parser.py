@@ -50,6 +50,14 @@ class IfStatementNode(ASTNode):
     else_block: list[ASTNode] = field(default_factory=list)
     __repr__ = lambda self: f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
+
+@dataclass
+class WhileStatementNode(ASTNode):
+    condition: ExpressionNode
+    body: list[ASTNode]
+    __repr__ = lambda self: f"WHILE({self.condition}, {self.body})"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -68,6 +76,8 @@ class Parser:
             return self.print_string()
         elif self.match(TokenType.IF):
             return self.if_statement()
+        elif self.match(TokenType.WHILE):
+            return self.while_statement()
         else:
             raise SyntaxError(f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}")
 
@@ -100,9 +110,19 @@ class Parser:
 
         return IfStatementNode(condition, then_block, else_if_blocks, else_block)
 
+    def while_statement(self) -> WhileStatementNode:
+        condition = self.expression()
+        body = self.block()
+        self.consume(TokenType.END_WHILE, "Attendu 'END_WHILE'")
+        return WhileStatementNode(condition, body)
+
     def block(self) -> list[ASTNode]:
         statements = []
-        while not self.check(TokenType.END_IF) and not self.check(TokenType.ELSE_IF) and not self.check(TokenType.ELSE) and not self.is_at_end():
+        while (not self.check(TokenType.END_IF) and 
+               not self.check(TokenType.ELSE_IF) and 
+               not self.check(TokenType.ELSE) and 
+               not self.check(TokenType.END_WHILE) and 
+               not self.is_at_end()):
             statements.append(self.statement())
         return statements
 
@@ -115,6 +135,10 @@ class Parser:
         return left
 
     def term(self) -> ASTNode:
+        if self.match(TokenType.LPAREN):
+            expr = self.expression()
+            self.consume(TokenType.RPAREN, "Attendu ')' après l'expression")
+            return expr
         if self.match(TokenType.ID):
             return VarNode(self.previous().value)
         elif self.match(TokenType.NUMBER):
@@ -153,31 +177,3 @@ class Parser:
             return self.advance()
         raise SyntaxError(message, self.peek().line, self.peek().column)
 
-
-if __name__ == "__main__":
-
-    tokens = [
-        Token(TokenType.IF, 'IF', 1, 0),
-        Token(TokenType.ID, '$x', 1, 3),
-        Token(TokenType.OP, '>', 1, 6),
-        Token(TokenType.NUMBER, '0', 1, 8),
-        Token(TokenType.THEN, 'THEN', 1, 10),
-        Token(TokenType.VAR, 'VAR', 2, 0),
-        Token(TokenType.ID, '$y', 2, 4),
-        Token(TokenType.ASSIGN, '=', 2, 7),
-        Token(TokenType.NUMBER, '1', 2, 9),
-        Token(TokenType.ELSE, 'ELSE', 3, 0),
-        Token(TokenType.PRINTSTRING, 'STRING', 4, 0),
-        Token(TokenType.STRING, 'Hey there!', 4, 8),
-        Token(TokenType.END_IF, 'END_IF', 5, 0),
-        Token(TokenType.EOF, '', 5, 7)
-    ]
-    parser = Parser(tokens)
-    ast = parser.parse()
-    expected_ast = [
-        IfStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
-            [VarDeclarationNode("$y", NumberNode('1'))],
-            [PrintStringNode(StringNode('Hey there!'))]
-        )
-    ]
