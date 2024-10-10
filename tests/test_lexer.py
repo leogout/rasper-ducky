@@ -18,7 +18,7 @@ def test_eof_token_empty_code(lexer):
 def test_eof_token_one_line_code(lexer):
     code = "VAR $x = 8"
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, '', 2, 0)
+    assert tokens[-1] == Token(TokenType.EOF, '', 1, 10)
 
 
 def test_eof_token_multiple_lines_code(lexer):
@@ -27,7 +27,7 @@ def test_eof_token_multiple_lines_code(lexer):
     VAR $y = $x * 2 + 5
     """
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, '', 5, 0)
+    assert tokens[-1] == Token(TokenType.EOF, '', 4, 4)
 
 
 def test_eof_token_with_empty_lines(lexer):
@@ -44,7 +44,7 @@ def test_var_declaration(lexer):
         Token(TokenType.ID, '$x', 1, 4),
         Token(TokenType.ASSIGN, '=', 1, 7),
         Token(TokenType.NUMBER, '8', 1, 9),
-        Token(TokenType.EOF, '', 2, 0)
+        Token(TokenType.EOF, '', 1, 10)
     ]
 
     assert tokens == expected_tokens
@@ -61,7 +61,7 @@ def test_expression(lexer):
         Token(TokenType.NUMBER, '2', 1, 14),
         Token(TokenType.OP, '+', 1, 16),
         Token(TokenType.NUMBER, '5', 1, 18),
-        Token(TokenType.EOF, '', 2, 0)
+        Token(TokenType.EOF, '', 1, 19)
     ]
     assert tokens == expected_tokens
 
@@ -71,7 +71,7 @@ def test_string_statement(lexer):
     expected_tokens = [
         Token(TokenType.PRINTSTRING, 'STRING', 1, 0),
         Token(TokenType.STRING, 'Hello, World!', 1, 8),
-        Token(TokenType.EOF, '', 2, 0)
+        Token(TokenType.EOF, '', 1, 20)
     ]
     assert tokens == expected_tokens
 
@@ -84,7 +84,7 @@ def test_all_keypress_commands(lexer):
     for i, command in enumerate(Lexer.COMMANDS):
         expected_tokens.append(Token(TokenType.KEYPRESS, command, i + 1, 0))
     
-    expected_tokens.append(Token(TokenType.EOF, '', len(Lexer.COMMANDS) + 1, 0))
+    expected_tokens.append(Token(TokenType.EOF, '', len(Lexer.COMMANDS), len(Lexer.COMMANDS[-1])))
 
     assert tokens == expected_tokens
 
@@ -168,7 +168,7 @@ DELAY 10"""
         Token(TokenType.NUMBER, '9', 3, 47),
         Token(TokenType.DELAY, 'DELAY', 4, 0),
         Token(TokenType.NUMBER, '10', 4, 6),
-        Token(TokenType.EOF, '', 5, 0)
+        Token(TokenType.EOF, '', 4, 8)
     ]
     assert tokens == expected_tokens
 
