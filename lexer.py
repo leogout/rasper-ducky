@@ -40,7 +40,6 @@ class Token:
     line: int = 0
     column: int = 0
 
-
 class Lexer:
     # WARNING: the order of the commands is important
     COMMANDS = [
@@ -90,6 +89,5 @@ class Lexer:
                 elif kind == TokenType.KEYPRESS:
                     yield Token(kind, value.strip(), line_num, column)
                 elif kind != TokenType.SKIP:
-                    yield Token(kind, value, line_num, column)
-                
+                    yield Token(kind, value, line_num, column)         
         yield Token(TokenType.EOF, '', len(lines), len(line))
