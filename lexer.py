@@ -15,7 +15,6 @@ class TokenType(Enum):
     STRING = auto()
     EOF = auto()
     KEYPRESS = auto()
-    # for later
 
     IF = auto()
     THEN = auto()
@@ -23,9 +22,10 @@ class TokenType(Enum):
     ELSE = auto()
     ELSE_IF = auto()
 
-    # WHILE = auto()
-    # END_WHILE = auto()
-    # LBREAK = auto()
+    WHILE = auto()
+    END_WHILE = auto()
+    
+    # REM = auto()
     # CONTINUE = auto()
     # FUNCTION = auto()
     # END_FUNCTION = auto()
@@ -64,6 +64,8 @@ class Lexer:
             (TokenType.ELSE_IF,       r'^\bELSE\s+IF\b'),
             (TokenType.ELSE,          r'^\bELSE\b'),
             (TokenType.PRINTSTRING,   r'^\bSTRING\b\s.*'),
+            (TokenType.WHILE,         r'^\bWHILE\b'),
+            (TokenType.END_WHILE,     r'^\bEND_WHILE\b'),
             (TokenType.ID,            r'\$[a-zA-Z0-9_]+'),
             (TokenType.NUMBER,        r'\d+'),
             (TokenType.OP,            r'<<|>>|>=|<=|==|!=|>|<|&&|\|\||&|\||\+|\-|\*|/'),

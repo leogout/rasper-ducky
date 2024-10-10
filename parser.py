@@ -153,31 +153,3 @@ class Parser:
             return self.advance()
         raise SyntaxError(message, self.peek().line, self.peek().column)
 
-
-if __name__ == "__main__":
-
-    tokens = [
-        Token(TokenType.IF, 'IF', 1, 0),
-        Token(TokenType.ID, '$x', 1, 3),
-        Token(TokenType.OP, '>', 1, 6),
-        Token(TokenType.NUMBER, '0', 1, 8),
-        Token(TokenType.THEN, 'THEN', 1, 10),
-        Token(TokenType.VAR, 'VAR', 2, 0),
-        Token(TokenType.ID, '$y', 2, 4),
-        Token(TokenType.ASSIGN, '=', 2, 7),
-        Token(TokenType.NUMBER, '1', 2, 9),
-        Token(TokenType.ELSE, 'ELSE', 3, 0),
-        Token(TokenType.PRINTSTRING, 'STRING', 4, 0),
-        Token(TokenType.STRING, 'Hey there!', 4, 8),
-        Token(TokenType.END_IF, 'END_IF', 5, 0),
-        Token(TokenType.EOF, '', 5, 7)
-    ]
-    parser = Parser(tokens)
-    ast = parser.parse()
-    expected_ast = [
-        IfStatementNode(
-            ExpressionNode(VarNode("$x"), OperatorNode('>'), NumberNode('0')),
-            [VarDeclarationNode("$y", NumberNode('1'))],
-            [PrintStringNode(StringNode('Hey there!'))]
-        )
-    ]
