@@ -1,61 +1,88 @@
 from dataclasses import dataclass, field
 from lexer import TokenType, Token
 
+
 class ASTNode:
     pass
+
 
 @dataclass
 class VarNode(ASTNode):
     name: str
-    __repr__ = lambda self: f"VAR({self.name})"
+
+    def __repr__(self):
+        return f"VAR({self.name})"
+
 
 @dataclass
 class VarDeclarationNode(ASTNode):
     name: str
     value: ASTNode
-    __repr__ = lambda self: f"VAR_DECL({self.name}, {self.value})"
+
+    def __repr__(self):
+        return f"VAR_DECL({self.name}, {self.value})"
+
 
 @dataclass
 class StringNode(ASTNode):
     value: str
-    __repr__ = lambda self: f"STR({self.value})"
+
+    def __repr__(self):
+        return f"STR({self.value})"
+
 
 @dataclass
 class PrintStringNode(ASTNode):
     value: StringNode
-    __repr__ = lambda self: f"PRINT_STR({self.value})"
+
+    def __repr__(self):
+        return f"PRINT_STR({self.value})"
+
 
 @dataclass
 class NumberNode(ASTNode):
-    value: int
-    __repr__ = lambda self: f"NUM({self.value})"
+    value: str
+
+    def __repr__(self):
+        return f"NUM({self.value})"
+
 
 @dataclass
 class OperatorNode(ASTNode):
     value: str
-    __repr__ = lambda self: f"OP({self.value})"
+
+    def __repr__(self):
+        return f"OP({self.value})"
+
 
 @dataclass
 class ExpressionNode(ASTNode):
     left: ASTNode
     operator: OperatorNode
     right: ASTNode
-    __repr__ = lambda self: f"EXPR({self.left}, {self.operator}, {self.right})"
+
+    def __repr__(self):
+        return f"EXPR({self.left}, {self.operator}, {self.right})"
+
 
 @dataclass
 class IfStatementNode(ASTNode):
-    condition: ExpressionNode
+    condition: ASTNode
     then_block: list[ASTNode]
-    else_if_blocks: list['IfStatementNode'] = field(default_factory=list)
+    else_if_blocks: list["IfStatementNode"] = field(default_factory=list)
     else_block: list[ASTNode] = field(default_factory=list)
-    __repr__ = lambda self: f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
+
+    def __repr__(self):
+        return f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
 
 @dataclass
 class WhileStatementNode(ASTNode):
-    condition: ExpressionNode
+    condition: ASTNode
     body: list[ASTNode]
-    __repr__ = lambda self: f"WHILE({self.condition}, {self.body})"
+
+    def __repr__(self):
+        return f"WHILE({self.condition}, {self.body})"
 
 
 class Parser:
@@ -79,7 +106,9 @@ class Parser:
         elif self.match(TokenType.WHILE):
             return self.while_statement()
         else:
-            raise SyntaxError(f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}")
+            raise SyntaxError(
+                f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek().value}"
+            )
 
     def var_declaration(self) -> VarDeclarationNode:
         name = self.consume(TokenType.ID, "Attendu un identifiant après VAR")
@@ -118,15 +147,17 @@ class Parser:
 
     def block(self) -> list[ASTNode]:
         statements = []
-        while (not self.check(TokenType.END_IF) and 
-               not self.check(TokenType.ELSE_IF) and 
-               not self.check(TokenType.ELSE) and 
-               not self.check(TokenType.END_WHILE) and 
-               not self.is_at_end()):
+        while (
+            not self.check(TokenType.END_IF)
+            and not self.check(TokenType.ELSE_IF)
+            and not self.check(TokenType.ELSE)
+            and not self.check(TokenType.END_WHILE)
+            and not self.is_at_end()
+        ):
             statements.append(self.statement())
         return statements
 
-    def expression(self) -> ExpressionNode:
+    def expression(self) -> ASTNode:
         left = self.term()
         while self.match(TokenType.OP):
             operator = OperatorNode(self.previous().value)
@@ -143,7 +174,7 @@ class Parser:
             return VarNode(self.previous().value)
         elif self.match(TokenType.NUMBER):
             return NumberNode(self.previous().value)
-        
+
         raise SyntaxError("Expression attendue")
 
     def match(self, *types) -> bool:
@@ -176,4 +207,3 @@ class Parser:
         if self.check(type):
             return self.advance()
         raise SyntaxError(message, self.peek().line, self.peek().column)
-
