@@ -16,6 +16,25 @@ from parser import (
 
 
 class Interpreter:
+    OPERATORS = operators = {
+        TokenType.OP_PLUS: op.add,
+        TokenType.OP_MINUS: op.sub,
+        TokenType.OP_MULTIPLY: op.mul,
+        TokenType.OP_DIVIDE: op.truediv,
+        TokenType.OP_LESS: op.lt,
+        TokenType.OP_GREATER: op.gt,
+        TokenType.OP_LESS_EQUAL: op.le,
+        TokenType.OP_GREATER_EQUAL: op.ge,
+        TokenType.OP_EQUAL: op.eq,
+        TokenType.OP_NOT_EQUAL: op.ne,
+        TokenType.OP_AND: lambda l, r: l and r,
+        TokenType.OP_OR: lambda l, r: l or r,
+        TokenType.OP_BITWISE_AND: op.and_,
+        TokenType.OP_BITWISE_OR: op.or_,
+        TokenType.OP_SHIFT_LEFT: op.lshift,
+        TokenType.OP_SHIFT_RIGHT: op.rshift,
+    }
+
     def __init__(self):
         self.variables = {}
         self.execution_stack = []
@@ -90,27 +109,9 @@ class Interpreter:
         return self._apply_operator(node.operator, left, right)
 
     def _apply_operator(self, operator: Token, left, right):
-        operators = {
-            TokenType.OP_PLUS: op.add,
-            TokenType.OP_MINUS: op.sub,
-            TokenType.OP_MULTIPLY: op.mul,
-            TokenType.OP_DIVIDE: op.truediv,
-            TokenType.OP_LESS: op.lt,
-            TokenType.OP_GREATER: op.gt,
-            TokenType.OP_LESS_EQUAL: op.le,
-            TokenType.OP_GREATER_EQUAL: op.ge,
-            TokenType.OP_EQUAL: op.eq,
-            TokenType.OP_NOT_EQUAL: op.ne,
-            TokenType.OP_AND: lambda l, r: l and r,
-            TokenType.OP_OR: lambda l, r: l or r,
-            TokenType.OP_BITWISE_AND: op.and_,
-            TokenType.OP_BITWISE_OR: op.or_,
-            TokenType.OP_SHIFT_LEFT: op.lshift,
-            TokenType.OP_SHIFT_RIGHT: op.rshift,
-        }
 
-        if operator.type in operators:
-            return operators[operator.type](left, right)
+        if operator.type in self.OPERATORS:
+            return self.OPERATORS[operator.type](left, right)
         elif operator.value == "=":
             return right
         else:
