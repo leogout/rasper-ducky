@@ -1,10 +1,5 @@
 import pytest
-from lexer import (
-    Lexer,
-    TokenType,
-    Token,
-)  # Assurez-vous que ces imports correspondent à votre structure de projet
-
+from lexer import *
 
 @pytest.fixture
 def lexer():
@@ -77,6 +72,17 @@ def test_string_statement(lexer):
         Token(TokenType.PRINTSTRING, "STRING", 1, 0),
         Token(TokenType.STRING, "Hello, World!", 1, 8),
         Token(TokenType.EOF, "", 1, 20),
+    ]
+    assert tokens == expected_tokens
+
+
+def test_stringln_statement(lexer):
+    code = "STRINGLN Hello, World!"
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(TokenType.PRINTSTRINGLN, "STRINGLN", 1, 0),
+        Token(TokenType.STRING, "Hello, World!", 1, 10),
+        Token(TokenType.EOF, "", 1, 22),
     ]
     assert tokens == expected_tokens
 

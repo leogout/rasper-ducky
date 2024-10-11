@@ -11,6 +11,7 @@ class TokenType(Enum):
     SKIP = auto()
     MISMATCH = auto()
     PRINTSTRING = auto()
+    PRINTSTRINGLN = auto()
     EOF = auto()
     KEYPRESS = auto()
 
@@ -155,6 +156,7 @@ class Lexer:
             (TokenType.END_IF, r"^\bEND_IF\b"),
             (TokenType.ELSE_IF, r"^\bELSE\s+IF\b"),
             (TokenType.ELSE, r"^\bELSE\b"),
+            (TokenType.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
             (TokenType.PRINTSTRING, r"^\bSTRING\b\s.*"),
             (TokenType.WHILE, r"^\bWHILE\b"),
             (TokenType.END_WHILE, r"^\bEND_WHILE\b"),
@@ -208,6 +210,9 @@ class Lexer:
                 if kind == TokenType.PRINTSTRING:
                     yield Token(kind, "STRING", line_num, column)
                     yield Token(TokenType.STRING, value[7:], line_num, column + 8)
+                elif kind == TokenType.PRINTSTRINGLN:
+                    yield Token(kind, "STRINGLN", line_num, column)
+                    yield Token(TokenType.STRING, value[9:], line_num, column + 10)
                 elif kind == TokenType.KEYPRESS:
                     yield Token(kind, value.strip(), line_num, column)
                 elif kind != TokenType.SKIP:

@@ -12,6 +12,7 @@ from parser import (
     ASTNode,
     Token,
     TokenType,
+    PrintStringLnNode,
 )
 
 
@@ -52,6 +53,8 @@ class Interpreter:
             self._execute_while_statement(node)
         elif isinstance(node, PrintStringNode):
             self._execute_print_string(node)
+        elif isinstance(node, PrintStringLnNode):
+            self._execute_print_stringln(node)
         elif isinstance(node, Binary):
             self._execute_expression(node)
         else:
@@ -83,6 +86,9 @@ class Interpreter:
             self._execute_block(node.body)
 
     def _execute_print_string(self, node: PrintStringNode):
+        self.execution_stack.append(node.value.value)
+
+    def _execute_print_stringln(self, node: PrintStringLnNode):
         self.execution_stack.append(node.value.value)
 
     def _execute_expression(self, node: Binary):
