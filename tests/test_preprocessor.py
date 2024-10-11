@@ -1,7 +1,5 @@
 import pytest
-from preprocessor import (
-    Preprocessor,
-)  # Assurez-vous que c'est le bon chemin d'importation
+from preprocessor import *
 
 
 @pytest.fixture

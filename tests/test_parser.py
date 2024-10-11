@@ -1,17 +1,6 @@
 import pytest
-from parser import (
-    Parser,
-    VarDeclarationNode,
-    VarNode,
-    Binary,
-    Unary,
-    Literal,
-    Grouping,
-    IfStatementNode,
-    PrintStringNode,
-    WhileStatementNode,
-)
-from lexer import Token, TokenType
+from parser import *
+from lexer import *
 
 
 @pytest.fixture
