@@ -59,6 +59,14 @@ class Grouping(ASTNode):
 
 
 @dataclass
+class DelayNode(ASTNode):
+    value: Literal
+
+    def __repr__(self):
+        return f"DELAY({self.value})"
+
+
+@dataclass
 class PrintStringNode(ASTNode):
     value: Literal
 
@@ -112,6 +120,8 @@ class Parser:
             return self.print_string()
         elif self.match(TokenType.PRINTSTRINGLN):
             return self.print_stringln()
+        elif self.match(TokenType.DELAY):
+            return self.delay()
         elif self.match(TokenType.IF):
             return self.if_statement()
         elif self.match(TokenType.WHILE):
@@ -133,6 +143,10 @@ class Parser:
     def print_stringln(self) -> PrintStringLnNode:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRINGLN")
         return PrintStringLnNode(Literal(value.value))
+
+    def delay(self) -> DelayNode:
+        value = self.consume(TokenType.NUMBER, "Attendu un nombre après DELAY")
+        return DelayNode(Literal(value.value))
 
     def if_statement(self) -> IfStatementNode:
         condition = self.expression()

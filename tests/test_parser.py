@@ -288,3 +288,14 @@ def test_literals(parser):
         Literal("Hello, World!"),
     ]
     assert ast == expected_ast
+
+
+def test_delay_statement(parser):
+    tokens = [
+        Token(TokenType.DELAY, "DELAY"),
+        Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOF, ""),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [DelayNode(Literal("10"))]
+    assert ast == expected_ast
