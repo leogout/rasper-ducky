@@ -268,3 +268,10 @@ def test_while_statement(interpreter):
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == 5
     assert interpreter.execution_stack == ["Hello, World!"] * 5
+
+
+def test_literals(interpreter):
+    ast = [Literal(False), Literal(True), Literal("10"), Literal("Hello, World!")]
+    interpreter.interpret(ast)
+    assert interpreter.variables == {}
+    assert interpreter.execution_stack == []

@@ -57,6 +57,8 @@ class Interpreter:
             self._execute_print_stringln(node)
         elif isinstance(node, Binary):
             self._execute_expression(node)
+        elif isinstance(node, Literal):
+            pass  # A literal is a value, nothing to execute
         else:
             raise RuntimeError(f"Type de noeud inconnu : {type(node)}")
 

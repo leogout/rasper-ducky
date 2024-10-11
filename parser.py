@@ -118,10 +118,7 @@ class Parser:
             return self.while_statement()
         elif self.match(TokenType.ID):
             return self.assignment()
-        else:
-            raise SyntaxError(
-                f"Instruction inattendue à la ligne {self.peek().line}, colonne {self.peek().column}, token: {self.peek()}"
-            )
+        return self.expression()
 
     def var_declaration(self) -> VarDeclarationNode:
         name = self.consume(TokenType.ID, "Attendu un identifiant après VAR")

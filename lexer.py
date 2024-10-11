@@ -158,6 +158,8 @@ class Lexer:
             (TokenType.ELSE, r"^\bELSE\b"),
             (TokenType.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
             (TokenType.PRINTSTRING, r"^\bSTRING\b\s.*"),
+            (TokenType.TRUE, r"\bTRUE\b"),
+            (TokenType.FALSE, r"\bFALSE\b"),
             (TokenType.WHILE, r"^\bWHILE\b"),
             (TokenType.END_WHILE, r"^\bEND_WHILE\b"),
             (TokenType.ID, r"\$[a-zA-Z0-9_]+"),

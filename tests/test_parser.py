@@ -270,3 +270,21 @@ def test_while_statement_without_parentheses(parser):
         )
     ]
     assert ast == expected_ast
+
+
+def test_literals(parser):
+    tokens = [
+        Token(TokenType.FALSE, "FALSE"),
+        Token(TokenType.TRUE, "TRUE"),
+        Token(TokenType.NUMBER, "10"),
+        Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOF, ""),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        Literal(False),
+        Literal(True),
+        Literal("10"),
+        Literal("Hello, World!"),
+    ]
+    assert ast == expected_ast
