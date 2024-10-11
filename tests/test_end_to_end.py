@@ -67,3 +67,13 @@ def test_priority():
     )
 
     assert interpreter.variables["$x"] == 12
+
+
+def test_print_string():
+    interpreter = execute("STRING Hello, World!")
+    assert interpreter.execution_stack == ["Hello, World!"]
+
+
+def test_print_stringln():
+    interpreter = execute("STRINGLN Hello, World!")
+    assert interpreter.execution_stack == ["Hello, World!"]

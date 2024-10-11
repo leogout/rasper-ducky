@@ -67,6 +67,14 @@ class PrintStringNode(ASTNode):
 
 
 @dataclass
+class PrintStringLnNode(ASTNode):
+    value: Literal
+
+    def __repr__(self):
+        return f"PRINT_STRLN({self.value})"
+
+
+@dataclass
 class IfStatementNode(ASTNode):
     condition: ASTNode
     then_block: list[ASTNode]
@@ -102,6 +110,8 @@ class Parser:
             return self.var_declaration()
         elif self.match(TokenType.PRINTSTRING):
             return self.print_string()
+        elif self.match(TokenType.PRINTSTRINGLN):
+            return self.print_stringln()
         elif self.match(TokenType.IF):
             return self.if_statement()
         elif self.match(TokenType.WHILE):
@@ -122,6 +132,10 @@ class Parser:
     def print_string(self) -> PrintStringNode:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
         return PrintStringNode(Literal(value.value))
+
+    def print_stringln(self) -> PrintStringLnNode:
+        value = self.consume(TokenType.STRING, "Attendu une chaîne après STRINGLN")
+        return PrintStringLnNode(Literal(value.value))
 
     def if_statement(self) -> IfStatementNode:
         condition = self.expression()

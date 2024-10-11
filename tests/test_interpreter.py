@@ -1,17 +1,6 @@
 import pytest
-from interpreter import Interpreter
-from parser import (
-    VarDeclarationNode,
-    Binary,
-    Literal,
-    Literal,
-    VarNode,
-    PrintStringNode,
-    IfStatementNode,
-    WhileStatementNode,
-    Token,
-    TokenType,
-)
+from interpreter import *
+from parser import *
 
 
 @pytest.fixture
@@ -254,6 +243,12 @@ def test_equality_and_inequality(interpreter):
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == True
     assert interpreter.variables["$y"] == True
+
+
+def test_printstringln(interpreter):
+    ast = [PrintStringLnNode(Literal("Hello, World!"))]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == ["Hello, World!"]
 
 
 def test_while_statement(interpreter):

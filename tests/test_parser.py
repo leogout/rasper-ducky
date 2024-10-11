@@ -73,6 +73,28 @@ def test_if_else_statement(parser):
     assert ast == expected_ast
 
 
+def test_string_statement(parser):
+    tokens = [
+        Token(TokenType.PRINTSTRING, "STRING"),
+        Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOF, ""),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [PrintStringNode(Literal("Hello, World!"))]
+    assert ast == expected_ast
+
+
+def test_stringln_statement(parser):
+    tokens = [
+        Token(TokenType.PRINTSTRINGLN, "STRINGLN"),
+        Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOF, ""),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [PrintStringLnNode(Literal("Hello, World!"))]
+    assert ast == expected_ast
+
+
 def test_if_else_if_else_statement(parser):
     tokens = [
         Token(TokenType.IF, "IF"),
