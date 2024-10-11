@@ -1,6 +1,7 @@
 import pytest
 from lexer import *
 
+
 @pytest.fixture
 def lexer():
     return Lexer()

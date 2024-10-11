@@ -244,6 +244,7 @@ def test_equality_and_inequality(interpreter):
     assert interpreter.variables["$x"] == True
     assert interpreter.variables["$y"] == True
 
+
 def test_printstringln(interpreter):
     ast = [PrintStringLnNode(Literal("Hello, World!"))]
     interpreter.interpret(ast)
