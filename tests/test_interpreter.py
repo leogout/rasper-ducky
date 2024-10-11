@@ -275,3 +275,12 @@ def test_literals(interpreter):
     interpreter.interpret(ast)
     assert interpreter.variables == {}
     assert interpreter.execution_stack == []
+
+
+def test_boolean_in_if_statement(interpreter):
+    ast = [
+        IfStatementNode(Literal(True), [PrintStringNode(Literal("A"))], []),
+        IfStatementNode(Literal(False), [], [], [PrintStringNode(Literal("B"))]),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == ["A", "B"]
