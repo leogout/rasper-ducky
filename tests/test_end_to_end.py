@@ -66,4 +66,4 @@ def test_priority():
         """
     )
 
-    assert interpreter.variables["$x"] == 22
+    assert interpreter.variables["$x"] == 12

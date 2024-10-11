@@ -1,18 +1,40 @@
 import operator as op
 from parser import (
     VarDeclarationNode,
-    ExpressionNode,
-    NumberNode,
+    Binary,
+    Unary,
+    Literal,
+    Grouping,
     VarNode,
     PrintStringNode,
-    OperatorNode,
     IfStatementNode,
     WhileStatementNode,
     ASTNode,
+    Token,
+    TokenType,
 )
 
 
 class Interpreter:
+    OPERATORS = operators = {
+        TokenType.OP_PLUS: op.add,
+        TokenType.OP_MINUS: op.sub,
+        TokenType.OP_MULTIPLY: op.mul,
+        TokenType.OP_DIVIDE: op.truediv,
+        TokenType.OP_LESS: op.lt,
+        TokenType.OP_GREATER: op.gt,
+        TokenType.OP_LESS_EQUAL: op.le,
+        TokenType.OP_GREATER_EQUAL: op.ge,
+        TokenType.OP_EQUAL: op.eq,
+        TokenType.OP_NOT_EQUAL: op.ne,
+        TokenType.OP_AND: lambda l, r: l and r,
+        TokenType.OP_OR: lambda l, r: l or r,
+        TokenType.OP_BITWISE_AND: op.and_,
+        TokenType.OP_BITWISE_OR: op.or_,
+        TokenType.OP_SHIFT_LEFT: op.lshift,
+        TokenType.OP_SHIFT_RIGHT: op.rshift,
+    }
+
     def __init__(self):
         self.variables = {}
         self.execution_stack = []
@@ -30,7 +52,7 @@ class Interpreter:
             self._execute_while_statement(node)
         elif isinstance(node, PrintStringNode):
             self._execute_print_string(node)
-        elif isinstance(node, ExpressionNode):
+        elif isinstance(node, Binary):
             self._execute_expression(node)
         else:
             raise RuntimeError(f"Type de noeud inconnu : {type(node)}")
@@ -63,13 +85,13 @@ class Interpreter:
     def _execute_print_string(self, node: PrintStringNode):
         self.execution_stack.append(node.value.value)
 
-    def _execute_expression(self, node: ExpressionNode):
+    def _execute_expression(self, node: Binary):
         self._evaluate(node)
 
     def _evaluate(self, node: ASTNode):
-        if isinstance(node, ExpressionNode):
+        if isinstance(node, Binary):
             return self._evaluate_expression(node)
-        elif isinstance(node, NumberNode):
+        elif isinstance(node, Literal):
             return int(node.value)
         elif isinstance(node, VarNode):
             try:
@@ -81,33 +103,15 @@ class Interpreter:
                 f"Type de noeud inconnu pour l'évaluation : {type(node)}"
             )
 
-    def _evaluate_expression(self, node: ExpressionNode):
+    def _evaluate_expression(self, node: Binary):
         left = self._evaluate(node.left)
         right = self._evaluate(node.right)
         return self._apply_operator(node.operator, left, right)
 
-    def _apply_operator(self, operator: OperatorNode, left, right):
-        operators = {
-            "+": op.add,
-            "-": op.sub,
-            "*": op.mul,
-            "/": op.truediv,
-            "<": op.lt,
-            ">": op.gt,
-            "<=": op.le,
-            ">=": op.ge,
-            "==": op.eq,
-            "!=": op.ne,
-            "&&": lambda l, r: l and r,
-            "||": lambda l, r: l or r,
-            "&": op.and_,
-            "|": op.or_,
-            "<<": op.lshift,
-            ">>": op.rshift,
-        }
+    def _apply_operator(self, operator: Token, left, right):
 
-        if operator.value in operators:
-            return operators[operator.value](left, right)
+        if operator.type in self.OPERATORS:
+            return self.OPERATORS[operator.type](left, right)
         elif operator.value == "=":
             return right
         else:

@@ -24,45 +24,46 @@ class VarDeclarationNode(ASTNode):
 
 
 @dataclass
-class StringNode(ASTNode):
-    value: str
+class Binary(ASTNode):
+    left: ASTNode
+    operator: Token
+    right: ASTNode
 
     def __repr__(self):
-        return f"STR({self.value})"
+        return f"EXPR({self.left}, {self.operator.value}, {self.right})"
+
+
+@dataclass
+class Unary(ASTNode):
+    operator: Token
+    right: ASTNode
+
+    def __repr__(self):
+        return f"EXPR({self.operator.value}, {self.right})"
+
+
+@dataclass
+class Literal(ASTNode):
+    value: bool | int | str
+
+    def __repr__(self):
+        return f"LITERAL({self.value})"
+
+
+@dataclass
+class Grouping(ASTNode):
+    expression: ASTNode
+
+    def __repr__(self):
+        return f"GROUP({self.expression})"
 
 
 @dataclass
 class PrintStringNode(ASTNode):
-    value: StringNode
+    value: Literal
 
     def __repr__(self):
         return f"PRINT_STR({self.value})"
-
-
-@dataclass
-class NumberNode(ASTNode):
-    value: str
-
-    def __repr__(self):
-        return f"NUM({self.value})"
-
-
-@dataclass
-class OperatorNode(ASTNode):
-    value: str
-
-    def __repr__(self):
-        return f"OP({self.value})"
-
-
-@dataclass
-class ExpressionNode(ASTNode):
-    left: ASTNode
-    operator: OperatorNode
-    right: ASTNode
-
-    def __repr__(self):
-        return f"EXPR({self.left}, {self.operator}, {self.right})"
 
 
 @dataclass
@@ -120,7 +121,7 @@ class Parser:
 
     def print_string(self) -> PrintStringNode:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
-        return PrintStringNode(StringNode(value.value))
+        return PrintStringNode(Literal(value.value))
 
     def if_statement(self) -> IfStatementNode:
         condition = self.expression()
@@ -166,24 +167,75 @@ class Parser:
         return statements
 
     def expression(self) -> ASTNode:
-        left = self.term()
-        while self.match(TokenType.OP):
-            operator = OperatorNode(self.previous().value)
-            right = self.term()
-            left = ExpressionNode(left, operator, right)
-        return left
+        return self.equality()
 
-    def term(self) -> ASTNode:
+    def equality(self) -> ASTNode:
+        expr = self.comparison()
+        while self.match(TokenType.OP_EQUAL, TokenType.OP_NOT_EQUAL):
+            operator = self.previous()
+            right = self.comparison()
+            expr = Binary(expr, operator, right)
+        return expr
+
+    def comparison(self):
+        expr = self.term()
+
+        while self.match(
+            TokenType.OP_GREATER,
+            TokenType.OP_LESS,
+            TokenType.OP_GREATER_EQUAL,
+            TokenType.OP_LESS_EQUAL,
+        ):
+            operator = self.previous()
+            right = self.term()
+            expr = Binary(expr, operator, right)
+        return expr
+
+    def term(self):
+        expr = self.factor()
+
+        while self.match(TokenType.OP_PLUS, TokenType.OP_MINUS):
+            operator = self.previous()
+            right = self.factor()
+            expr = Binary(expr, operator, right)
+        return expr
+
+    def factor(self):
+        expr = self.unary()
+
+        while self.match(
+            TokenType.OP_MULTIPLY, TokenType.OP_DIVIDE, TokenType.OP_MODULO
+        ):
+            operator = self.previous()
+            right = self.unary()
+            expr = Binary(expr, operator, right)
+        return expr
+
+    def unary(self):
+        if self.match(TokenType.OP_NOT, TokenType.OP_MINUS):
+            operator = self.previous()
+            right = self.unary()
+            return Binary(operator, right)
+
+        return self.primary()
+
+    def primary(self) -> ASTNode:
+        if self.match(TokenType.FALSE):
+            return Literal(False)
+        if self.match(TokenType.TRUE):
+            return Literal(True)
+        if self.match(TokenType.NUMBER):
+            return Literal(self.previous().value)
+        if self.match(TokenType.STRING):
+            return Literal(self.previous().value)
+        if self.match(TokenType.ID):
+            return VarNode(self.previous().value)
+
         if self.match(TokenType.LPAREN):
             expr = self.expression()
             self.consume(TokenType.RPAREN, "Attendu ')' après l'expression")
-            return expr
-        if self.match(TokenType.ID):
-            return VarNode(self.previous().value)
-        elif self.match(TokenType.NUMBER):
-            return NumberNode(self.previous().value)
 
-        raise SyntaxError("Expression attendue")
+        return expr
 
     def match(self, *types) -> bool:
         for type in types:
