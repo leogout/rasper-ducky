@@ -93,3 +93,9 @@ def test_booleans():
     )
     assert interpreter.variables == {}
     assert interpreter.execution_stack == ["A", "B"]
+
+
+def test_delay_statement(mocker):
+    mock_sleep = mocker.patch("time.sleep")
+    execute("DELAY 10")
+    mock_sleep.assert_called_once_with(10)

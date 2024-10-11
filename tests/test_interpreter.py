@@ -284,3 +284,11 @@ def test_boolean_in_if_statement(interpreter):
     ]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == ["A", "B"]
+
+
+def test_delay_statement(interpreter, mocker):
+    mock_sleep = mocker.patch("time.sleep")
+    ast = [DelayNode(Literal("10"))]
+    interpreter.interpret(ast)
+    mock_sleep.assert_called_once_with(10)
+    assert interpreter.execution_stack == []

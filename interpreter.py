@@ -1,4 +1,5 @@
 import operator as op
+import time
 from parser import (
     VarDeclarationNode,
     Binary,
@@ -13,6 +14,7 @@ from parser import (
     Token,
     TokenType,
     PrintStringLnNode,
+    DelayNode,
 )
 
 
@@ -55,6 +57,8 @@ class Interpreter:
             self._execute_print_string(node)
         elif isinstance(node, PrintStringLnNode):
             self._execute_print_stringln(node)
+        elif isinstance(node, DelayNode):
+            self._execute_delay(node)
         elif isinstance(node, Binary):
             self._execute_expression(node)
         elif isinstance(node, Literal):
@@ -92,6 +96,9 @@ class Interpreter:
 
     def _execute_print_stringln(self, node: PrintStringLnNode):
         self.execution_stack.append(node.value.value)
+
+    def _execute_delay(self, node: DelayNode):
+        time.sleep(int(node.value.value))
 
     def _execute_expression(self, node: Binary):
         self._evaluate(node)
