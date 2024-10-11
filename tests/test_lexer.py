@@ -10,14 +10,14 @@ def lexer():
 def test_eof_token_empty_code(lexer):
     code = ""
     tokens = list(lexer.tokenize(code))
-    expected_tokens = [Token(TokenType.EOF, "", 1, 0)]
+    expected_tokens = [Token(TokenType.EOF, "", 1, 1)]
     assert tokens == expected_tokens
 
 
 def test_eof_token_one_line_code(lexer):
     code = "VAR $x = 8"
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 1, 10)
+    assert tokens[-1] == Token(TokenType.EOF, "", 1, 11)
 
 
 def test_eof_token_multiple_lines_code(lexer):
@@ -26,24 +26,24 @@ def test_eof_token_multiple_lines_code(lexer):
     VAR $y = $x * 2 + 5
     """
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 4, 4)
+    assert tokens[-1] == Token(TokenType.EOF, "", 4, 5)
 
 
 def test_eof_token_with_empty_lines(lexer):
     code = "\n\n\n\n\n\n"
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 7, 0)
+    assert tokens[-1] == Token(TokenType.EOF, "", 7, 1)
 
 
 def test_var_declaration(lexer):
     code = "VAR $x = 8"
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.VAR, "VAR", 1, 0),
-        Token(TokenType.ID, "$x", 1, 4),
-        Token(TokenType.ASSIGN, "=", 1, 7),
-        Token(TokenType.NUMBER, "8", 1, 9),
-        Token(TokenType.EOF, "", 1, 10),
+        Token(TokenType.VAR, "VAR", 1, 1),
+        Token(TokenType.ID, "$x", 1, 5),
+        Token(TokenType.ASSIGN, "=", 1, 8),
+        Token(TokenType.NUMBER, "8", 1, 10),
+        Token(TokenType.EOF, "", 1, 11),
     ]
 
     assert tokens == expected_tokens
@@ -53,15 +53,15 @@ def test_expression(lexer):
     code = "VAR $y = $x * 2 + 5"
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.VAR, "VAR", 1, 0),
-        Token(TokenType.ID, "$y", 1, 4),
-        Token(TokenType.ASSIGN, "=", 1, 7),
-        Token(TokenType.ID, "$x", 1, 9),
-        Token(TokenType.OP_MULTIPLY, "*", 1, 12),
-        Token(TokenType.NUMBER, "2", 1, 14),
-        Token(TokenType.OP_PLUS, "+", 1, 16),
-        Token(TokenType.NUMBER, "5", 1, 18),
-        Token(TokenType.EOF, "", 1, 19),
+        Token(TokenType.VAR, "VAR", 1, 1),
+        Token(TokenType.ID, "$y", 1, 5),
+        Token(TokenType.ASSIGN, "=", 1, 8),
+        Token(TokenType.ID, "$x", 1, 10),
+        Token(TokenType.OP_MULTIPLY, "*", 1, 13),
+        Token(TokenType.NUMBER, "2", 1, 15),
+        Token(TokenType.OP_PLUS, "+", 1, 17),
+        Token(TokenType.NUMBER, "5", 1, 19),
+        Token(TokenType.EOF, "", 1, 20),
     ]
     assert tokens == expected_tokens
 
@@ -70,9 +70,9 @@ def test_string_statement(lexer):
     code = "STRING Hello, World!"
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.PRINTSTRING, "STRING", 1, 0),
-        Token(TokenType.STRING, "Hello, World!", 1, 8),
-        Token(TokenType.EOF, "", 1, 20),
+        Token(TokenType.PRINTSTRING, "STRING", 1, 1),
+        Token(TokenType.STRING, "Hello, World!", 1, 9),
+        Token(TokenType.EOF, "", 1, 21),
     ]
     assert tokens == expected_tokens
 
@@ -81,9 +81,9 @@ def test_stringln_statement(lexer):
     code = "STRINGLN Hello, World!"
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.PRINTSTRINGLN, "STRINGLN", 1, 0),
-        Token(TokenType.STRING, "Hello, World!", 1, 10),
-        Token(TokenType.EOF, "", 1, 22),
+        Token(TokenType.PRINTSTRINGLN, "STRINGLN", 1, 1),
+        Token(TokenType.STRING, "Hello, World!", 1, 11),
+        Token(TokenType.EOF, "", 1, 23),
     ]
     assert tokens == expected_tokens
 
@@ -94,10 +94,10 @@ def test_all_keypress_commands(lexer):
 
     expected_tokens = []
     for i, command in enumerate(Lexer.COMMANDS):
-        expected_tokens.append(Token(TokenType.KEYPRESS, command, i + 1, 0))
+        expected_tokens.append(Token(TokenType.KEYPRESS, command, i + 1, 1))
 
     expected_tokens.append(
-        Token(TokenType.EOF, "", len(Lexer.COMMANDS), len(Lexer.COMMANDS[-1]))
+        Token(TokenType.EOF, "", len(Lexer.COMMANDS), len(Lexer.COMMANDS[-1]) + 1)
     )
 
     assert tokens == expected_tokens
@@ -114,21 +114,21 @@ END_IF
 """
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.IF, "IF", 1, 0),
-        Token(TokenType.NUMBER, "1", 1, 3),
-        Token(TokenType.THEN, "THEN", 1, 5),
-        Token(TokenType.PRINTSTRING, "STRING", 2, 0),
-        Token(TokenType.STRING, "Hello, World!", 2, 8),
-        Token(TokenType.ELSE_IF, "ELSE IF", 3, 0),
-        Token(TokenType.NUMBER, "1", 3, 8),
-        Token(TokenType.THEN, "THEN", 3, 10),
-        Token(TokenType.PRINTSTRING, "STRING", 4, 0),
-        Token(TokenType.STRING, "Hey ho!", 4, 8),
-        Token(TokenType.ELSE, "ELSE", 5, 0),
-        Token(TokenType.PRINTSTRING, "STRING", 6, 0),
-        Token(TokenType.STRING, "Hey there!", 6, 8),
-        Token(TokenType.END_IF, "END_IF", 7, 0),
-        Token(TokenType.EOF, "", 8, 0),
+        Token(TokenType.IF, "IF", 1, 1),
+        Token(TokenType.NUMBER, "1", 1, 4),
+        Token(TokenType.THEN, "THEN", 1, 6),
+        Token(TokenType.PRINTSTRING, "STRING", 2, 1),
+        Token(TokenType.STRING, "Hello, World!", 2, 9),
+        Token(TokenType.ELSE_IF, "ELSE IF", 3, 1),
+        Token(TokenType.NUMBER, "1", 3, 9),
+        Token(TokenType.THEN, "THEN", 3, 11),
+        Token(TokenType.PRINTSTRING, "STRING", 4, 1),
+        Token(TokenType.STRING, "Hey ho!", 4, 9),
+        Token(TokenType.ELSE, "ELSE", 5, 1),
+        Token(TokenType.PRINTSTRING, "STRING", 6, 1),
+        Token(TokenType.STRING, "Hey there!", 6, 9),
+        Token(TokenType.END_IF, "END_IF", 7, 1),
+        Token(TokenType.EOF, "", 8, 1),
     ]
     assert tokens == expected_tokens
 
@@ -140,51 +140,51 @@ VAR $y = 1 == 2 != 3 > 4 < 5 >= 6 <= 7 && 8 || 9
 DELAY 10"""
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.PRINTSTRING, "STRING", 1, 0),
-        Token(TokenType.STRING, "Hello, World!", 1, 8),
-        Token(TokenType.VAR, "VAR", 2, 0),
-        Token(TokenType.ID, "$x", 2, 4),
-        Token(TokenType.ASSIGN, "=", 2, 7),
-        Token(TokenType.NUMBER, "1", 2, 9),
-        Token(TokenType.OP_PLUS, "+", 2, 11),
-        Token(TokenType.NUMBER, "2", 2, 13),
-        Token(TokenType.OP_MULTIPLY, "*", 2, 15),
-        Token(TokenType.NUMBER, "3", 2, 17),
-        Token(TokenType.OP_DIVIDE, "/", 2, 19),
-        Token(TokenType.NUMBER, "4", 2, 21),
-        Token(TokenType.OP_MINUS, "-", 2, 23),
-        Token(TokenType.NUMBER, "5", 2, 25),
-        Token(TokenType.OP_BITWISE_AND, "&", 2, 27),
-        Token(TokenType.NUMBER, "6", 2, 29),
-        Token(TokenType.OP_BITWISE_OR, "|", 2, 31),
-        Token(TokenType.NUMBER, "7", 2, 33),
-        Token(TokenType.OP_SHIFT_LEFT, "<<", 2, 35),
-        Token(TokenType.NUMBER, "8", 2, 38),
-        Token(TokenType.OP_SHIFT_RIGHT, ">>", 2, 40),
-        Token(TokenType.NUMBER, "9", 2, 43),
-        Token(TokenType.VAR, "VAR", 3, 0),
-        Token(TokenType.ID, "$y", 3, 4),
-        Token(TokenType.ASSIGN, "=", 3, 7),
-        Token(TokenType.NUMBER, "1", 3, 9),
-        Token(TokenType.OP_EQUAL, "==", 3, 11),
-        Token(TokenType.NUMBER, "2", 3, 14),
-        Token(TokenType.OP_NOT_EQUAL, "!=", 3, 16),
-        Token(TokenType.NUMBER, "3", 3, 19),
-        Token(TokenType.OP_GREATER, ">", 3, 21),
-        Token(TokenType.NUMBER, "4", 3, 23),
-        Token(TokenType.OP_LESS, "<", 3, 25),
-        Token(TokenType.NUMBER, "5", 3, 27),
-        Token(TokenType.OP_GREATER_EQUAL, ">=", 3, 29),
-        Token(TokenType.NUMBER, "6", 3, 32),
-        Token(TokenType.OP_LESS_EQUAL, "<=", 3, 34),
-        Token(TokenType.NUMBER, "7", 3, 37),
-        Token(TokenType.OP_AND, "&&", 3, 39),
-        Token(TokenType.NUMBER, "8", 3, 42),
-        Token(TokenType.OP_OR, "||", 3, 44),
-        Token(TokenType.NUMBER, "9", 3, 47),
-        Token(TokenType.DELAY, "DELAY", 4, 0),
-        Token(TokenType.NUMBER, "10", 4, 6),
-        Token(TokenType.EOF, "", 4, 8),
+        Token(TokenType.PRINTSTRING, "STRING", 1, 1),
+        Token(TokenType.STRING, "Hello, World!", 1, 9),
+        Token(TokenType.VAR, "VAR", 2, 1),
+        Token(TokenType.ID, "$x", 2, 5),
+        Token(TokenType.ASSIGN, "=", 2, 8),
+        Token(TokenType.NUMBER, "1", 2, 10),
+        Token(TokenType.OP_PLUS, "+", 2, 12),
+        Token(TokenType.NUMBER, "2", 2, 14),
+        Token(TokenType.OP_MULTIPLY, "*", 2, 16),
+        Token(TokenType.NUMBER, "3", 2, 18),
+        Token(TokenType.OP_DIVIDE, "/", 2, 20),
+        Token(TokenType.NUMBER, "4", 2, 22),
+        Token(TokenType.OP_MINUS, "-", 2, 24),
+        Token(TokenType.NUMBER, "5", 2, 26),
+        Token(TokenType.OP_BITWISE_AND, "&", 2, 28),
+        Token(TokenType.NUMBER, "6", 2, 30),
+        Token(TokenType.OP_BITWISE_OR, "|", 2, 32),
+        Token(TokenType.NUMBER, "7", 2, 34),
+        Token(TokenType.OP_SHIFT_LEFT, "<<", 2, 36),
+        Token(TokenType.NUMBER, "8", 2, 39),
+        Token(TokenType.OP_SHIFT_RIGHT, ">>", 2, 41),
+        Token(TokenType.NUMBER, "9", 2, 44),
+        Token(TokenType.VAR, "VAR", 3, 1),
+        Token(TokenType.ID, "$y", 3, 5),
+        Token(TokenType.ASSIGN, "=", 3, 8),
+        Token(TokenType.NUMBER, "1", 3, 10),
+        Token(TokenType.OP_EQUAL, "==", 3, 12),
+        Token(TokenType.NUMBER, "2", 3, 15),
+        Token(TokenType.OP_NOT_EQUAL, "!=", 3, 17),
+        Token(TokenType.NUMBER, "3", 3, 20),
+        Token(TokenType.OP_GREATER, ">", 3, 22),
+        Token(TokenType.NUMBER, "4", 3, 24),
+        Token(TokenType.OP_LESS, "<", 3, 26),
+        Token(TokenType.NUMBER, "5", 3, 28),
+        Token(TokenType.OP_GREATER_EQUAL, ">=", 3, 30),
+        Token(TokenType.NUMBER, "6", 3, 33),
+        Token(TokenType.OP_LESS_EQUAL, "<=", 3, 35),
+        Token(TokenType.NUMBER, "7", 3, 38),
+        Token(TokenType.OP_AND, "&&", 3, 40),
+        Token(TokenType.NUMBER, "8", 3, 43),
+        Token(TokenType.OP_OR, "||", 3, 45),
+        Token(TokenType.NUMBER, "9", 3, 48),
+        Token(TokenType.DELAY, "DELAY", 4, 1),
+        Token(TokenType.NUMBER, "10", 4, 7),
+        Token(TokenType.EOF, "", 4, 9),
     ]
     assert tokens == expected_tokens
 
@@ -196,21 +196,21 @@ $x = $x - 1
 END_WHILE"""
     tokens = list(lexer.tokenize(code))
     expected_tokens = [
-        Token(TokenType.WHILE, "WHILE", 1, 0),
-        Token(TokenType.LPAREN, "(", 1, 6),
-        Token(TokenType.ID, "$x", 1, 7),
-        Token(TokenType.OP_GREATER, ">", 1, 10),
-        Token(TokenType.NUMBER, "0", 1, 12),
-        Token(TokenType.RPAREN, ")", 1, 13),
-        Token(TokenType.PRINTSTRING, "STRING", 2, 0),
-        Token(TokenType.STRING, "Hello, World!", 2, 8),
-        Token(TokenType.ID, "$x", 3, 0),
-        Token(TokenType.ASSIGN, "=", 3, 3),
-        Token(TokenType.ID, "$x", 3, 5),
-        Token(TokenType.OP_MINUS, "-", 3, 8),
-        Token(TokenType.NUMBER, "1", 3, 10),
-        Token(TokenType.END_WHILE, "END_WHILE", 4, 0),
-        Token(TokenType.EOF, "", 4, 9),
+        Token(TokenType.WHILE, "WHILE", 1, 1),
+        Token(TokenType.LPAREN, "(", 1, 7),
+        Token(TokenType.ID, "$x", 1, 8),
+        Token(TokenType.OP_GREATER, ">", 1, 11),
+        Token(TokenType.NUMBER, "0", 1, 13),
+        Token(TokenType.RPAREN, ")", 1, 14),
+        Token(TokenType.PRINTSTRING, "STRING", 2, 1),
+        Token(TokenType.STRING, "Hello, World!", 2, 9),
+        Token(TokenType.ID, "$x", 3, 1),
+        Token(TokenType.ASSIGN, "=", 3, 4),
+        Token(TokenType.ID, "$x", 3, 6),
+        Token(TokenType.OP_MINUS, "-", 3, 9),
+        Token(TokenType.NUMBER, "1", 3, 11),
+        Token(TokenType.END_WHILE, "END_WHILE", 4, 1),
+        Token(TokenType.EOF, "", 4, 10),
     ]
     assert tokens == expected_tokens
 
@@ -219,8 +219,8 @@ def test_true_literal(lexer):
     code = "TRUE"
     tokens = list(lexer.tokenize(code))
     assert tokens == [
-        Token(TokenType.TRUE, "TRUE", 1, 0),
-        Token(TokenType.EOF, "", 1, 4),
+        Token(TokenType.TRUE, "TRUE", 1, 1),
+        Token(TokenType.EOF, "", 1, 5),
     ]
 
 
@@ -228,15 +228,15 @@ def test_false_literal(lexer):
     code = "FALSE"
     tokens = list(lexer.tokenize(code))
     assert tokens == [
-        Token(TokenType.FALSE, "FALSE", 1, 0),
-        Token(TokenType.EOF, "", 1, 5),
+        Token(TokenType.FALSE, "FALSE", 1, 1),
+        Token(TokenType.EOF, "", 1, 6),
     ]
 
 
 def test_unexpected_character(lexer):
     code = "VAR $x = 8 @"
     with pytest.raises(
-        SyntaxError, match=r"Unexpected character '@' at line 1, column 11"
+        SyntaxError, match=r"Unexpected character '@' at line 1, column 12"
     ):
         list(lexer.tokenize(code))
 
@@ -244,7 +244,7 @@ def test_unexpected_character(lexer):
 def test_invalid_operator(lexer):
     code = "VAR $x = 8 £ 2"
     with pytest.raises(
-        SyntaxError, match=r"Unexpected character '£' at line 1, column 11"
+        SyntaxError, match=r"Unexpected character '£' at line 1, column 12"
     ):
         list(lexer.tokenize(code))
 
@@ -252,7 +252,7 @@ def test_invalid_operator(lexer):
 def test_invalid_keyword(lexer):
     code = "VOR $x = 8"
     with pytest.raises(
-        SyntaxError, match=r"Unexpected character 'V' at line 1, column 0"
+        SyntaxError, match=r"Unexpected character 'V' at line 1, column 1"
     ):
         list(lexer.tokenize(code))
 
@@ -260,6 +260,6 @@ def test_invalid_keyword(lexer):
 def test_invalid_keyword_position(lexer):
     code = "VAR $x VAR"
     with pytest.raises(
-        SyntaxError, match=r"Unexpected character 'V' at line 1, column 7"
+        SyntaxError, match=r"Unexpected character 'V' at line 1, column 8"
     ):
         list(lexer.tokenize(code))

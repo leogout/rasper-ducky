@@ -203,7 +203,7 @@ class Lexer:
             for mo in re.finditer(self.token_regex, line.strip()):
                 kind = TokenType[mo.lastgroup]
                 value = mo.group()
-                column = mo.start()
+                column = mo.start() + 1
                 if kind == TokenType.MISMATCH:
                     raise SyntaxError(
                         f"Unexpected character '{value}' at line {line_num}, column {column}"
@@ -219,4 +219,4 @@ class Lexer:
                     yield Token(kind, value.strip(), line_num, column)
                 elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-        yield Token(TokenType.EOF, "", len(lines), len(line))
+        yield Token(TokenType.EOF, "", len(lines), len(line) + 1)
