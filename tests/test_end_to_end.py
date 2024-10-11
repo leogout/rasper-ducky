@@ -77,3 +77,19 @@ def test_print_string():
 def test_print_stringln():
     interpreter = execute("STRINGLN Hello, World!")
     assert interpreter.execution_stack == ["Hello, World!"]
+
+
+def test_booleans():
+    interpreter = execute(
+        """
+        IF TRUE THEN 
+            STRING A 
+        END_IF
+        IF FALSE THEN 
+        ELSE 
+            STRING B 
+        END_IF
+        """
+    )
+    assert interpreter.variables == {}
+    assert interpreter.execution_stack == ["A", "B"]

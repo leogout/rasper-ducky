@@ -215,6 +215,24 @@ END_WHILE"""
     assert tokens == expected_tokens
 
 
+def test_true_literal(lexer):
+    code = "TRUE"
+    tokens = list(lexer.tokenize(code))
+    assert tokens == [
+        Token(TokenType.TRUE, "TRUE", 1, 0),
+        Token(TokenType.EOF, "", 1, 4),
+    ]
+
+
+def test_false_literal(lexer):
+    code = "FALSE"
+    tokens = list(lexer.tokenize(code))
+    assert tokens == [
+        Token(TokenType.FALSE, "FALSE", 1, 0),
+        Token(TokenType.EOF, "", 1, 5),
+    ]
+
+
 def test_unexpected_character(lexer):
     code = "VAR $x = 8 @"
     with pytest.raises(

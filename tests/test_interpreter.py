@@ -268,3 +268,19 @@ def test_while_statement(interpreter):
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == 5
     assert interpreter.execution_stack == ["Hello, World!"] * 5
+
+
+def test_literals(interpreter):
+    ast = [Literal(False), Literal(True), Literal("10"), Literal("Hello, World!")]
+    interpreter.interpret(ast)
+    assert interpreter.variables == {}
+    assert interpreter.execution_stack == []
+
+
+def test_boolean_in_if_statement(interpreter):
+    ast = [
+        IfStatementNode(Literal(True), [PrintStringNode(Literal("A"))], []),
+        IfStatementNode(Literal(False), [], [], [PrintStringNode(Literal("B"))]),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == ["A", "B"]
