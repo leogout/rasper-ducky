@@ -299,3 +299,14 @@ def test_delay_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [DelayNode(Literal("10"))]
     assert ast == expected_ast
+
+
+def test_unary_expression(parser):
+    tokens = [
+        Token(TokenType.OP_MINUS, "-"),
+        Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOF, ""),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [Unary(Token(TokenType.OP_MINUS, "-"), Literal("10"))]
+    assert ast == expected_ast

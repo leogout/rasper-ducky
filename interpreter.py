@@ -10,7 +10,7 @@ from parser import (
     PrintStringNode,
     IfStatementNode,
     WhileStatementNode,
-    ASTNode,
+    Expr,
     Token,
     TokenType,
     PrintStringLnNode,
@@ -42,11 +42,11 @@ class Interpreter:
         self.variables = {}
         self.execution_stack = []
 
-    def interpret(self, ast: list[ASTNode]):
+    def interpret(self, ast: list[Expr]):
         for node in ast:
             self._execute(node)
 
-    def _execute(self, node: ASTNode):
+    def _execute(self, node: Expr):
         if isinstance(node, VarDeclarationNode):
             self._execute_var_declaration(node)
         elif isinstance(node, IfStatementNode):
@@ -83,7 +83,7 @@ class Interpreter:
                 return
         self._execute_block(node.else_block)
 
-    def _execute_block(self, block: list[ASTNode]):
+    def _execute_block(self, block: list[Expr]):
         for statement in block:
             self._execute(statement)
 
@@ -103,7 +103,7 @@ class Interpreter:
     def _execute_expression(self, node: Binary):
         self._evaluate(node)
 
-    def _evaluate(self, node: ASTNode):
+    def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
             return self._evaluate_expression(node)
         elif isinstance(node, Literal):

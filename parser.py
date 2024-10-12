@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from lexer import TokenType, Token
 
 
-class ASTNode:
+class Expr:
     pass
 
 
 @dataclass
-class VarNode(ASTNode):
+class VarNode(Expr):
     name: str
 
     def __repr__(self):
@@ -15,35 +15,35 @@ class VarNode(ASTNode):
 
 
 @dataclass
-class VarDeclarationNode(ASTNode):
+class VarDeclarationNode(Expr):
     name: str
-    value: ASTNode
+    value: Expr
 
     def __repr__(self):
         return f"VAR_DECL({self.name}, {self.value})"
 
 
 @dataclass
-class Binary(ASTNode):
-    left: ASTNode
+class Binary(Expr):
+    left: Expr
     operator: Token
-    right: ASTNode
+    right: Expr
 
     def __repr__(self):
         return f"EXPR({self.left}, {self.operator.value}, {self.right})"
 
 
 @dataclass
-class Unary(ASTNode):
+class Unary(Expr):
     operator: Token
-    right: ASTNode
+    right: Expr
 
     def __repr__(self):
         return f"EXPR({self.operator.value}, {self.right})"
 
 
 @dataclass
-class Literal(ASTNode):
+class Literal(Expr):
     value: bool | int | str
 
     def __repr__(self):
@@ -51,15 +51,15 @@ class Literal(ASTNode):
 
 
 @dataclass
-class Grouping(ASTNode):
-    expression: ASTNode
+class Grouping(Expr):
+    expression: Expr
 
     def __repr__(self):
         return f"GROUP({self.expression})"
 
 
 @dataclass
-class DelayNode(ASTNode):
+class DelayNode(Expr):
     value: Literal
 
     def __repr__(self):
@@ -67,7 +67,7 @@ class DelayNode(ASTNode):
 
 
 @dataclass
-class PrintStringNode(ASTNode):
+class PrintStringNode(Expr):
     value: Literal
 
     def __repr__(self):
@@ -75,7 +75,7 @@ class PrintStringNode(ASTNode):
 
 
 @dataclass
-class PrintStringLnNode(ASTNode):
+class PrintStringLnNode(Expr):
     value: Literal
 
     def __repr__(self):
@@ -83,20 +83,20 @@ class PrintStringLnNode(ASTNode):
 
 
 @dataclass
-class IfStatementNode(ASTNode):
-    condition: ASTNode
-    then_block: list[ASTNode]
+class IfStatementNode(Expr):
+    condition: Expr
+    then_block: list[Expr]
     else_if_blocks: list["IfStatementNode"] = field(default_factory=list)
-    else_block: list[ASTNode] = field(default_factory=list)
+    else_block: list[Expr] = field(default_factory=list)
 
     def __repr__(self):
         return f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
 
 @dataclass
-class WhileStatementNode(ASTNode):
-    condition: ASTNode
-    body: list[ASTNode]
+class WhileStatementNode(Expr):
+    condition: Expr
+    body: list[Expr]
 
     def __repr__(self):
         return f"WHILE({self.condition}, {self.body})"
@@ -107,13 +107,13 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> list[ASTNode]:
+    def parse(self) -> list[Expr]:
         statements = []
         while not self.is_at_end():
             statements.append(self.statement())
         return statements
 
-    def statement(self) -> ASTNode:
+    def statement(self) -> Expr:
         if self.match(TokenType.VAR):
             return self.var_declaration()
         elif self.match(TokenType.PRINTSTRING):
@@ -179,7 +179,7 @@ class Parser:
         value = self.expression()
         return VarDeclarationNode(name.value, value)
 
-    def block(self) -> list[ASTNode]:
+    def block(self) -> list[Expr]:
         statements = []
         while (
             not self.check(TokenType.END_IF)
@@ -191,10 +191,10 @@ class Parser:
             statements.append(self.statement())
         return statements
 
-    def expression(self) -> ASTNode:
+    def expression(self) -> Expr:
         return self.equality()
 
-    def equality(self) -> ASTNode:
+    def equality(self) -> Expr:
         expr = self.comparison()
         while self.match(TokenType.OP_EQUAL, TokenType.OP_NOT_EQUAL):
             operator = self.previous()
@@ -202,7 +202,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def comparison(self):
+    def comparison(self) -> Expr:
         expr = self.term()
 
         while self.match(
@@ -216,7 +216,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def term(self):
+    def term(self) -> Expr:
         expr = self.factor()
 
         while self.match(TokenType.OP_PLUS, TokenType.OP_MINUS):
@@ -225,7 +225,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def factor(self):
+    def factor(self) -> Expr:
         expr = self.unary()
 
         while self.match(
@@ -236,15 +236,15 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def unary(self):
+    def unary(self) -> Expr:
         if self.match(TokenType.OP_NOT, TokenType.OP_MINUS):
             operator = self.previous()
             right = self.unary()
-            return Binary(operator, right)
+            return Unary(operator, right)
 
         return self.primary()
 
-    def primary(self) -> ASTNode:
+    def primary(self) -> Expr:
         if self.match(TokenType.FALSE):
             return Literal(False)
         if self.match(TokenType.TRUE):
