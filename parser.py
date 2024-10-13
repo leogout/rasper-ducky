@@ -2,25 +2,9 @@ from dataclasses import dataclass, field
 from lexer import TokenType, Token
 
 
+# EXPRESSIONS
 class Expr:
     pass
-
-
-@dataclass
-class VarNode(Expr):
-    name: str
-
-    def __repr__(self):
-        return f"VAR({self.name})"
-
-
-@dataclass
-class VarDeclarationNode(Expr):
-    name: str
-    value: Expr
-
-    def __repr__(self):
-        return f"VAR_DECL({self.name}, {self.value})"
 
 
 @dataclass
@@ -59,7 +43,29 @@ class Grouping(Expr):
 
 
 @dataclass
-class DelayNode(Expr):
+class Variable(Expr):
+    name: Token
+
+    def __repr__(self):
+        return f"VAR({self.name})"
+
+
+# STATEMENTS
+class Stmt:
+    pass
+
+
+@dataclass
+class VarStmt(Stmt):
+    name: Token
+    value: Expr
+
+    def __repr__(self):
+        return f"VAR_DECL({self.name}, {self.value})"
+
+
+@dataclass
+class DelayStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -67,7 +73,7 @@ class DelayNode(Expr):
 
 
 @dataclass
-class PrintStringNode(Expr):
+class StringStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -75,7 +81,7 @@ class PrintStringNode(Expr):
 
 
 @dataclass
-class PrintStringLnNode(Expr):
+class StringLnStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -83,23 +89,31 @@ class PrintStringLnNode(Expr):
 
 
 @dataclass
-class IfStatementNode(Expr):
+class IfStmt(Stmt):
     condition: Expr
-    then_block: list[Expr]
-    else_if_blocks: list["IfStatementNode"] = field(default_factory=list)
-    else_block: list[Expr] = field(default_factory=list)
+    then_block: list[Stmt]
+    else_if_blocks: list["IfStmt"] = field(default_factory=list)
+    else_block: list[Stmt] = field(default_factory=list)
 
     def __repr__(self):
         return f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
 
 @dataclass
-class WhileStatementNode(Expr):
+class WhileStmt(Stmt):
     condition: Expr
-    body: list[Expr]
+    body: list[Stmt]
 
     def __repr__(self):
         return f"WHILE({self.condition}, {self.body})"
+
+
+@dataclass
+class ExpressionStmt(Stmt):
+    expression: Expr
+
+    def __repr__(self):
+        return f"EXPRESSION({self.expression})"
 
 
 class Parser:
@@ -107,48 +121,57 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> list[Expr]:
+    def parse(self) -> list[Stmt]:
         statements = []
         while not self.is_at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
 
-    def statement(self) -> Expr:
+    def declaration(self) -> Stmt:
+        # try:
         if self.match(TokenType.VAR):
-            return self.var_declaration()
-        elif self.match(TokenType.PRINTSTRING):
-            return self.print_string()
-        elif self.match(TokenType.PRINTSTRINGLN):
-            return self.print_stringln()
-        elif self.match(TokenType.DELAY):
-            return self.delay()
-        elif self.match(TokenType.IF):
-            return self.if_statement()
-        elif self.match(TokenType.WHILE):
-            return self.while_statement()
-        elif self.match(TokenType.ID):
-            return self.assignment()
-        return self.expression()
+            return self.var_stmt()
+        return self.statement()
+        # except SyntaxError as e:
+        #     self.synchronize()
+        #     return None
 
-    def var_declaration(self) -> VarDeclarationNode:
-        name = self.consume(TokenType.ID, "Attendu un identifiant après VAR")
+    def statement(self) -> Stmt:
+        if self.match(TokenType.VAR):
+            return self.var_stmt()
+        elif self.match(TokenType.PRINTSTRING):
+            return self.string_stmt()
+        elif self.match(TokenType.PRINTSTRINGLN):
+            return self.stringln_stmt()
+        elif self.match(TokenType.DELAY):
+            return self.delay_stmt()
+        elif self.match(TokenType.IF):
+            return self.if_stmt()
+        elif self.match(TokenType.WHILE):
+            return self.while_stmt()
+        elif self.match(TokenType.IDENTIFIER):
+            return self.assignment()
+        return self.expression_stmt()
+
+    def var_stmt(self) -> VarStmt:
+        name = self.consume(TokenType.IDENTIFIER, "Attendu un identifiant après VAR")
         self.consume(TokenType.ASSIGN, "Attendu '=' après l'identifiant")
         initializer = self.expression()
-        return VarDeclarationNode(name.value, initializer)
+        return VarStmt(name, initializer)
 
-    def print_string(self) -> PrintStringNode:
+    def string_stmt(self) -> StringStmt:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
-        return PrintStringNode(Literal(value.value))
+        return StringStmt(Literal(value.value))
 
-    def print_stringln(self) -> PrintStringLnNode:
+    def stringln_stmt(self) -> StringLnStmt:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRINGLN")
-        return PrintStringLnNode(Literal(value.value))
+        return StringLnStmt(Literal(value.value))
 
-    def delay(self) -> DelayNode:
+    def delay_stmt(self) -> DelayStmt:
         value = self.consume(TokenType.NUMBER, "Attendu un nombre après DELAY")
-        return DelayNode(Literal(value.value))
+        return DelayStmt(Literal(value.value))
 
-    def if_statement(self) -> IfStatementNode:
+    def if_stmt(self) -> IfStmt:
         condition = self.expression()
         self.consume(TokenType.THEN, "Attendu 'THEN'")
         then_block = self.block()
@@ -158,28 +181,28 @@ class Parser:
             else_if_condition = self.expression()
             self.consume(TokenType.THEN, "Attendu 'THEN' après 'ELSE IF'")
             else_if_block = self.block()
-            else_if_blocks.append(IfStatementNode(else_if_condition, else_if_block))
+            else_if_blocks.append(IfStmt(else_if_condition, else_if_block))
 
         else_block = []
         if self.match(TokenType.ELSE):
             else_block = self.block()
         self.consume(TokenType.END_IF, "Attendu 'END_IF'")
 
-        return IfStatementNode(condition, then_block, else_if_blocks, else_block)
+        return IfStmt(condition, then_block, else_if_blocks, else_block)
 
-    def while_statement(self) -> WhileStatementNode:
+    def while_stmt(self) -> WhileStmt:
         condition = self.expression()
         body = self.block()
         self.consume(TokenType.END_WHILE, "Attendu 'END_WHILE'")
-        return WhileStatementNode(condition, body)
+        return WhileStmt(condition, body)
 
-    def assignment(self) -> VarDeclarationNode:
+    def assignment(self) -> VarStmt:
         name = self.previous()
         self.consume(TokenType.ASSIGN, "Attendu '=' après l'identifiant")
         value = self.expression()
-        return VarDeclarationNode(name.value, value)
+        return VarStmt(name, value)
 
-    def block(self) -> list[Expr]:
+    def block(self) -> list[Stmt]:
         statements = []
         while (
             not self.check(TokenType.END_IF)
@@ -190,6 +213,10 @@ class Parser:
         ):
             statements.append(self.statement())
         return statements
+
+    def expression_stmt(self) -> ExpressionStmt:
+        expr = self.expression()
+        return ExpressionStmt(expr)
 
     def expression(self) -> Expr:
         return self.equality()
@@ -253,8 +280,8 @@ class Parser:
             return Literal(self.previous().value)
         if self.match(TokenType.STRING):
             return Literal(self.previous().value)
-        if self.match(TokenType.ID):
-            return VarNode(self.previous().value)
+        if self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
 
         if self.match(TokenType.LPAREN):
             expr = self.expression()

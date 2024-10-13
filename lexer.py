@@ -6,7 +6,7 @@ from dataclasses import dataclass
 class TokenType(Enum):
     VAR = auto()
     DELAY = auto()
-    ID = auto()
+    IDENTIFIER = auto()
     ASSIGN = auto()
     SKIP = auto()
     MISMATCH = auto()
@@ -162,7 +162,7 @@ class Lexer:
             (TokenType.FALSE, r"\bFALSE\b"),
             (TokenType.WHILE, r"^\bWHILE\b"),
             (TokenType.END_WHILE, r"^\bEND_WHILE\b"),
-            (TokenType.ID, r"\$[a-zA-Z0-9_]+"),
+            (TokenType.IDENTIFIER, r"\$[a-zA-Z0-9_]+"),
             (TokenType.NUMBER, r"\d+"),
             (TokenType.LPAREN, r"\("),
             (TokenType.RPAREN, r"\)"),
