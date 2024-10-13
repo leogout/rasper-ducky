@@ -1,20 +1,21 @@
 import operator as op
 import time
 from parser import (
-    VarDeclarationNode,
+    VarStmt,
     Binary,
     Unary,
     Literal,
     Grouping,
-    VarNode,
-    PrintStringNode,
-    IfStatementNode,
-    WhileStatementNode,
-    ASTNode,
+    Variable,
+    StringStmt,
+    IfStmt,
+    WhileStmt,
+    Expr,
     Token,
     TokenType,
-    PrintStringLnNode,
-    DelayNode,
+    StringLnStmt,
+    DelayStmt,
+    Stmt,
 )
 
 
@@ -42,22 +43,22 @@ class Interpreter:
         self.variables = {}
         self.execution_stack = []
 
-    def interpret(self, ast: list[ASTNode]):
+    def interpret(self, ast: list[Stmt]):
         for node in ast:
             self._execute(node)
 
-    def _execute(self, node: ASTNode):
-        if isinstance(node, VarDeclarationNode):
+    def _execute(self, node: Stmt):
+        if isinstance(node, VarStmt):
             self._execute_var_declaration(node)
-        elif isinstance(node, IfStatementNode):
+        elif isinstance(node, IfStmt):
             self._execute_if_statement(node)
-        elif isinstance(node, WhileStatementNode):
+        elif isinstance(node, WhileStmt):
             self._execute_while_statement(node)
-        elif isinstance(node, PrintStringNode):
+        elif isinstance(node, StringStmt):
             self._execute_print_string(node)
-        elif isinstance(node, PrintStringLnNode):
+        elif isinstance(node, StringLnStmt):
             self._execute_print_stringln(node)
-        elif isinstance(node, DelayNode):
+        elif isinstance(node, DelayStmt):
             self._execute_delay(node)
         elif isinstance(node, Binary):
             self._execute_expression(node)
@@ -66,53 +67,53 @@ class Interpreter:
         else:
             raise RuntimeError(f"Type de noeud inconnu : {type(node)}")
 
-    def _execute_var_declaration(self, node: VarDeclarationNode):
+    def _execute_var_declaration(self, node: VarStmt):
         value = self._evaluate(node.value)
-        self.variables[node.name] = value
+        self.variables[node.name.value] = value
 
-    def _execute_if_statement(self, node: IfStatementNode):
+    def _execute_if_statement(self, node: IfStmt):
         if self._evaluate(node.condition):
             self._execute_block(node.then_block)
         else:
             self._execute_else_if_or_else(node)
 
-    def _execute_else_if_or_else(self, node: IfStatementNode):
+    def _execute_else_if_or_else(self, node: IfStmt):
         for else_if in node.else_if_blocks:
             if self._evaluate(else_if.condition):
                 self._execute_block(else_if.then_block)
                 return
         self._execute_block(node.else_block)
 
-    def _execute_block(self, block: list[ASTNode]):
+    def _execute_block(self, block: list[Stmt]):
         for statement in block:
             self._execute(statement)
 
-    def _execute_while_statement(self, node: WhileStatementNode):
+    def _execute_while_statement(self, node: WhileStmt):
         while self._evaluate(node.condition):
             self._execute_block(node.body)
 
-    def _execute_print_string(self, node: PrintStringNode):
+    def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
 
-    def _execute_print_stringln(self, node: PrintStringLnNode):
+    def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
 
-    def _execute_delay(self, node: DelayNode):
+    def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
 
     def _execute_expression(self, node: Binary):
         self._evaluate(node)
 
-    def _evaluate(self, node: ASTNode):
+    def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
             return self._evaluate_expression(node)
         elif isinstance(node, Literal):
             return int(node.value)
-        elif isinstance(node, VarNode):
+        elif isinstance(node, Variable):
             try:
-                return self.variables[node.name]
+                return self.variables[node.name.value]
             except KeyError:
-                raise RuntimeError(f"Variable non définie : {node.name}")
+                raise RuntimeError(f"Variable non définie : {node.name.value}")
         else:
             raise RuntimeError(
                 f"Type de noeud inconnu pour l'évaluation : {type(node)}"

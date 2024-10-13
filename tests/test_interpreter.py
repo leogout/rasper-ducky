@@ -9,19 +9,37 @@ def interpreter():
 
 
 def test_var_declaration(interpreter):
-    ast = [VarDeclarationNode("$x", Literal(10))]
+    ast = [
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal(10),
+        ),
+    ]
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == 10
 
 
 def test_expression_evaluation(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal(10)),
-        VarDeclarationNode(
-            "$y", Binary(VarNode("$x"), Token(TokenType.OP_MULTIPLY, "*"), Literal(2))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal(10),
         ),
-        VarDeclarationNode(
-            "$z", Binary(VarNode("$y"), Token(TokenType.OP_PLUS, "+"), Literal(5))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_MULTIPLY, "*"),
+                Literal(2),
+            ),
+        ),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$z"),
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$y")),
+                Token(TokenType.OP_PLUS, "+"),
+                Literal(5),
+            ),
         ),
     ]
     interpreter.interpret(ast)
@@ -30,15 +48,21 @@ def test_expression_evaluation(interpreter):
 
 
 def test_print_string(interpreter):
-    ast = [PrintStringNode(Literal("Hello, World!"))]
+    ast = [StringStmt(Literal("Hello, World!"))]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == ["Hello, World!"]
 
 
 def test_variable_update(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal(10)),
-        VarDeclarationNode("$x", Literal(20)),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal(10),
+        ),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal(20),
+        ),
     ]
     interpreter.interpret(ast)
     assert interpreter.variables["$x"] == 20
@@ -46,12 +70,22 @@ def test_variable_update(interpreter):
 
 def test_complex_expression(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal(10)),
-        VarDeclarationNode("$y", Literal(5)),
-        VarDeclarationNode(
-            "$z",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal(10),
+        ),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
+            Literal(5),
+        ),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$z"),
             Binary(
-                Binary(VarNode("$x"), Token(TokenType.OP_PLUS, "+"), VarNode("$y")),
+                Binary(
+                    Variable(Token(TokenType.IDENTIFIER, "$x")),
+                    Token(TokenType.OP_PLUS, "+"),
+                    Variable(Token(TokenType.IDENTIFIER, "$y")),
+                ),
                 Token(TokenType.OP_MULTIPLY, "*"),
                 Literal(3),
             ),
@@ -63,11 +97,18 @@ def test_complex_expression(interpreter):
 
 def test_if_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("1")),
-        IfStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_GREATER, ">"), Literal("0")),
-            [PrintStringNode(Literal("A"))],
-            [PrintStringNode(Literal("B"))],
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("1"),
+        ),
+        IfStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_GREATER, ">"),
+                Literal("0"),
+            ),
+            [StringStmt(Literal("A"))],
+            [StringStmt(Literal("B"))],
         ),
     ]
     interpreter.interpret(ast)
@@ -76,12 +117,19 @@ def test_if_statement(interpreter):
 
 def test_else_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("1")),
-        IfStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("0")),
-            [PrintStringNode(Literal("A"))],
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("1"),
+        ),
+        IfStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_LESS, "<"),
+                Literal("0"),
+            ),
+            [StringStmt(Literal("A"))],
             [],
-            [PrintStringNode(Literal("B"))],
+            [StringStmt(Literal("B"))],
         ),
     ]
     interpreter.interpret(ast)
@@ -90,19 +138,28 @@ def test_else_statement(interpreter):
 
 def test_one_else_if_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("1")),
-        IfStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("0")),
-            [PrintStringNode(Literal("A"))],
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("1"),
+        ),
+        IfStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_LESS, "<"),
+                Literal("0"),
+            ),
+            [StringStmt(Literal("A"))],
             [
-                IfStatementNode(
+                IfStmt(
                     Binary(
-                        VarNode("$x"), Token(TokenType.OP_EQUAL, "=="), Literal("1")
+                        Variable(Token(TokenType.IDENTIFIER, "$x")),
+                        Token(TokenType.OP_EQUAL, "=="),
+                        Literal("1"),
                     ),
-                    [PrintStringNode(Literal("B"))],
+                    [StringStmt(Literal("B"))],
                 ),
             ],
-            [PrintStringNode(Literal("C"))],
+            [StringStmt(Literal("C"))],
         ),
     ]
     interpreter.interpret(ast)
@@ -111,25 +168,36 @@ def test_one_else_if_statement(interpreter):
 
 def test_multiple_else_if_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("1")),
-        IfStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("0")),
-            [PrintStringNode(Literal("A"))],
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("1"),
+        ),
+        IfStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_LESS, "<"),
+                Literal("0"),
+            ),
+            [StringStmt(Literal("A"))],
             [
-                IfStatementNode(
+                IfStmt(
                     Binary(
-                        VarNode("$x"), Token(TokenType.OP_EQUAL, "=="), Literal("0")
+                        Variable(Token(TokenType.IDENTIFIER, "$x")),
+                        Token(TokenType.OP_EQUAL, "=="),
+                        Literal("0"),
                     ),
-                    [PrintStringNode(Literal("B"))],
+                    [StringStmt(Literal("B"))],
                 ),
-                IfStatementNode(
+                IfStmt(
                     Binary(
-                        VarNode("$x"), Token(TokenType.OP_EQUAL, "=="), Literal("1")
+                        Variable(Token(TokenType.IDENTIFIER, "$x")),
+                        Token(TokenType.OP_EQUAL, "=="),
+                        Literal("1"),
                     ),
-                    [PrintStringNode(Literal("C"))],
+                    [StringStmt(Literal("C"))],
                 ),
             ],
-            [PrintStringNode(Literal("D"))],
+            [StringStmt(Literal("D"))],
         ),
     ]
     interpreter.interpret(ast)
@@ -138,19 +206,28 @@ def test_multiple_else_if_statement(interpreter):
 
 def test_else_statement_with_else_if(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("1")),
-        IfStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("0")),
-            [PrintStringNode(Literal("A"))],
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("1"),
+        ),
+        IfStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_LESS, "<"),
+                Literal("0"),
+            ),
+            [StringStmt(Literal("A"))],
             [
-                IfStatementNode(
+                IfStmt(
                     Binary(
-                        VarNode("$x"), Token(TokenType.OP_EQUAL, "=="), Literal("0")
+                        Variable(Token(TokenType.IDENTIFIER, "$x")),
+                        Token(TokenType.OP_EQUAL, "=="),
+                        Literal("0"),
                     ),
-                    [PrintStringNode(Literal("B"))],
+                    [StringStmt(Literal("B"))],
                 ),
             ],
-            [PrintStringNode(Literal("D"))],
+            [StringStmt(Literal("D"))],
         ),
     ]
     interpreter.interpret(ast)
@@ -159,9 +236,17 @@ def test_else_statement_with_else_if(interpreter):
 
 def test_division_by_zero(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("10")),
-        VarDeclarationNode(
-            "$y", Binary(VarNode("$x"), Token(TokenType.OP_DIVIDE, "/"), Literal("0"))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("10"),
+        ),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_DIVIDE, "/"),
+                Literal("0"),
+            ),
         ),
     ]
     with pytest.raises(ZeroDivisionError):
@@ -169,24 +254,32 @@ def test_division_by_zero(interpreter):
 
 
 def test_unknown_operator(interpreter):
-    ast = [Binary(Literal("1"), Token(20000, "unknown"), Literal("2"))]
+    ast = [Binary(Literal("1"), Token(2000, "unknown"), Literal("2"))]
     with pytest.raises(RuntimeError, match="Opérateur inconnu"):
         interpreter.interpret(ast)
 
 
 def test_undefined_variable(interpreter):
-    ast = [Binary(VarNode("$undefined"), Token(TokenType.OP_PLUS, "+"), Literal("2"))]
+    ast = [
+        Binary(
+            Variable(Token(TokenType.IDENTIFIER, "$undefined")),
+            Token(TokenType.OP_PLUS, "+"),
+            Literal("2"),
+        )
+    ]
     with pytest.raises(RuntimeError, match="Variable non définie"):
         interpreter.interpret(ast)
 
 
 def test_logical_operators(interpreter):
     ast = [
-        VarDeclarationNode(
-            "$x", Binary(Literal("1"), Token(TokenType.OP_AND, "&&"), Literal("0"))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Binary(Literal("1"), Token(TokenType.OP_AND, "&&"), Literal("0")),
         ),
-        VarDeclarationNode(
-            "$y", Binary(Literal("1"), Token(TokenType.OP_OR, "||"), Literal("0"))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
+            Binary(Literal("1"), Token(TokenType.OP_OR, "||"), Literal("0")),
         ),
     ]
     interpreter.interpret(ast)
@@ -196,20 +289,20 @@ def test_logical_operators(interpreter):
 
 def test_bitwise_operators(interpreter):
     ast = [
-        VarDeclarationNode(
-            "$x",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
             Binary(Literal("1"), Token(TokenType.OP_BITWISE_AND, "&"), Literal("1")),
         ),
-        VarDeclarationNode(
-            "$y",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
             Binary(Literal("1"), Token(TokenType.OP_BITWISE_OR, "|"), Literal("0")),
         ),
-        VarDeclarationNode(
-            "$z",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$z"),
             Binary(Literal("1"), Token(TokenType.OP_SHIFT_LEFT, "<<"), Literal("2")),
         ),
-        VarDeclarationNode(
-            "$w",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$w"),
             Binary(Literal("4"), Token(TokenType.OP_SHIFT_RIGHT, ">>"), Literal("1")),
         ),
     ]
@@ -222,9 +315,7 @@ def test_bitwise_operators(interpreter):
 
 def test_empty_block(interpreter):
     ast = [
-        IfStatementNode(
-            Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1")), []
-        )
+        IfStmt(Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1")), [])
     ]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == []
@@ -232,11 +323,12 @@ def test_empty_block(interpreter):
 
 def test_equality_and_inequality(interpreter):
     ast = [
-        VarDeclarationNode(
-            "$x", Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1"))
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1")),
         ),
-        VarDeclarationNode(
-            "$y",
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$y"),
             Binary(Literal("1"), Token(TokenType.OP_NOT_EQUAL, "!="), Literal("2")),
         ),
     ]
@@ -246,21 +338,32 @@ def test_equality_and_inequality(interpreter):
 
 
 def test_printstringln(interpreter):
-    ast = [PrintStringLnNode(Literal("Hello, World!"))]
+    ast = [StringLnStmt(Literal("Hello, World!"))]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == ["Hello, World!"]
 
 
 def test_while_statement(interpreter):
     ast = [
-        VarDeclarationNode("$x", Literal("0")),
-        WhileStatementNode(
-            Binary(VarNode("$x"), Token(TokenType.OP_LESS, "<"), Literal("5")),
+        VarStmt(
+            Token(TokenType.IDENTIFIER, "$x"),
+            Literal("0"),
+        ),
+        WhileStmt(
+            Binary(
+                Variable(Token(TokenType.IDENTIFIER, "$x")),
+                Token(TokenType.OP_LESS, "<"),
+                Literal("5"),
+            ),
             [
-                PrintStringNode(Literal("Hello, World!")),
-                VarDeclarationNode(
-                    "$x",
-                    Binary(VarNode("$x"), Token(TokenType.OP_PLUS, "+"), Literal("1")),
+                StringStmt(Literal("Hello, World!")),
+                VarStmt(
+                    Token(TokenType.IDENTIFIER, "$x"),
+                    Binary(
+                        Variable(Token(TokenType.IDENTIFIER, "$x")),
+                        Token(TokenType.OP_PLUS, "+"),
+                        Literal("1"),
+                    ),
                 ),
             ],
         ),
@@ -279,8 +382,8 @@ def test_literals(interpreter):
 
 def test_boolean_in_if_statement(interpreter):
     ast = [
-        IfStatementNode(Literal(True), [PrintStringNode(Literal("A"))], []),
-        IfStatementNode(Literal(False), [], [], [PrintStringNode(Literal("B"))]),
+        IfStmt(Literal(True), [StringStmt(Literal("A"))], []),
+        IfStmt(Literal(False), [], [], [StringStmt(Literal("B"))]),
     ]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == ["A", "B"]
@@ -288,7 +391,7 @@ def test_boolean_in_if_statement(interpreter):
 
 def test_delay_statement(interpreter, mocker):
     mock_sleep = mocker.patch("time.sleep")
-    ast = [DelayNode(Literal("10"))]
+    ast = [DelayStmt(Literal("10"))]
     interpreter.interpret(ast)
     mock_sleep.assert_called_once_with(10)
     assert interpreter.execution_stack == []

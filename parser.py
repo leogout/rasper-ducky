@@ -2,48 +2,32 @@ from dataclasses import dataclass, field
 from lexer import TokenType, Token
 
 
-class ASTNode:
+# EXPRESSIONS
+class Expr:
     pass
 
 
 @dataclass
-class VarNode(ASTNode):
-    name: str
-
-    def __repr__(self):
-        return f"VAR({self.name})"
-
-
-@dataclass
-class VarDeclarationNode(ASTNode):
-    name: str
-    value: ASTNode
-
-    def __repr__(self):
-        return f"VAR_DECL({self.name}, {self.value})"
-
-
-@dataclass
-class Binary(ASTNode):
-    left: ASTNode
+class Binary(Expr):
+    left: Expr
     operator: Token
-    right: ASTNode
+    right: Expr
 
     def __repr__(self):
         return f"EXPR({self.left}, {self.operator.value}, {self.right})"
 
 
 @dataclass
-class Unary(ASTNode):
+class Unary(Expr):
     operator: Token
-    right: ASTNode
+    right: Expr
 
     def __repr__(self):
         return f"EXPR({self.operator.value}, {self.right})"
 
 
 @dataclass
-class Literal(ASTNode):
+class Literal(Expr):
     value: bool | int | str
 
     def __repr__(self):
@@ -51,15 +35,37 @@ class Literal(ASTNode):
 
 
 @dataclass
-class Grouping(ASTNode):
-    expression: ASTNode
+class Grouping(Expr):
+    expression: Expr
 
     def __repr__(self):
         return f"GROUP({self.expression})"
 
 
 @dataclass
-class DelayNode(ASTNode):
+class Variable(Expr):
+    name: Token
+
+    def __repr__(self):
+        return f"VAR({self.name})"
+
+
+# STATEMENTS
+class Stmt:
+    pass
+
+
+@dataclass
+class VarStmt(Stmt):
+    name: Token
+    value: Expr
+
+    def __repr__(self):
+        return f"VAR_DECL({self.name}, {self.value})"
+
+
+@dataclass
+class DelayStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -67,7 +73,7 @@ class DelayNode(ASTNode):
 
 
 @dataclass
-class PrintStringNode(ASTNode):
+class StringStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -75,7 +81,7 @@ class PrintStringNode(ASTNode):
 
 
 @dataclass
-class PrintStringLnNode(ASTNode):
+class StringLnStmt(Stmt):
     value: Literal
 
     def __repr__(self):
@@ -83,23 +89,31 @@ class PrintStringLnNode(ASTNode):
 
 
 @dataclass
-class IfStatementNode(ASTNode):
-    condition: ASTNode
-    then_block: list[ASTNode]
-    else_if_blocks: list["IfStatementNode"] = field(default_factory=list)
-    else_block: list[ASTNode] = field(default_factory=list)
+class IfStmt(Stmt):
+    condition: Expr
+    then_block: list[Stmt]
+    else_if_blocks: list["IfStmt"] = field(default_factory=list)
+    else_block: list[Stmt] = field(default_factory=list)
 
     def __repr__(self):
         return f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
 
 @dataclass
-class WhileStatementNode(ASTNode):
-    condition: ASTNode
-    body: list[ASTNode]
+class WhileStmt(Stmt):
+    condition: Expr
+    body: list[Stmt]
 
     def __repr__(self):
         return f"WHILE({self.condition}, {self.body})"
+
+
+@dataclass
+class ExpressionStmt(Stmt):
+    expression: Expr
+
+    def __repr__(self):
+        return f"EXPRESSION({self.expression})"
 
 
 class Parser:
@@ -107,48 +121,57 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> list[ASTNode]:
+    def parse(self) -> list[Stmt]:
         statements = []
         while not self.is_at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
 
-    def statement(self) -> ASTNode:
+    def declaration(self) -> Stmt:
+        # try:
         if self.match(TokenType.VAR):
-            return self.var_declaration()
-        elif self.match(TokenType.PRINTSTRING):
-            return self.print_string()
-        elif self.match(TokenType.PRINTSTRINGLN):
-            return self.print_stringln()
-        elif self.match(TokenType.DELAY):
-            return self.delay()
-        elif self.match(TokenType.IF):
-            return self.if_statement()
-        elif self.match(TokenType.WHILE):
-            return self.while_statement()
-        elif self.match(TokenType.ID):
-            return self.assignment()
-        return self.expression()
+            return self.var_stmt()
+        return self.statement()
+        # except SyntaxError as e:
+        #     self.synchronize()
+        #     return None
 
-    def var_declaration(self) -> VarDeclarationNode:
-        name = self.consume(TokenType.ID, "Attendu un identifiant après VAR")
+    def statement(self) -> Stmt:
+        if self.match(TokenType.VAR):
+            return self.var_stmt()
+        elif self.match(TokenType.PRINTSTRING):
+            return self.string_stmt()
+        elif self.match(TokenType.PRINTSTRINGLN):
+            return self.stringln_stmt()
+        elif self.match(TokenType.DELAY):
+            return self.delay_stmt()
+        elif self.match(TokenType.IF):
+            return self.if_stmt()
+        elif self.match(TokenType.WHILE):
+            return self.while_stmt()
+        elif self.match(TokenType.IDENTIFIER):
+            return self.assignment()
+        return self.expression_stmt()
+
+    def var_stmt(self) -> VarStmt:
+        name = self.consume(TokenType.IDENTIFIER, "Attendu un identifiant après VAR")
         self.consume(TokenType.ASSIGN, "Attendu '=' après l'identifiant")
         initializer = self.expression()
-        return VarDeclarationNode(name.value, initializer)
+        return VarStmt(name, initializer)
 
-    def print_string(self) -> PrintStringNode:
+    def string_stmt(self) -> StringStmt:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRING")
-        return PrintStringNode(Literal(value.value))
+        return StringStmt(Literal(value.value))
 
-    def print_stringln(self) -> PrintStringLnNode:
+    def stringln_stmt(self) -> StringLnStmt:
         value = self.consume(TokenType.STRING, "Attendu une chaîne après STRINGLN")
-        return PrintStringLnNode(Literal(value.value))
+        return StringLnStmt(Literal(value.value))
 
-    def delay(self) -> DelayNode:
+    def delay_stmt(self) -> DelayStmt:
         value = self.consume(TokenType.NUMBER, "Attendu un nombre après DELAY")
-        return DelayNode(Literal(value.value))
+        return DelayStmt(Literal(value.value))
 
-    def if_statement(self) -> IfStatementNode:
+    def if_stmt(self) -> IfStmt:
         condition = self.expression()
         self.consume(TokenType.THEN, "Attendu 'THEN'")
         then_block = self.block()
@@ -158,28 +181,28 @@ class Parser:
             else_if_condition = self.expression()
             self.consume(TokenType.THEN, "Attendu 'THEN' après 'ELSE IF'")
             else_if_block = self.block()
-            else_if_blocks.append(IfStatementNode(else_if_condition, else_if_block))
+            else_if_blocks.append(IfStmt(else_if_condition, else_if_block))
 
         else_block = []
         if self.match(TokenType.ELSE):
             else_block = self.block()
         self.consume(TokenType.END_IF, "Attendu 'END_IF'")
 
-        return IfStatementNode(condition, then_block, else_if_blocks, else_block)
+        return IfStmt(condition, then_block, else_if_blocks, else_block)
 
-    def while_statement(self) -> WhileStatementNode:
+    def while_stmt(self) -> WhileStmt:
         condition = self.expression()
         body = self.block()
         self.consume(TokenType.END_WHILE, "Attendu 'END_WHILE'")
-        return WhileStatementNode(condition, body)
+        return WhileStmt(condition, body)
 
-    def assignment(self) -> VarDeclarationNode:
+    def assignment(self) -> VarStmt:
         name = self.previous()
         self.consume(TokenType.ASSIGN, "Attendu '=' après l'identifiant")
         value = self.expression()
-        return VarDeclarationNode(name.value, value)
+        return VarStmt(name, value)
 
-    def block(self) -> list[ASTNode]:
+    def block(self) -> list[Stmt]:
         statements = []
         while (
             not self.check(TokenType.END_IF)
@@ -191,10 +214,14 @@ class Parser:
             statements.append(self.statement())
         return statements
 
-    def expression(self) -> ASTNode:
+    def expression_stmt(self) -> ExpressionStmt:
+        expr = self.expression()
+        return ExpressionStmt(expr)
+
+    def expression(self) -> Expr:
         return self.equality()
 
-    def equality(self) -> ASTNode:
+    def equality(self) -> Expr:
         expr = self.comparison()
         while self.match(TokenType.OP_EQUAL, TokenType.OP_NOT_EQUAL):
             operator = self.previous()
@@ -202,7 +229,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def comparison(self):
+    def comparison(self) -> Expr:
         expr = self.term()
 
         while self.match(
@@ -216,7 +243,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def term(self):
+    def term(self) -> Expr:
         expr = self.factor()
 
         while self.match(TokenType.OP_PLUS, TokenType.OP_MINUS):
@@ -225,7 +252,7 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def factor(self):
+    def factor(self) -> Expr:
         expr = self.unary()
 
         while self.match(
@@ -236,15 +263,15 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def unary(self):
+    def unary(self) -> Expr:
         if self.match(TokenType.OP_NOT, TokenType.OP_MINUS):
             operator = self.previous()
             right = self.unary()
-            return Binary(operator, right)
+            return Unary(operator, right)
 
         return self.primary()
 
-    def primary(self) -> ASTNode:
+    def primary(self) -> Expr:
         if self.match(TokenType.FALSE):
             return Literal(False)
         if self.match(TokenType.TRUE):
@@ -253,8 +280,8 @@ class Parser:
             return Literal(self.previous().value)
         if self.match(TokenType.STRING):
             return Literal(self.previous().value)
-        if self.match(TokenType.ID):
-            return VarNode(self.previous().value)
+        if self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
 
         if self.match(TokenType.LPAREN):
             expr = self.expression()
