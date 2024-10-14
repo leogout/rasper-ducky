@@ -13,6 +13,7 @@ class TokenType(Enum):
     PRINTSTRING = auto()
     PRINTSTRINGLN = auto()
     EOF = auto()
+    EOL = auto()
     KEYPRESS = auto()
 
     IF = auto()
@@ -26,6 +27,9 @@ class TokenType(Enum):
 
     LPAREN = auto()
     RPAREN = auto()
+
+    FUNCTION = auto()
+    RETURN = auto()
 
     # OPERATORS
     OP_SHIFT_LEFT = auto()
@@ -197,10 +201,16 @@ class Lexer:
             "(?P<%s>%s)" % (t.name, r) for t, r in self.token_specification
         )
 
-    def tokenize(self, code):
+    def tokenize(self, code: str):
         lines = code.split("\n")
         for line_num, line in enumerate(lines, 1):
+            if not line.strip():
+                continue
             for mo in re.finditer(self.token_regex, line.strip()):
+                if mo.lastgroup is None:
+                    raise SyntaxError(
+                        f"Unexpected character '{mo.group()}' at line {line_num}, column {mo.start() + 1}"
+                    )
                 kind = TokenType[mo.lastgroup]
                 value = mo.group()
                 column = mo.start() + 1
@@ -219,4 +229,5 @@ class Lexer:
                     yield Token(kind, value.strip(), line_num, column)
                 elif kind != TokenType.SKIP:
                     yield Token(kind, value, line_num, column)
-        yield Token(TokenType.EOF, "", len(lines), len(line) + 1)
+            yield Token(TokenType.EOL, "")
+        yield Token(TokenType.EOF, "")

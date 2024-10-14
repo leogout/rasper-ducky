@@ -10,14 +10,14 @@ def lexer():
 def test_eof_token_empty_code(lexer):
     code = ""
     tokens = list(lexer.tokenize(code))
-    expected_tokens = [Token(TokenType.EOF, "", 1, 1)]
+    expected_tokens = [Token(TokenType.EOF, "")]
     assert tokens == expected_tokens
 
 
 def test_eof_token_one_line_code(lexer):
     code = "VAR $x = 8"
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 1, 11)
+    assert tokens[-1] == Token(TokenType.EOF, "")
 
 
 def test_eof_token_multiple_lines_code(lexer):
@@ -26,13 +26,13 @@ def test_eof_token_multiple_lines_code(lexer):
     VAR $y = $x * 2 + 5
     """
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 4, 5)
+    assert tokens[-1] == Token(TokenType.EOF, "")
 
 
 def test_eof_token_with_empty_lines(lexer):
     code = "\n\n\n\n\n\n"
     tokens = list(lexer.tokenize(code))
-    assert tokens[-1] == Token(TokenType.EOF, "", 7, 1)
+    assert tokens[-1] == Token(TokenType.EOF, "")
 
 
 def test_var_declaration(lexer):
@@ -43,7 +43,8 @@ def test_var_declaration(lexer):
         Token(TokenType.IDENTIFIER, "$x", 1, 5),
         Token(TokenType.ASSIGN, "=", 1, 8),
         Token(TokenType.NUMBER, "8", 1, 10),
-        Token(TokenType.EOF, "", 1, 11),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
 
     assert tokens == expected_tokens
@@ -61,7 +62,8 @@ def test_expression(lexer):
         Token(TokenType.NUMBER, "2", 1, 15),
         Token(TokenType.OP_PLUS, "+", 1, 17),
         Token(TokenType.NUMBER, "5", 1, 19),
-        Token(TokenType.EOF, "", 1, 20),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -72,7 +74,8 @@ def test_string_statement(lexer):
     expected_tokens = [
         Token(TokenType.PRINTSTRING, "STRING", 1, 1),
         Token(TokenType.STRING, "Hello, World!", 1, 9),
-        Token(TokenType.EOF, "", 1, 21),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -83,7 +86,8 @@ def test_stringln_statement(lexer):
     expected_tokens = [
         Token(TokenType.PRINTSTRINGLN, "STRINGLN", 1, 1),
         Token(TokenType.STRING, "Hello, World!", 1, 11),
-        Token(TokenType.EOF, "", 1, 23),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -95,10 +99,8 @@ def test_all_keypress_commands(lexer):
     expected_tokens = []
     for i, command in enumerate(Lexer.COMMANDS):
         expected_tokens.append(Token(TokenType.KEYPRESS, command, i + 1, 1))
-
-    expected_tokens.append(
-        Token(TokenType.EOF, "", len(Lexer.COMMANDS), len(Lexer.COMMANDS[-1]) + 1)
-    )
+        expected_tokens.append(Token(TokenType.EOL, ""))
+    expected_tokens.append(Token(TokenType.EOF, ""))
 
     assert tokens == expected_tokens
 
@@ -117,18 +119,25 @@ END_IF
         Token(TokenType.IF, "IF", 1, 1),
         Token(TokenType.NUMBER, "1", 1, 4),
         Token(TokenType.THEN, "THEN", 1, 6),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING", 2, 1),
         Token(TokenType.STRING, "Hello, World!", 2, 9),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE_IF, "ELSE IF", 3, 1),
         Token(TokenType.NUMBER, "1", 3, 9),
         Token(TokenType.THEN, "THEN", 3, 11),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING", 4, 1),
         Token(TokenType.STRING, "Hey ho!", 4, 9),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE, "ELSE", 5, 1),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING", 6, 1),
         Token(TokenType.STRING, "Hey there!", 6, 9),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_IF, "END_IF", 7, 1),
-        Token(TokenType.EOF, "", 8, 1),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -142,6 +151,7 @@ DELAY 10"""
     expected_tokens = [
         Token(TokenType.PRINTSTRING, "STRING", 1, 1),
         Token(TokenType.STRING, "Hello, World!", 1, 9),
+        Token(TokenType.EOL, ""),
         Token(TokenType.VAR, "VAR", 2, 1),
         Token(TokenType.IDENTIFIER, "$x", 2, 5),
         Token(TokenType.ASSIGN, "=", 2, 8),
@@ -162,6 +172,7 @@ DELAY 10"""
         Token(TokenType.NUMBER, "8", 2, 39),
         Token(TokenType.OP_SHIFT_RIGHT, ">>", 2, 41),
         Token(TokenType.NUMBER, "9", 2, 44),
+        Token(TokenType.EOL, ""),
         Token(TokenType.VAR, "VAR", 3, 1),
         Token(TokenType.IDENTIFIER, "$y", 3, 5),
         Token(TokenType.ASSIGN, "=", 3, 8),
@@ -182,9 +193,11 @@ DELAY 10"""
         Token(TokenType.NUMBER, "8", 3, 43),
         Token(TokenType.OP_OR, "||", 3, 45),
         Token(TokenType.NUMBER, "9", 3, 48),
+        Token(TokenType.EOL, ""),
         Token(TokenType.DELAY, "DELAY", 4, 1),
         Token(TokenType.NUMBER, "10", 4, 7),
-        Token(TokenType.EOF, "", 4, 9),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -202,15 +215,19 @@ END_WHILE"""
         Token(TokenType.OP_GREATER, ">", 1, 11),
         Token(TokenType.NUMBER, "0", 1, 13),
         Token(TokenType.RPAREN, ")", 1, 14),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING", 2, 1),
         Token(TokenType.STRING, "Hello, World!", 2, 9),
+        Token(TokenType.EOL, ""),
         Token(TokenType.IDENTIFIER, "$x", 3, 1),
         Token(TokenType.ASSIGN, "=", 3, 4),
         Token(TokenType.IDENTIFIER, "$x", 3, 6),
         Token(TokenType.OP_MINUS, "-", 3, 9),
         Token(TokenType.NUMBER, "1", 3, 11),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_WHILE, "END_WHILE", 4, 1),
-        Token(TokenType.EOF, "", 4, 10),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
     assert tokens == expected_tokens
 
@@ -220,7 +237,8 @@ def test_true_literal(lexer):
     tokens = list(lexer.tokenize(code))
     assert tokens == [
         Token(TokenType.TRUE, "TRUE", 1, 1),
-        Token(TokenType.EOF, "", 1, 5),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
 
 
@@ -229,7 +247,8 @@ def test_false_literal(lexer):
     tokens = list(lexer.tokenize(code))
     assert tokens == [
         Token(TokenType.FALSE, "FALSE", 1, 1),
-        Token(TokenType.EOF, "", 1, 6),
+        Token(TokenType.EOL, ""),
+        Token(TokenType.EOF, ""),
     ]
 
 
