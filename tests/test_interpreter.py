@@ -11,7 +11,7 @@ def interpreter():
 def test_var_declaration(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal(10),
         ),
     ]
@@ -22,22 +22,22 @@ def test_var_declaration(interpreter):
 def test_expression_evaluation(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal(10),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
+            Token(Tok.IDENTIFIER, "$y"),
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_MULTIPLY, "*"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_MULTIPLY, "*"),
                 Literal(2),
             ),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$z"),
+            Token(Tok.IDENTIFIER, "$z"),
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$y")),
-                Token(TokenType.OP_PLUS, "+"),
+                Variable(Token(Tok.IDENTIFIER, "$y")),
+                Token(Tok.OP_PLUS, "+"),
                 Literal(5),
             ),
         ),
@@ -56,11 +56,11 @@ def test_print_string(interpreter):
 def test_variable_update(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal(10),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal(20),
         ),
     ]
@@ -71,22 +71,22 @@ def test_variable_update(interpreter):
 def test_complex_expression(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal(10),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
+            Token(Tok.IDENTIFIER, "$y"),
             Literal(5),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$z"),
+            Token(Tok.IDENTIFIER, "$z"),
             Binary(
                 Binary(
-                    Variable(Token(TokenType.IDENTIFIER, "$x")),
-                    Token(TokenType.OP_PLUS, "+"),
-                    Variable(Token(TokenType.IDENTIFIER, "$y")),
+                    Variable(Token(Tok.IDENTIFIER, "$x")),
+                    Token(Tok.OP_PLUS, "+"),
+                    Variable(Token(Tok.IDENTIFIER, "$y")),
                 ),
-                Token(TokenType.OP_MULTIPLY, "*"),
+                Token(Tok.OP_MULTIPLY, "*"),
                 Literal(3),
             ),
         ),
@@ -98,13 +98,13 @@ def test_complex_expression(interpreter):
 def test_if_statement(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("1"),
         ),
         IfStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_GREATER, ">"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_GREATER, ">"),
                 Literal("0"),
             ),
             [StringStmt(Literal("A"))],
@@ -118,13 +118,13 @@ def test_if_statement(interpreter):
 def test_else_statement(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("1"),
         ),
         IfStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_LESS, "<"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_LESS, "<"),
                 Literal("0"),
             ),
             [StringStmt(Literal("A"))],
@@ -139,21 +139,21 @@ def test_else_statement(interpreter):
 def test_one_else_if_statement(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("1"),
         ),
         IfStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_LESS, "<"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_LESS, "<"),
                 Literal("0"),
             ),
             [StringStmt(Literal("A"))],
             [
                 IfStmt(
                     Binary(
-                        Variable(Token(TokenType.IDENTIFIER, "$x")),
-                        Token(TokenType.OP_EQUAL, "=="),
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_EQUAL, "=="),
                         Literal("1"),
                     ),
                     [StringStmt(Literal("B"))],
@@ -169,29 +169,29 @@ def test_one_else_if_statement(interpreter):
 def test_multiple_else_if_statement(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("1"),
         ),
         IfStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_LESS, "<"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_LESS, "<"),
                 Literal("0"),
             ),
             [StringStmt(Literal("A"))],
             [
                 IfStmt(
                     Binary(
-                        Variable(Token(TokenType.IDENTIFIER, "$x")),
-                        Token(TokenType.OP_EQUAL, "=="),
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_EQUAL, "=="),
                         Literal("0"),
                     ),
                     [StringStmt(Literal("B"))],
                 ),
                 IfStmt(
                     Binary(
-                        Variable(Token(TokenType.IDENTIFIER, "$x")),
-                        Token(TokenType.OP_EQUAL, "=="),
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_EQUAL, "=="),
                         Literal("1"),
                     ),
                     [StringStmt(Literal("C"))],
@@ -207,21 +207,21 @@ def test_multiple_else_if_statement(interpreter):
 def test_else_statement_with_else_if(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("1"),
         ),
         IfStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_LESS, "<"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_LESS, "<"),
                 Literal("0"),
             ),
             [StringStmt(Literal("A"))],
             [
                 IfStmt(
                     Binary(
-                        Variable(Token(TokenType.IDENTIFIER, "$x")),
-                        Token(TokenType.OP_EQUAL, "=="),
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_EQUAL, "=="),
                         Literal("0"),
                     ),
                     [StringStmt(Literal("B"))],
@@ -237,14 +237,14 @@ def test_else_statement_with_else_if(interpreter):
 def test_division_by_zero(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("10"),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
+            Token(Tok.IDENTIFIER, "$y"),
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_DIVIDE, "/"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_DIVIDE, "/"),
                 Literal("0"),
             ),
         ),
@@ -262,8 +262,8 @@ def test_unknown_operator(interpreter):
 def test_undefined_variable(interpreter):
     ast = [
         Binary(
-            Variable(Token(TokenType.IDENTIFIER, "$undefined")),
-            Token(TokenType.OP_PLUS, "+"),
+            Variable(Token(Tok.IDENTIFIER, "$undefined")),
+            Token(Tok.OP_PLUS, "+"),
             Literal("2"),
         )
     ]
@@ -274,12 +274,12 @@ def test_undefined_variable(interpreter):
 def test_logical_operators(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
-            Binary(Literal("1"), Token(TokenType.OP_AND, "&&"), Literal("0")),
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(Literal("1"), Token(Tok.OP_AND, "&&"), Literal("0")),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
-            Binary(Literal("1"), Token(TokenType.OP_OR, "||"), Literal("0")),
+            Token(Tok.IDENTIFIER, "$y"),
+            Binary(Literal("1"), Token(Tok.OP_OR, "||"), Literal("0")),
         ),
     ]
     interpreter.interpret(ast)
@@ -290,20 +290,20 @@ def test_logical_operators(interpreter):
 def test_bitwise_operators(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
-            Binary(Literal("1"), Token(TokenType.OP_BITWISE_AND, "&"), Literal("1")),
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(Literal("1"), Token(Tok.OP_BITWISE_AND, "&"), Literal("1")),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
-            Binary(Literal("1"), Token(TokenType.OP_BITWISE_OR, "|"), Literal("0")),
+            Token(Tok.IDENTIFIER, "$y"),
+            Binary(Literal("1"), Token(Tok.OP_BITWISE_OR, "|"), Literal("0")),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$z"),
-            Binary(Literal("1"), Token(TokenType.OP_SHIFT_LEFT, "<<"), Literal("2")),
+            Token(Tok.IDENTIFIER, "$z"),
+            Binary(Literal("1"), Token(Tok.OP_SHIFT_LEFT, "<<"), Literal("2")),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$w"),
-            Binary(Literal("4"), Token(TokenType.OP_SHIFT_RIGHT, ">>"), Literal("1")),
+            Token(Tok.IDENTIFIER, "$w"),
+            Binary(Literal("4"), Token(Tok.OP_SHIFT_RIGHT, ">>"), Literal("1")),
         ),
     ]
     interpreter.interpret(ast)
@@ -314,9 +314,7 @@ def test_bitwise_operators(interpreter):
 
 
 def test_empty_block(interpreter):
-    ast = [
-        IfStmt(Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1")), [])
-    ]
+    ast = [IfStmt(Binary(Literal("1"), Token(Tok.OP_EQUAL, "=="), Literal("1")), [])]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == []
 
@@ -324,12 +322,12 @@ def test_empty_block(interpreter):
 def test_equality_and_inequality(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
-            Binary(Literal("1"), Token(TokenType.OP_EQUAL, "=="), Literal("1")),
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(Literal("1"), Token(Tok.OP_EQUAL, "=="), Literal("1")),
         ),
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$y"),
-            Binary(Literal("1"), Token(TokenType.OP_NOT_EQUAL, "!="), Literal("2")),
+            Token(Tok.IDENTIFIER, "$y"),
+            Binary(Literal("1"), Token(Tok.OP_NOT_EQUAL, "!="), Literal("2")),
         ),
     ]
     interpreter.interpret(ast)
@@ -346,22 +344,22 @@ def test_printstringln(interpreter):
 def test_while_statement(interpreter):
     ast = [
         VarStmt(
-            Token(TokenType.IDENTIFIER, "$x"),
+            Token(Tok.IDENTIFIER, "$x"),
             Literal("0"),
         ),
         WhileStmt(
             Binary(
-                Variable(Token(TokenType.IDENTIFIER, "$x")),
-                Token(TokenType.OP_LESS, "<"),
+                Variable(Token(Tok.IDENTIFIER, "$x")),
+                Token(Tok.OP_LESS, "<"),
                 Literal("5"),
             ),
             [
                 StringStmt(Literal("Hello, World!")),
                 VarStmt(
-                    Token(TokenType.IDENTIFIER, "$x"),
+                    Token(Tok.IDENTIFIER, "$x"),
                     Binary(
-                        Variable(Token(TokenType.IDENTIFIER, "$x")),
-                        Token(TokenType.OP_PLUS, "+"),
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_PLUS, "+"),
                         Literal("1"),
                     ),
                 ),

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from lexer import TokenType, Token
+from lexer import Tok, Token
 
 
 # EXPRESSIONS
@@ -128,96 +128,96 @@ class Parser:
         return statements
 
     def declaration(self) -> Stmt:
-        if self.match(TokenType.VAR):
+        if self.match(Tok.VAR):
             return self.var_stmt()
         return self.statement()
 
     def statement(self) -> Stmt:
-        if self.match(TokenType.VAR):
+        if self.match(Tok.VAR):
             return self.var_stmt()
-        elif self.match(TokenType.PRINTSTRING):
+        elif self.match(Tok.PRINTSTRING):
             return self.string_stmt()
-        elif self.match(TokenType.PRINTSTRINGLN):
+        elif self.match(Tok.PRINTSTRINGLN):
             return self.stringln_stmt()
-        elif self.match(TokenType.DELAY):
+        elif self.match(Tok.DELAY):
             return self.delay_stmt()
-        elif self.match(TokenType.IF):
+        elif self.match(Tok.IF):
             return self.if_stmt()
-        elif self.match(TokenType.WHILE):
+        elif self.match(Tok.WHILE):
             return self.while_stmt()
-        elif self.match(TokenType.IDENTIFIER):
+        elif self.match(Tok.IDENTIFIER):
             return self.assignment()
         return self.expression_stmt()
 
     def var_stmt(self) -> VarStmt:
-        name = self.consume(TokenType.IDENTIFIER, "Expected an identifier after VAR")
-        self.consume(TokenType.ASSIGN, "Expected '=' after identifier")
+        name = self.consume(Tok.IDENTIFIER, "Expected an identifier after VAR")
+        self.consume(Tok.ASSIGN, "Expected '=' after identifier")
         initializer = self.expression()
         self.consume(
-            TokenType.EOL,
+            Tok.EOL,
             "Expected a line break after variable initialization",
         )
         return VarStmt(name, initializer)
 
     def string_stmt(self) -> StringStmt:
-        value = self.consume(TokenType.STRING, "Expected a string after STRING")
-        self.consume(TokenType.EOL, "Expected a line break after a string")
+        value = self.consume(Tok.STRING, "Expected a string after STRING")
+        self.consume(Tok.EOL, "Expected a line break after a string")
         return StringStmt(Literal(value.value))
 
     def stringln_stmt(self) -> StringLnStmt:
-        value = self.consume(TokenType.STRING, "Expected a string after STRINGLN")
-        self.consume(TokenType.EOL, "Expected a line break after a string")
+        value = self.consume(Tok.STRING, "Expected a string after STRINGLN")
+        self.consume(Tok.EOL, "Expected a line break after a string")
         return StringLnStmt(Literal(value.value))
 
     def delay_stmt(self) -> DelayStmt:
-        value = self.consume(TokenType.NUMBER, "Expected a number after DELAY")
-        self.consume(TokenType.EOL, "Expected a line break after a number")
+        value = self.consume(Tok.NUMBER, "Expected a number after DELAY")
+        self.consume(Tok.EOL, "Expected a line break after a number")
         return DelayStmt(Literal(value.value))
 
     def if_stmt(self) -> IfStmt:
         condition = self.expression()
-        self.consume(TokenType.THEN, "Expected 'THEN'")
-        self.consume(TokenType.EOL, "Expected a line break after 'THEN'")
+        self.consume(Tok.THEN, "Expected 'THEN'")
+        self.consume(Tok.EOL, "Expected a line break after 'THEN'")
         then_block = self.block()
 
         else_if_blocks = []
-        while self.match(TokenType.ELSE_IF):
+        while self.match(Tok.ELSE_IF):
             else_if_condition = self.expression()
-            self.consume(TokenType.THEN, "Expected 'THEN' after 'ELSE IF'")
-            self.consume(TokenType.EOL, "Expected a line break after 'THEN'")
+            self.consume(Tok.THEN, "Expected 'THEN' after 'ELSE IF'")
+            self.consume(Tok.EOL, "Expected a line break after 'THEN'")
             else_if_block = self.block()
             else_if_blocks.append(IfStmt(else_if_condition, else_if_block))
 
         else_block = []
-        if self.match(TokenType.ELSE):
-            self.consume(TokenType.EOL, "Expected a line break after 'ELSE'")
+        if self.match(Tok.ELSE):
+            self.consume(Tok.EOL, "Expected a line break after 'ELSE'")
             else_block = self.block()
-        self.consume(TokenType.END_IF, "Expected 'END_IF'")
-        self.consume(TokenType.EOL, "Expected a line break after 'END_IF'")
+        self.consume(Tok.END_IF, "Expected 'END_IF'")
+        self.consume(Tok.EOL, "Expected a line break after 'END_IF'")
         return IfStmt(condition, then_block, else_if_blocks, else_block)
 
     def while_stmt(self) -> WhileStmt:
         condition = self.expression()
-        self.consume(TokenType.EOL, "Expected a line break after the condition")
+        self.consume(Tok.EOL, "Expected a line break after the condition")
         body = self.block()
-        self.consume(TokenType.END_WHILE, "Expected 'END_WHILE'")
-        self.consume(TokenType.EOL, "Expected a line break after 'END_WHILE'")
+        self.consume(Tok.END_WHILE, "Expected 'END_WHILE'")
+        self.consume(Tok.EOL, "Expected a line break after 'END_WHILE'")
         return WhileStmt(condition, body)
 
     def assignment(self) -> VarStmt:
         name = self.previous()
-        self.consume(TokenType.ASSIGN, "Expected '=' after identifier")
+        self.consume(Tok.ASSIGN, "Expected '=' after identifier")
         value = self.expression()
-        self.consume(TokenType.EOL, "Expected a line break after assignment")
+        self.consume(Tok.EOL, "Expected a line break after assignment")
         return VarStmt(name, value)
 
     def block(self) -> list[Stmt]:
         statements = []
         while (
-            not self.check(TokenType.END_IF)
-            and not self.check(TokenType.ELSE_IF)
-            and not self.check(TokenType.ELSE)
-            and not self.check(TokenType.END_WHILE)
+            not self.check(Tok.END_IF)
+            and not self.check(Tok.ELSE_IF)
+            and not self.check(Tok.ELSE)
+            and not self.check(Tok.END_WHILE)
             and not self.is_at_end()
         ):
             statements.append(self.statement())
@@ -225,7 +225,7 @@ class Parser:
 
     def expression_stmt(self) -> ExpressionStmt:
         expr = self.expression()
-        self.consume(TokenType.EOL, "Expected a line break after an expression")
+        self.consume(Tok.EOL, "Expected a line break after an expression")
         return ExpressionStmt(expr)
 
     def expression(self) -> Expr:
@@ -233,7 +233,7 @@ class Parser:
 
     def equality(self) -> Expr:
         expr = self.comparison()
-        while self.match(TokenType.OP_EQUAL, TokenType.OP_NOT_EQUAL):
+        while self.match(Tok.OP_EQUAL, Tok.OP_NOT_EQUAL):
             operator = self.previous()
             right = self.comparison()
             expr = Binary(expr, operator, right)
@@ -243,10 +243,10 @@ class Parser:
         expr = self.term()
 
         while self.match(
-            TokenType.OP_GREATER,
-            TokenType.OP_LESS,
-            TokenType.OP_GREATER_EQUAL,
-            TokenType.OP_LESS_EQUAL,
+            Tok.OP_GREATER,
+            Tok.OP_LESS,
+            Tok.OP_GREATER_EQUAL,
+            Tok.OP_LESS_EQUAL,
         ):
             operator = self.previous()
             right = self.term()
@@ -256,7 +256,7 @@ class Parser:
     def term(self) -> Expr:
         expr = self.factor()
 
-        while self.match(TokenType.OP_PLUS, TokenType.OP_MINUS):
+        while self.match(Tok.OP_PLUS, Tok.OP_MINUS):
             operator = self.previous()
             right = self.factor()
             expr = Binary(expr, operator, right)
@@ -265,16 +265,14 @@ class Parser:
     def factor(self) -> Expr:
         expr = self.unary()
 
-        while self.match(
-            TokenType.OP_MULTIPLY, TokenType.OP_DIVIDE, TokenType.OP_MODULO
-        ):
+        while self.match(Tok.OP_MULTIPLY, Tok.OP_DIVIDE, Tok.OP_MODULO):
             operator = self.previous()
             right = self.unary()
             expr = Binary(expr, operator, right)
         return expr
 
     def unary(self) -> Expr:
-        if self.match(TokenType.OP_NOT, TokenType.OP_MINUS):
+        if self.match(Tok.OP_NOT, Tok.OP_MINUS):
             operator = self.previous()
             right = self.unary()
             return Unary(operator, right)
@@ -282,20 +280,20 @@ class Parser:
         return self.primary()
 
     def primary(self) -> Expr:
-        if self.match(TokenType.FALSE):
+        if self.match(Tok.FALSE):
             return Literal(False)
-        if self.match(TokenType.TRUE):
+        if self.match(Tok.TRUE):
             return Literal(True)
-        if self.match(TokenType.NUMBER):
+        if self.match(Tok.NUMBER):
             return Literal(self.previous().value)
-        if self.match(TokenType.STRING):
+        if self.match(Tok.STRING):
             return Literal(self.previous().value)
-        if self.match(TokenType.IDENTIFIER):
+        if self.match(Tok.IDENTIFIER):
             return Variable(self.previous())
 
-        if self.match(TokenType.LPAREN):
+        if self.match(Tok.LPAREN):
             expr = self.expression()
-            self.consume(TokenType.RPAREN, "Expected ')' after expression")
+            self.consume(Tok.RPAREN, "Expected ')' after expression")
             return expr
 
         raise self.error(self.peek(), "Expected expression")
@@ -329,7 +327,7 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def is_at_end(self) -> bool:
-        return self.peek().type == TokenType.EOF
+        return self.peek().type == Tok.EOF
 
     def consume(self, type, message) -> Token:
         if self.check(type):
@@ -340,17 +338,17 @@ class Parser:
         # may be used later for error recovery
         self.advance()
         while not self.is_at_end():
-            if self.previous().type == TokenType.EOL:
+            if self.previous().type == Tok.EOL:
                 return
             if (
-                self.peek().type == TokenType.IF
-                or self.peek().type == TokenType.WHILE
-                or self.peek().type == TokenType.PRINTSTRING
-                or self.peek().type == TokenType.PRINTSTRINGLN
-                or self.peek().type == TokenType.DELAY
-                or self.peek().type == TokenType.FUNCTION
-                or self.peek().type == TokenType.RETURN
-                or self.peek().type == TokenType.KEYPRESS
+                self.peek().type == Tok.IF
+                or self.peek().type == Tok.WHILE
+                or self.peek().type == Tok.PRINTSTRING
+                or self.peek().type == Tok.PRINTSTRINGLN
+                or self.peek().type == Tok.DELAY
+                or self.peek().type == Tok.FUNCTION
+                or self.peek().type == Tok.RETURN
+                or self.peek().type == Tok.KEYPRESS
             ):
                 return
             self.advance()
