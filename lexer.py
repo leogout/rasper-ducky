@@ -1,9 +1,10 @@
 import re
 from enum import Enum, auto
 from dataclasses import dataclass
+from typing import Iterator
 
 
-class TokenType(Enum):
+class Tok(Enum):
     VAR = auto()
     DELAY = auto()
     IDENTIFIER = auto()
@@ -15,6 +16,7 @@ class TokenType(Enum):
     EOF = auto()
     EOL = auto()
     KEYPRESS = auto()
+    COMMENT = auto()
 
     IF = auto()
     THEN = auto()
@@ -68,8 +70,8 @@ class TokenType(Enum):
 
 @dataclass
 class Token:
-    type: TokenType
-    value: str
+    type: Tok
+    value: str = ""
     line: int = 0
     column: int = 0
 
@@ -153,81 +155,91 @@ class Lexer:
 
     def __init__(self):
         self.token_specification = [
-            (TokenType.VAR, r"^\bVAR\b"),
-            (TokenType.DELAY, r"^\bDELAY\b"),
-            (TokenType.IF, r"^\bIF\b"),
-            (TokenType.THEN, r"\bTHEN\b"),
-            (TokenType.END_IF, r"^\bEND_IF\b"),
-            (TokenType.ELSE_IF, r"^\bELSE\s+IF\b"),
-            (TokenType.ELSE, r"^\bELSE\b"),
-            (TokenType.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
-            (TokenType.PRINTSTRING, r"^\bSTRING\b\s.*"),
-            (TokenType.TRUE, r"\bTRUE\b"),
-            (TokenType.FALSE, r"\bFALSE\b"),
-            (TokenType.WHILE, r"^\bWHILE\b"),
-            (TokenType.END_WHILE, r"^\bEND_WHILE\b"),
-            (TokenType.IDENTIFIER, r"\$[a-zA-Z0-9_]+"),
-            (TokenType.NUMBER, r"\d+"),
-            (TokenType.LPAREN, r"\("),
-            (TokenType.RPAREN, r"\)"),
-            (TokenType.OP_SHIFT_LEFT, r"<<"),
-            (TokenType.OP_SHIFT_RIGHT, r">>"),
-            (TokenType.OP_GREATER_EQUAL, r">="),
-            (TokenType.OP_LESS_EQUAL, r"<="),
-            (TokenType.OP_EQUAL, r"=="),
-            (TokenType.OP_AND, r"&&"),
-            (TokenType.OP_NOT_EQUAL, r"!="),
-            (TokenType.OP_GREATER, r">"),
-            (TokenType.OP_LESS, r"<"),
-            (TokenType.OP_OR, r"\|\|"),
-            (TokenType.OP_BITWISE_AND, r"&"),
-            (TokenType.OP_BITWISE_OR, r"\|"),
-            (TokenType.OP_PLUS, r"\+"),
-            (TokenType.OP_MINUS, r"\-"),
-            (TokenType.OP_MULTIPLY, r"\*"),
-            (TokenType.OP_DIVIDE, r"/"),
-            (TokenType.OP_MODULO, r"%"),
-            (TokenType.OP_POWER, r"\^"),
-            (TokenType.OP_NOT, r"!"),
-            (TokenType.ASSIGN, r"="),
-            (TokenType.SKIP, r"[ \t]+"),
+            (Tok.COMMENT, r"^\bREM\b.*"),
+            (Tok.VAR, r"^\bVAR\b"),
+            (Tok.DELAY, r"^\bDELAY\b"),
+            (Tok.IF, r"^\bIF\b"),
+            (Tok.THEN, r"\bTHEN\b"),
+            (Tok.END_IF, r"^\bEND_IF\b"),
+            (Tok.ELSE_IF, r"^\bELSE\s+IF\b"),
+            (Tok.ELSE, r"^\bELSE\b"),
+            (Tok.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
+            (Tok.PRINTSTRING, r"^\bSTRING\b\s.*"),
+            (Tok.TRUE, r"\bTRUE\b"),
+            (Tok.FALSE, r"\bFALSE\b"),
+            (Tok.WHILE, r"^\bWHILE\b"),
+            (Tok.END_WHILE, r"^\bEND_WHILE\b"),
+            (Tok.IDENTIFIER, r"\$[a-zA-Z0-9_]+"),
+            (Tok.NUMBER, r"\d+"),
+            (Tok.LPAREN, r"\("),
+            (Tok.RPAREN, r"\)"),
+            (Tok.OP_SHIFT_LEFT, r"<<"),
+            (Tok.OP_SHIFT_RIGHT, r">>"),
+            (Tok.OP_GREATER_EQUAL, r">="),
+            (Tok.OP_LESS_EQUAL, r"<="),
+            (Tok.OP_EQUAL, r"=="),
+            (Tok.OP_AND, r"&&"),
+            (Tok.OP_NOT_EQUAL, r"!="),
+            (Tok.OP_GREATER, r">"),
+            (Tok.OP_LESS, r"<"),
+            (Tok.OP_OR, r"\|\|"),
+            (Tok.OP_BITWISE_AND, r"&"),
+            (Tok.OP_BITWISE_OR, r"\|"),
+            (Tok.OP_PLUS, r"\+"),
+            (Tok.OP_MINUS, r"\-"),
+            (Tok.OP_MULTIPLY, r"\*"),
+            (Tok.OP_DIVIDE, r"/"),
+            (Tok.OP_MODULO, r"%"),
+            (Tok.OP_POWER, r"\^"),
+            (Tok.OP_NOT, r"!"),
+            (Tok.ASSIGN, r"="),
+            (Tok.SKIP, r"[ \t]+"),
             (
-                TokenType.KEYPRESS,
+                Tok.KEYPRESS,
                 r"\b(" + "|".join(re.escape(cmd) for cmd in self.COMMANDS) + r")\b",
             ),
-            (TokenType.MISMATCH, r"."),
+            (Tok.MISMATCH, r"."),
         ]
         self.token_regex = "|".join(
             "(?P<%s>%s)" % (t.name, r) for t, r in self.token_specification
         )
 
-    def tokenize(self, code: str):
+    def tokenize(self, code: str) -> Iterator[Token]:
         lines = code.split("\n")
         for line_num, line in enumerate(lines, 1):
             if not line.strip():
                 continue
+
+            has_tokens = False
             for mo in re.finditer(self.token_regex, line.strip()):
                 if mo.lastgroup is None:
                     raise SyntaxError(
                         f"Unexpected character '{mo.group()}' at line {line_num}, column {mo.start() + 1}"
                     )
-                kind = TokenType[mo.lastgroup]
+
+                kind = Tok[mo.lastgroup]
                 value = mo.group()
                 column = mo.start() + 1
-                if kind == TokenType.MISMATCH:
+                if kind == Tok.MISMATCH:
                     raise SyntaxError(
                         f"Unexpected character '{value}' at line {line_num}, column {column}"
                     )
+                elif kind == Tok.COMMENT:
+                    break
 
-                if kind == TokenType.PRINTSTRING:
+                has_tokens = True
+                if kind == Tok.PRINTSTRING:
                     yield Token(kind, "STRING", line_num, column)
-                    yield Token(TokenType.STRING, value[7:], line_num, column + 8)
-                elif kind == TokenType.PRINTSTRINGLN:
+                    yield Token(Tok.STRING, value[7:], line_num, column + 8)
+                elif kind == Tok.PRINTSTRINGLN:
                     yield Token(kind, "STRINGLN", line_num, column)
-                    yield Token(TokenType.STRING, value[9:], line_num, column + 10)
-                elif kind == TokenType.KEYPRESS:
+                    yield Token(Tok.STRING, value[9:], line_num, column + 10)
+                elif kind == Tok.KEYPRESS:
                     yield Token(kind, value.strip(), line_num, column)
-                elif kind != TokenType.SKIP:
+                elif kind != Tok.SKIP:
                     yield Token(kind, value, line_num, column)
-            yield Token(TokenType.EOL, "")
-        yield Token(TokenType.EOF, "")
+
+            if has_tokens:
+                yield Token(Tok.EOL)
+
+        yield Token(Tok.EOF)
