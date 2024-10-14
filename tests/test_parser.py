@@ -17,6 +17,7 @@ def test_var_declaration(parser):
         Token(TokenType.IDENTIFIER, "$x"),
         Token(TokenType.ASSIGN, "="),
         Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -32,6 +33,7 @@ def test_expression(parser):
         Token(TokenType.IDENTIFIER, "$x"),
         Token(TokenType.OP_MULTIPLY, "*"),
         Token(TokenType.NUMBER, "2"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -55,14 +57,19 @@ def test_if_else_statement(parser):
         Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.THEN, "THEN"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.VAR, "VAR"),
         Token(TokenType.IDENTIFIER, "$y"),
         Token(TokenType.ASSIGN, "="),
         Token(TokenType.NUMBER, "1"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE, "ELSE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "Hey there!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_IF, "END_IF"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -85,6 +92,7 @@ def test_string_statement(parser):
     tokens = [
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -96,6 +104,7 @@ def test_stringln_statement(parser):
     tokens = [
         Token(TokenType.PRINTSTRINGLN, "STRINGLN"),
         Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -110,26 +119,35 @@ def test_if_else_if_else_statement(parser):
         Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.THEN, "THEN"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "A"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE_IF, "ELSE IF"),
         Token(TokenType.IDENTIFIER, "$x"),
         Token(TokenType.OP_LESS, "<"),
         Token(TokenType.NUMBER, "1"),
         Token(TokenType.THEN, "THEN"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "B"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE_IF, "ELSE IF"),
         Token(TokenType.IDENTIFIER, "$x"),
         Token(TokenType.OP_LESS, "<"),
         Token(TokenType.NUMBER, "1"),
         Token(TokenType.THEN, "THEN"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "C"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.ELSE, "ELSE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "D"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_IF, "END_IF"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -169,6 +187,7 @@ def test_print_string(parser):
     tokens = [
         Token(TokenType.PRINTSTRING, "PRINTSTRING"),
         Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -184,9 +203,12 @@ def test_while_statement(parser):
         Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.RPAREN, ")"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.PRINTSTRING, "STRING"),
         Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_WHILE, "END_WHILE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -215,6 +237,7 @@ def test_parentheses_priority_in_expression(parser):
         Token(TokenType.OP_PLUS, "+"),
         Token(TokenType.NUMBER, "2"),
         Token(TokenType.RPAREN, ")"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -243,6 +266,7 @@ def test_parentheses_in_simple_expression(parser):
         Token(TokenType.LPAREN, "("),
         Token(TokenType.NUMBER, "1"),
         Token(TokenType.RPAREN, ")"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -258,7 +282,9 @@ def test_parentheses_in_while_statement(parser):
         Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
         Token(TokenType.RPAREN, ")"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_WHILE, "END_WHILE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -279,7 +305,9 @@ def test_while_statement_with_number(parser):
     tokens = [
         Token(TokenType.WHILE, "WHILE"),
         Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_WHILE, "END_WHILE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -293,7 +321,9 @@ def test_while_statement_without_parentheses(parser):
         Token(TokenType.IDENTIFIER, "$x"),
         Token(TokenType.OP_GREATER, ">"),
         Token(TokenType.NUMBER, "0"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.END_WHILE, "END_WHILE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -313,9 +343,13 @@ def test_while_statement_without_parentheses(parser):
 def test_literals(parser):
     tokens = [
         Token(TokenType.FALSE, "FALSE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.TRUE, "TRUE"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.STRING, "Hello, World!"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -332,6 +366,7 @@ def test_delay_statement(parser):
     tokens = [
         Token(TokenType.DELAY, "DELAY"),
         Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
@@ -343,6 +378,7 @@ def test_unary_expression(parser):
     tokens = [
         Token(TokenType.OP_MINUS, "-"),
         Token(TokenType.NUMBER, "10"),
+        Token(TokenType.EOL, ""),
         Token(TokenType.EOF, ""),
     ]
     ast = parser(tokens).parse()
