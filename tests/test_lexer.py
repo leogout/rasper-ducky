@@ -284,6 +284,23 @@ REM This is another comment
     assert tokens == expected_tokens
 
 
+def test_comments_blocks(lexer):
+    code = """
+REM_BLOCK
+STRING A
+END_REM
+STRING B
+"""
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(Tok.PRINTSTRING, "STRING", 5, 1),
+        Token(Tok.STRING, "B", 5, 9),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens
+
+
 def test_function_declaration(lexer):
     code = """FUNCTION MyFunction()
     STRING Hello, World!

@@ -16,7 +16,9 @@ class Tok(Enum):
     EOF = auto()
     EOL = auto()
     KEYPRESS = auto()
-    COMMENT = auto()
+    REM = auto()
+    REM_BLOCK = auto()
+    END_REM_BLOCK = auto()
 
     IF = auto()
     THEN = auto()
@@ -127,7 +129,7 @@ class Lexer:
 
     def __init__(self):
         self.token_specification = [
-            (Tok.COMMENT, r"^\bREM\b.*"),
+            (Tok.REM, r"^\bREM\b.*"),
             (Tok.VAR, r"^\bVAR\b"),
             (Tok.DELAY, r"^\bDELAY\b"),
             (Tok.IF, r"^\bIF\b"),
@@ -172,6 +174,8 @@ class Lexer:
                 r"\b(" + "|".join(re.escape(cmd) for cmd in self.COMMANDS) + r")\b",
             ),
             # Anything that is not a keyword is an identifier
+            (Tok.REM_BLOCK, r"^\bREM_BLOCK\b.*"),
+            (Tok.END_REM_BLOCK, r"^\bEND_REM\b"),
             (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
             (Tok.MISMATCH, r"."),
         ]
@@ -181,8 +185,14 @@ class Lexer:
 
     def tokenize(self, code: str) -> Iterator[Token]:
         lines = code.split("\n")
+        in_comment_block = False
         for line_num, line in enumerate(lines, 1):
             if not line.strip():
+                continue
+
+            if in_comment_block:
+                if re.match(r"^\bEND_REM\b", line.strip()):
+                    in_comment_block = False
                 continue
 
             has_tokens = False
@@ -199,7 +209,10 @@ class Lexer:
                     raise SyntaxError(
                         f"Unexpected character '{value}' at line {line_num}, column {column}"
                     )
-                elif kind == Tok.COMMENT:
+                elif kind == Tok.REM:
+                    break
+                elif kind == Tok.REM_BLOCK:
+                    in_comment_block = True
                     break
 
                 has_tokens = True
