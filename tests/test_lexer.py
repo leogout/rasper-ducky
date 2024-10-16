@@ -268,22 +268,6 @@ def test_invalid_operator(lexer):
         list(lexer.tokenize(code))
 
 
-def test_invalid_keyword(lexer):
-    code = "VOR $x = 8"
-    with pytest.raises(
-        SyntaxError, match=r"Unexpected character 'V' at line 1, column 1"
-    ):
-        list(lexer.tokenize(code))
-
-
-def test_invalid_keyword_position(lexer):
-    code = "VAR $x VAR"
-    with pytest.raises(
-        SyntaxError, match=r"Unexpected character 'V' at line 1, column 8"
-    ):
-        list(lexer.tokenize(code))
-
-
 def test_comments(lexer):
     code = """
 REM This is a comment
@@ -294,6 +278,28 @@ REM This is another comment
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 3, 1),
         Token(Tok.STRING, "Hello, World!", 3, 9),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens
+
+
+def test_function_declaration(lexer):
+    code = """FUNCTION MyFunction()
+    STRING Hello, World!
+END_FUNCTION"""
+    tokens = list(lexer.tokenize(code))
+    print(tokens)
+    expected_tokens = [
+        Token(Tok.FUNCTION, "FUNCTION", 1, 1),
+        Token(Tok.IDENTIFIER, "MyFunction", 1, 10),
+        Token(Tok.LPAREN, "(", 1, 20),
+        Token(Tok.RPAREN, ")", 1, 21),
+        Token(Tok.EOL),
+        Token(Tok.PRINTSTRING, "STRING", 2, 1),
+        Token(Tok.STRING, "Hello, World!", 2, 9),
+        Token(Tok.EOL),
+        Token(Tok.END_FUNCTION, "END_FUNCTION", 3, 1),
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]

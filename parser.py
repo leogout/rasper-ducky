@@ -50,6 +50,23 @@ class Variable(Expr):
         return f"VAR({self.name})"
 
 
+@dataclass
+class Call(Expr):
+    name: Token
+
+    def __repr__(self):
+        return f"CALL({self.callee})"
+
+
+@dataclass
+class Assign(Expr):
+    name: Token
+    value: Expr
+
+    def __repr__(self):
+        return f"ASSIGN({self.name}, {self.value})"
+
+
 # STATEMENTS
 class Stmt:
     pass
@@ -116,6 +133,15 @@ class ExpressionStmt(Stmt):
         return f"EXPRESSION({self.expression})"
 
 
+@dataclass
+class FunctionStmt(Stmt):
+    name: Token
+    body: list[Stmt]
+
+    def __repr__(self):
+        return f"FUNCTION({self.name}, {self.body})"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -145,8 +171,9 @@ class Parser:
             return self.if_stmt()
         elif self.match(Tok.WHILE):
             return self.while_stmt()
-        elif self.match(Tok.IDENTIFIER):
-            return self.assignment()
+        elif self.match(Tok.FUNCTION):
+            return self.function_stmt()
+
         return self.expression_stmt()
 
     def var_stmt(self) -> VarStmt:
@@ -204,12 +231,15 @@ class Parser:
         self.consume(Tok.EOL, "Expected a line break after 'END_WHILE'")
         return WhileStmt(condition, body)
 
-    def assignment(self) -> VarStmt:
-        name = self.previous()
-        self.consume(Tok.ASSIGN, "Expected '=' after identifier")
-        value = self.expression()
-        self.consume(Tok.EOL, "Expected a line break after assignment")
-        return VarStmt(name, value)
+    def function_stmt(self) -> FunctionStmt:
+        name = self.consume(Tok.IDENTIFIER, "Expected an identifier after FUNCTION")
+        self.consume(Tok.LPAREN, "Expected '(' after function name")
+        self.consume(Tok.RPAREN, "Expected ')' after function parameters")
+        self.consume(Tok.EOL, "Expected a line break after the function parameters")
+        body = self.block()
+        self.consume(Tok.END_FUNCTION, "Expected 'END_FUNCTION'")
+        self.consume(Tok.EOL, "Expected a line break after 'END_FUNCTION'")
+        return FunctionStmt(name, body)
 
     def block(self) -> list[Stmt]:
         statements = []
@@ -218,6 +248,7 @@ class Parser:
             and not self.check(Tok.ELSE_IF)
             and not self.check(Tok.ELSE)
             and not self.check(Tok.END_WHILE)
+            and not self.check(Tok.END_FUNCTION)
             and not self.is_at_end()
         ):
             statements.append(self.statement())
@@ -229,7 +260,18 @@ class Parser:
         return ExpressionStmt(expr)
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self) -> Expr:
+        expr = self.equality()
+
+        if self.match(Tok.ASSIGN):
+            value = self.assignment()  # allows for assignment chains like a = b = c = 1
+
+            if isinstance(expr, Variable):
+                return Assign(expr.name, value)
+
+        return expr
 
     def equality(self) -> Expr:
         expr = self.comparison()
@@ -277,7 +319,16 @@ class Parser:
             right = self.unary()
             return Unary(operator, right)
 
-        return self.primary()
+        return self.call()
+
+    def call(self) -> Expr:
+        expr = self.primary()
+        name = self.previous()
+        if self.match(Tok.LPAREN):
+            self.consume(Tok.RPAREN, "Expected ')' after function call")
+            return Call(name)
+
+        return expr
 
     def primary(self) -> Expr:
         if self.match(Tok.FALSE):
@@ -294,7 +345,7 @@ class Parser:
         if self.match(Tok.LPAREN):
             expr = self.expression()
             self.consume(Tok.RPAREN, "Expected ')' after expression")
-            return expr
+            return Grouping(expr)
 
         raise self.error(self.peek(), "Expected expression")
 

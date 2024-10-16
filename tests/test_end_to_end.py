@@ -1,6 +1,6 @@
 import pytest
 from lexer import Lexer
-from parser import Parser
+from parser import *
 from interpreter import Interpreter
 
 
@@ -95,7 +95,70 @@ def test_booleans():
     assert interpreter.execution_stack == ["A", "B"]
 
 
+def test_nested_if_statements():
+    interpreter = execute(
+        """
+        IF TRUE THEN
+            IF FALSE THEN
+                STRING A
+            ELSE
+                IF TRUE THEN
+                    STRING B
+                ELSE
+                    STRING C
+                END_IF
+            END_IF
+        END_IF
+        """
+    )
+    assert interpreter.execution_stack == ["B"]
+
+
 def test_delay_statement(mocker):
     mock_sleep = mocker.patch("time.sleep")
     execute("DELAY 10")
     mock_sleep.assert_called_once_with(10)
+
+
+def test_chained_assign_statement():
+    interpreter = execute(
+        """
+        VAR $x = 10
+        VAR $y = $x = 10
+        """
+    )
+    assert interpreter.variables["$x"] == 10
+    assert interpreter.variables["$y"] == 10
+
+
+def test_function_declaration():
+    interpreter = execute(
+        """
+        FUNCTION add()
+            STRING Hello, World!
+        END_FUNCTION
+        add()
+        add()
+        add()
+        add()
+        """
+    )
+
+    assert interpreter.functions["add"] == [StringStmt(Literal("Hello, World!"))]
+    assert interpreter.execution_stack == ["Hello, World!"] * 4
+
+
+def test_global_variables():
+    interpreter = execute(
+        """
+        FUNCTION add()
+            $x = $x + 1
+        END_FUNCTION
+
+        VAR $x = 10
+        add()
+        add()
+        add()
+        """
+    )
+    assert interpreter.variables["$x"] == 13
