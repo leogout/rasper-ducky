@@ -15,7 +15,11 @@ from parser import (
     Tok,
     StringLnStmt,
     DelayStmt,
+    FunctionStmt,
     Stmt,
+    ExpressionStmt,
+    Assign,
+    Call,
 )
 
 
@@ -41,6 +45,7 @@ class Interpreter:
 
     def __init__(self):
         self.variables = {}
+        self.functions = {}
         self.execution_stack = []
 
     def interpret(self, ast: list[Stmt]):
@@ -62,6 +67,10 @@ class Interpreter:
             self._execute_delay(node)
         elif isinstance(node, Binary):
             self._execute_expression(node)
+        elif isinstance(node, FunctionStmt):
+            self._execute_function_declaration(node)
+        elif isinstance(node, ExpressionStmt):
+            self._execute_expression(node.expression)
         elif isinstance(node, Literal):
             pass  # A literal is a value, nothing to execute
         else:
@@ -101,8 +110,14 @@ class Interpreter:
     def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
 
-    def _execute_expression(self, node: Binary):
+    def _execute_expression(self, node: Expr):
         self._evaluate(node)
+
+    def _execute_function_declaration(self, node: FunctionStmt):
+        self.functions[node.name.value] = node.body
+
+    def _execute_function_call(self, node: Call):
+        self._execute_block(self.functions[node.name.value])
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
@@ -114,6 +129,14 @@ class Interpreter:
                 return self.variables[node.name.value]
             except KeyError:
                 raise RuntimeError(f"Variable non définie : {node.name.value}")
+        elif isinstance(node, Assign):
+            value = self._evaluate(node.value)
+            self.variables[node.name.value] = value
+            return value
+        elif isinstance(node, Grouping):
+            return self._evaluate(node.expression)
+        elif isinstance(node, Call):
+            return self._execute_function_call(node)
         else:
             raise RuntimeError(
                 f"Type de noeud inconnu pour l'évaluation : {type(node)}"

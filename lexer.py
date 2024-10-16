@@ -31,6 +31,7 @@ class Tok(Enum):
     RPAREN = auto()
 
     FUNCTION = auto()
+    END_FUNCTION = auto()
     RETURN = auto()
 
     # OPERATORS
@@ -59,10 +60,7 @@ class Tok(Enum):
     NUMBER = auto()
     TRUE = auto()
     FALSE = auto()
-    # REM = auto()
     # CONTINUE = auto()
-    # FUNCTION = auto()
-    # END_FUNCTION = auto()
 
     # Not in duckyscript 3.0 but why not implement it later
     # BREAK = auto()
@@ -125,32 +123,6 @@ class Lexer:
         "F3",
         "F2",
         "F1",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
     ]
 
     def __init__(self):
@@ -169,7 +141,8 @@ class Lexer:
             (Tok.FALSE, r"\bFALSE\b"),
             (Tok.WHILE, r"^\bWHILE\b"),
             (Tok.END_WHILE, r"^\bEND_WHILE\b"),
-            (Tok.IDENTIFIER, r"\$[a-zA-Z0-9_]+"),
+            (Tok.FUNCTION, r"^\bFUNCTION\b"),
+            (Tok.END_FUNCTION, r"^\bEND_FUNCTION\b"),
             (Tok.NUMBER, r"\d+"),
             (Tok.LPAREN, r"\("),
             (Tok.RPAREN, r"\)"),
@@ -198,10 +171,12 @@ class Lexer:
                 Tok.KEYPRESS,
                 r"\b(" + "|".join(re.escape(cmd) for cmd in self.COMMANDS) + r")\b",
             ),
+            # Anything that is not a keyword is an identifier
+            (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
             (Tok.MISMATCH, r"."),
         ]
         self.token_regex = "|".join(
-            "(?P<%s>%s)" % (t.name, r) for t, r in self.token_specification
+            f"(?P<{t.name}>{r})" for t, r in self.token_specification
         )
 
     def tokenize(self, code: str) -> Iterator[Token]:

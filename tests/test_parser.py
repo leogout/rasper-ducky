@@ -214,10 +214,12 @@ def test_while_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         WhileStmt(
-            Binary(
-                Variable(Token(Tok.IDENTIFIER, "$x")),
-                Token(Tok.OP_GREATER, ">"),
-                Literal("0"),
+            Grouping(
+                Binary(
+                    Variable(Token(Tok.IDENTIFIER, "$x")),
+                    Token(Tok.OP_GREATER, ">"),
+                    Literal("0"),
+                ),
             ),
             [StringStmt(Literal("Hello, World!"))],
         )
@@ -247,10 +249,12 @@ def test_parentheses_priority_in_expression(parser):
             Binary(
                 Literal("3"),
                 Token(Tok.OP_MULTIPLY, "*"),
-                Binary(
-                    Variable(Token(Tok.IDENTIFIER, "$x")),
-                    Token(Tok.OP_PLUS, "+"),
-                    Literal("2"),
+                Grouping(
+                    Binary(
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_PLUS, "+"),
+                        Literal("2"),
+                    ),
                 ),
             ),
         )
@@ -270,7 +274,7 @@ def test_parentheses_in_simple_expression(parser):
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [VarStmt(Token(Tok.IDENTIFIER, "$y"), Literal("1"))]
+    expected_ast = [VarStmt(Token(Tok.IDENTIFIER, "$y"), Grouping(Literal("1")))]
     assert ast == expected_ast
 
 
@@ -290,10 +294,12 @@ def test_parentheses_in_while_statement(parser):
     ast = parser(tokens).parse()
     expected_ast = [
         WhileStmt(
-            Binary(
-                Variable(Token(Tok.IDENTIFIER, "$x")),
-                Token(Tok.OP_GREATER, ">"),
-                Literal("0"),
+            Grouping(
+                Binary(
+                    Variable(Token(Tok.IDENTIFIER, "$x")),
+                    Token(Tok.OP_GREATER, ">"),
+                    Literal("0"),
+                ),
             ),
             [],
         )
@@ -384,3 +390,39 @@ def test_unary_expression(parser):
     ast = parser(tokens).parse()
     expected_ast = [ExpressionStmt(Unary(Token(Tok.OP_MINUS, "-"), Literal("10")))]
     assert ast == expected_ast
+
+
+def test_function_declaration(parser):
+    tokens = [
+        Token(Tok.FUNCTION, "FUNCTION"),
+        Token(Tok.IDENTIFIER, "myFunction"),
+        Token(Tok.LPAREN, "("),
+        Token(Tok.RPAREN, ")"),
+        Token(Tok.EOL),
+        Token(Tok.PRINTSTRING, "STRING"),
+        Token(Tok.STRING, "Hello, World!"),
+        Token(Tok.EOL),
+        Token(Tok.END_FUNCTION, "END_FUNCTION"),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        FunctionStmt(
+            Token(Tok.IDENTIFIER, "myFunction"),
+            [StringStmt(Literal("Hello, World!"))],
+        )
+    ]
+    assert ast == expected_ast
+
+
+def test_function_call(parser):
+    tokens = [
+        Token(Tok.IDENTIFIER, "myFunction"),
+        Token(Tok.LPAREN, "("),
+        Token(Tok.RPAREN, ")"),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [Call(Token(Tok.IDENTIFIER, "myFunction"))]
