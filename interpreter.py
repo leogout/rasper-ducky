@@ -110,7 +110,7 @@ class Interpreter:
     def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
 
-    def _execute_expression(self, node: Binary):
+    def _execute_expression(self, node: Expr):
         self._evaluate(node)
 
     def _execute_function_declaration(self, node: FunctionStmt):
