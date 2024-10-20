@@ -1,6 +1,6 @@
 import operator as op
 import time
-from interpreter.parser import (
+from rasper_ducky.interpreter.parser import (
     VarStmt,
     Binary,
     Unary,

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from interpreter.lexer import Tok, Token
+from rasper_ducky.interpreter.lexer import Tok, Token
 
 
 # EXPRESSIONS

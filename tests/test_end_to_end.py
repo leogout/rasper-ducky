@@ -1,7 +1,7 @@
 import pytest
-from interpreter.lexer import Lexer
-from interpreter.parser import *
-from interpreter.interpreter import Interpreter
+from rasper_ducky.interpreter.lexer import Lexer
+from rasper_ducky.interpreter.parser import *
+from rasper_ducky.interpreter.interpreter import Interpreter
 
 
 def execute(code: str):

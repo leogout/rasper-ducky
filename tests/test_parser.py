@@ -1,6 +1,6 @@
 import pytest
-from interpreter.parser import *
-from interpreter.lexer import *
+from rasper_ducky.interpreter.parser import *
+from rasper_ducky.interpreter.lexer import *
 
 
 @pytest.fixture
