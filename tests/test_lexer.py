@@ -332,3 +332,16 @@ def test_wait_for_button_press(lexer):
         Token(Tok.EOF),
     ]
     assert tokens == expected_tokens
+
+
+def test_attack_modes(lexer):
+    code = "ATTACKMODE HID STORAGE"
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(Tok.ATTACKMODE, "ATTACKMODE", 1, 1),
+        Token(Tok.HID, "HID", 1, 12),
+        Token(Tok.STORAGE, "STORAGE", 1, 16),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens

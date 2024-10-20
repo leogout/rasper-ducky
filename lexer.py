@@ -21,6 +21,10 @@ class Tok(Enum):
     END_REM_BLOCK = auto()
 
     WAIT_FOR_BUTTON_PRESS = auto()
+    ATTACKMODE = auto()
+    HID = auto()  # Functions as a Human Interface Device, or Keyboard, for keystroke injection.
+    STORAGE = auto()  # Functions as USB Mass Storage, or a Flash Drive, for copying files to/from the target.
+    OFF = auto()  # Will not function as any device. May be used to disconnect the device from the target
 
     IF = auto()
     THEN = auto()
@@ -131,6 +135,10 @@ class Lexer:
 
     def __init__(self):
         self.token_specification = [
+            (Tok.ATTACKMODE, r"^\bATTACKMODE\b"),
+            (Tok.HID, r"\bHID\b"),
+            (Tok.STORAGE, r"\bSTORAGE\b"),
+            (Tok.OFF, r"\bOFF\b"),
             (Tok.WAIT_FOR_BUTTON_PRESS, r"^\bWAIT_FOR_BUTTON_PRESS\b"),
             (Tok.REM, r"^\bREM\b.*"),
             (Tok.VAR, r"^\bVAR\b"),
