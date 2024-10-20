@@ -1,6 +1,6 @@
 import operator as op
 import time
-from parser import (
+from interpreter.parser import (
     VarStmt,
     Binary,
     Unary,
@@ -21,7 +21,6 @@ from parser import (
     Assign,
     Call,
 )
-
 
 class Interpreter:
     OPERATORS = operators = {

@@ -1,7 +1,7 @@
 import pytest
-from lexer import Lexer
-from parser import *
-from interpreter import Interpreter
+from interpreter.lexer import Lexer
+from interpreter.parser import *
+from interpreter.interpreter import Interpreter
 
 
 def execute(code: str):

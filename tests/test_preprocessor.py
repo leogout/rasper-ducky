@@ -1,5 +1,5 @@
 import pytest
-from preprocessor import *
+from interpreter.preprocessor import *
 
 
 @pytest.fixture

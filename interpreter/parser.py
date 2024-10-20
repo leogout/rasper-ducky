@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from lexer import Tok, Token
+from interpreter.lexer import Tok, Token
 
 
 # EXPRESSIONS

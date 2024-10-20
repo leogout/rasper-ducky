@@ -1,6 +1,6 @@
 import pytest
-from parser import *
-from lexer import *
+from interpreter.parser import *
+from interpreter.lexer import *
 
 
 @pytest.fixture

@@ -1,5 +1,5 @@
 import pytest
-from lexer import *
+from interpreter.lexer import *
 
 
 @pytest.fixture
