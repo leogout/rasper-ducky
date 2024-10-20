@@ -321,3 +321,14 @@ END_FUNCTION"""
         Token(Tok.EOF),
     ]
     assert tokens == expected_tokens
+
+
+def test_wait_for_button_press(lexer):
+    code = "WAIT_FOR_BUTTON_PRESS"
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(Tok.WAIT_FOR_BUTTON_PRESS, "WAIT_FOR_BUTTON_PRESS", 1, 1),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens

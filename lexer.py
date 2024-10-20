@@ -20,6 +20,8 @@ class Tok(Enum):
     REM_BLOCK = auto()
     END_REM_BLOCK = auto()
 
+    WAIT_FOR_BUTTON_PRESS = auto()
+
     IF = auto()
     THEN = auto()
     END_IF = auto()
@@ -129,6 +131,7 @@ class Lexer:
 
     def __init__(self):
         self.token_specification = [
+            (Tok.WAIT_FOR_BUTTON_PRESS, r"^\bWAIT_FOR_BUTTON_PRESS\b"),
             (Tok.REM, r"^\bREM\b.*"),
             (Tok.VAR, r"^\bVAR\b"),
             (Tok.DELAY, r"^\bDELAY\b"),
