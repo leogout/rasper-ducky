@@ -127,107 +127,140 @@ class Lexer:
         "F1",
     ]
 
-    def __init__(self):
-        self.token_specification = [
-            (Tok.REM, r"^\bREM\b.*"),
-            (Tok.VAR, r"^\bVAR\b"),
-            (Tok.DELAY, r"^\bDELAY\b"),
-            (Tok.IF, r"^\bIF\b"),
-            (Tok.THEN, r"\bTHEN\b"),
-            (Tok.END_IF, r"^\bEND_IF\b"),
-            (Tok.ELSE_IF, r"^\bELSE\s+IF\b"),
-            (Tok.ELSE, r"^\bELSE\b"),
-            (Tok.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
-            (Tok.PRINTSTRING, r"^\bSTRING\b\s.*"),
-            (Tok.TRUE, r"\bTRUE\b"),
-            (Tok.FALSE, r"\bFALSE\b"),
-            (Tok.WHILE, r"^\bWHILE\b"),
-            (Tok.END_WHILE, r"^\bEND_WHILE\b"),
-            (Tok.FUNCTION, r"^\bFUNCTION\b"),
-            (Tok.END_FUNCTION, r"^\bEND_FUNCTION\b"),
-            (Tok.NUMBER, r"\d+"),
-            (Tok.LPAREN, r"\("),
-            (Tok.RPAREN, r"\)"),
-            (Tok.OP_SHIFT_LEFT, r"<<"),
-            (Tok.OP_SHIFT_RIGHT, r">>"),
-            (Tok.OP_GREATER_EQUAL, r">="),
-            (Tok.OP_LESS_EQUAL, r"<="),
-            (Tok.OP_EQUAL, r"=="),
-            (Tok.OP_AND, r"&&"),
-            (Tok.OP_NOT_EQUAL, r"!="),
-            (Tok.OP_GREATER, r">"),
-            (Tok.OP_LESS, r"<"),
-            (Tok.OP_OR, r"\|\|"),
-            (Tok.OP_BITWISE_AND, r"&"),
-            (Tok.OP_BITWISE_OR, r"\|"),
-            (Tok.OP_PLUS, r"\+"),
-            (Tok.OP_MINUS, r"\-"),
-            (Tok.OP_MULTIPLY, r"\*"),
-            (Tok.OP_DIVIDE, r"/"),
-            (Tok.OP_MODULO, r"%"),
-            (Tok.OP_POWER, r"\^"),
-            (Tok.OP_NOT, r"!"),
-            (Tok.ASSIGN, r"="),
-            (Tok.SKIP, r"[ \t]+"),
-            (
-                Tok.KEYPRESS,
-                r"\b(" + "|".join(re.escape(cmd) for cmd in self.COMMANDS) + r")\b",
-            ),
-            # Anything that is not a keyword is an identifier
-            (Tok.REM_BLOCK, r"^\bREM_BLOCK\b.*"),
-            (Tok.END_REM_BLOCK, r"^\bEND_REM\b"),
-            (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
-            (Tok.MISMATCH, r"."),
-        ]
-        self.token_regex = "|".join(
-            f"(?P<{t.name}>{r})" for t, r in self.token_specification
-        )
+    TOKEN_SPEC = [
+        (Tok.EOL, r"$"),
+        (Tok.VAR, r"^\bVAR\b"),
+        (Tok.DELAY, r"^\bDELAY\b"),
+        (Tok.IF, r"^\bIF\b"),
+        (Tok.THEN, r"\bTHEN\b"),
+        (Tok.END_IF, r"^\bEND_IF\b"),
+        (Tok.ELSE_IF, r"^\bELSE\s+IF\b"),
+        (Tok.ELSE, r"^\bELSE\b"),
+        (Tok.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
+        (Tok.PRINTSTRING, r"^\bSTRING\b\s.*"),
+        (Tok.TRUE, r"\bTRUE\b"),
+        (Tok.FALSE, r"\bFALSE\b"),
+        (Tok.WHILE, r"^\bWHILE\b"),
+        (Tok.END_WHILE, r"^\bEND_WHILE\b"),
+        (Tok.FUNCTION, r"^\bFUNCTION\b"),
+        (Tok.END_FUNCTION, r"^\bEND_FUNCTION\b"),
+        (Tok.NUMBER, r"\d+"),
+        (Tok.LPAREN, r"\("),
+        (Tok.RPAREN, r"\)"),
+        (Tok.OP_SHIFT_LEFT, r"<<"),
+        (Tok.OP_SHIFT_RIGHT, r">>"),
+        (Tok.OP_GREATER_EQUAL, r">="),
+        (Tok.OP_LESS_EQUAL, r"<="),
+        (Tok.OP_EQUAL, r"=="),
+        (Tok.OP_AND, r"&&"),
+        (Tok.OP_NOT_EQUAL, r"!="),
+        (Tok.OP_GREATER, r">"),
+        (Tok.OP_LESS, r"<"),
+        (Tok.OP_OR, r"\|\|"),
+        (Tok.OP_BITWISE_AND, r"&"),
+        (Tok.OP_BITWISE_OR, r"\|"),
+        (Tok.OP_PLUS, r"\+"),
+        (Tok.OP_MINUS, r"\-"),
+        (Tok.OP_MULTIPLY, r"\*"),
+        (Tok.OP_DIVIDE, r"/"),
+        (Tok.OP_MODULO, r"%"),
+        (Tok.OP_POWER, r"\^"),
+        (Tok.OP_NOT, r"!"),
+        (Tok.ASSIGN, r"="),
+        (Tok.SKIP, r"[ \t]+"),
+        (
+            Tok.KEYPRESS,
+            r"\b(" + "|".join(re.escape(cmd) for cmd in COMMANDS) + r")\b",
+        ),
+        # Anything that is not a keyword is an identifier
+        (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
+        (Tok.MISMATCH, r"."),
+    ]
 
-    def tokenize(self, code: str) -> Iterator[Token]:
-        lines = code.split("\n")
-        in_comment_block = False
-        for line_num, line in enumerate(lines, 1):
-            if not line.strip():
+    TOKEN_REGEX = re.compile("|".join(f"(?P<{t.name}>{r})" for t, r in TOKEN_SPEC))
+
+    def __init__(self, code: str):
+        self.line_num = 1
+        self.lines = code.splitlines()
+
+    def advance(self):
+        """Advance to the next line."""
+        self.line_num += 1
+
+    def get_line(self) -> str:
+        """Get the current line."""
+        return self.lines[self.line_num - 1]
+
+    def skip_line(self, pattern: str) -> bool:
+        """Skip a line if it matches the given pattern."""
+        line = self.get_line()
+        if re.match(pattern, line):
+            self.advance()
+            return True
+        return False
+
+    def skip_empty_line(self) -> bool:
+        """Skip an empty line."""
+        return self.skip_line(r"^\s*$")
+
+    def skip_comment_line(self) -> bool:
+        """Skip a comment line."""
+        return self.skip_line(r"^\bREM\b")
+
+    def skip_comment_block(self) -> bool:
+        """Skip a block of comments."""
+        if self.skip_line(r"^\bREM_BLOCK\b"):
+            while not self.skip_line(r"^\bEND_REM\b"):
+                pass
+            return True
+        return False
+
+    def consume_token(self, kind: Tok, value: str, column: int):
+        """Consume a token and yield the appropriate Token object."""
+        match kind:
+            case Tok.MISMATCH:
+                raise SyntaxError(
+                    f"Unexpected character '{value}' at line {self.line_num}, column {column}"
+                )
+            case Tok.PRINTSTRING:
+                yield Token(kind, "STRING", self.line_num, column)
+                yield Token(Tok.STRING, value[7:], self.line_num, column + 8)
+            case Tok.PRINTSTRINGLN:
+                yield Token(kind, "STRINGLN", self.line_num, column)
+                yield Token(Tok.STRING, value[9:], self.line_num, column + 10)
+            case Tok.KEYPRESS:
+                yield Token(kind, value.strip(), self.line_num, column)
+            case Tok.EOL:
+                yield Token(kind)
+            case _ if kind != Tok.SKIP:
+                yield Token(kind, value, self.line_num, column)
+
+    def consume_line(self) -> Iterator[Token]:
+        """Consume tokens from the current line."""
+        line = self.get_line()
+        for mo in re.finditer(self.TOKEN_REGEX, line.strip()):
+            if mo.lastgroup is None:
+                raise SyntaxError(
+                    f"Unrecognized token '{mo.group()}' at line {self.line_num}, column {mo.start() + 1}"
+                )
+
+            kind = Tok[mo.lastgroup]
+            value = mo.group()
+            column = mo.start() + 1
+
+            yield from self.consume_token(kind, value, column)
+
+    def tokenize(self) -> Iterator[Token]:
+        """Tokenize the input code."""
+        while self.line_num <= len(self.lines):
+            if (
+                self.skip_empty_line()
+                or self.skip_comment_line()
+                or self.skip_comment_block()
+            ):
                 continue
 
-            if in_comment_block:
-                if re.match(r"^\bEND_REM\b", line.strip()):
-                    in_comment_block = False
-                continue
-
-            has_tokens = False
-            for mo in re.finditer(self.token_regex, line.strip()):
-                if mo.lastgroup is None:
-                    raise SyntaxError(
-                        f"Unexpected character '{mo.group()}' at line {line_num}, column {mo.start() + 1}"
-                    )
-
-                kind = Tok[mo.lastgroup]
-                value = mo.group()
-                column = mo.start() + 1
-                if kind == Tok.MISMATCH:
-                    raise SyntaxError(
-                        f"Unexpected character '{value}' at line {line_num}, column {column}"
-                    )
-                elif kind == Tok.REM:
-                    break
-                elif kind == Tok.REM_BLOCK:
-                    in_comment_block = True
-                    break
-
-                has_tokens = True
-                if kind == Tok.PRINTSTRING:
-                    yield Token(kind, "STRING", line_num, column)
-                    yield Token(Tok.STRING, value[7:], line_num, column + 8)
-                elif kind == Tok.PRINTSTRINGLN:
-                    yield Token(kind, "STRINGLN", line_num, column)
-                    yield Token(Tok.STRING, value[9:], line_num, column + 10)
-                elif kind == Tok.KEYPRESS:
-                    yield Token(kind, value.strip(), line_num, column)
-                elif kind != Tok.SKIP:
-                    yield Token(kind, value, line_num, column)
-
-            if has_tokens:
-                yield Token(Tok.EOL)
+            yield from self.consume_line()
+            self.advance()
 
         yield Token(Tok.EOF)

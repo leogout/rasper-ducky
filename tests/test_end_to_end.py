@@ -5,8 +5,8 @@ from interpreter import Interpreter
 
 
 def execute(code: str):
-    lexer = Lexer()
-    tokens = list(lexer.tokenize(code))
+    lexer = Lexer(code)
+    tokens = list(lexer.tokenize())
     parser = Parser(tokens)
     ast = parser.parse()
     interpreter = Interpreter()

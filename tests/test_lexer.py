@@ -2,42 +2,41 @@ import pytest
 from lexer import *
 
 
-@pytest.fixture
-def lexer():
-    return Lexer()
+def lexer(code: str):
+    return Lexer(code)
 
 
-def test_eof_token_empty_code(lexer):
+def test_eof_token_empty_code():
     code = ""
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [Token(Tok.EOF)]
     assert tokens == expected_tokens
 
 
-def test_eof_token_one_line_code(lexer):
+def test_eof_token_one_line_code():
     code = "VAR $x = 8"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     assert tokens[-1] == Token(Tok.EOF)
 
 
-def test_eof_token_multiple_lines_code(lexer):
+def test_eof_token_multiple_lines_code():
     code = """
     VAR $x = 8
     VAR $y = $x * 2 + 5
     """
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     assert tokens[-1] == Token(Tok.EOF)
 
 
-def test_eof_token_with_empty_lines(lexer):
+def test_eof_token_with_empty_lines():
     code = "\n\n\n\n\n\n"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     assert tokens[-1] == Token(Tok.EOF)
 
 
-def test_var_declaration(lexer):
+def test_var_declaration():
     code = "VAR $x = 8"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.VAR, "VAR", 1, 1),
         Token(Tok.IDENTIFIER, "$x", 1, 5),
@@ -50,9 +49,9 @@ def test_var_declaration(lexer):
     assert tokens == expected_tokens
 
 
-def test_expression(lexer):
+def test_expression():
     code = "VAR $y = $x * 2 + 5"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.VAR, "VAR", 1, 1),
         Token(Tok.IDENTIFIER, "$y", 1, 5),
@@ -68,9 +67,9 @@ def test_expression(lexer):
     assert tokens == expected_tokens
 
 
-def test_string_statement(lexer):
+def test_string_statement():
     code = "STRING Hello, World!"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 1, 1),
         Token(Tok.STRING, "Hello, World!", 1, 9),
@@ -80,9 +79,9 @@ def test_string_statement(lexer):
     assert tokens == expected_tokens
 
 
-def test_stringln_statement(lexer):
+def test_stringln_statement():
     code = "STRINGLN Hello, World!"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRINGLN, "STRINGLN", 1, 1),
         Token(Tok.STRING, "Hello, World!", 1, 11),
@@ -92,9 +91,9 @@ def test_stringln_statement(lexer):
     assert tokens == expected_tokens
 
 
-def test_all_keypress_commands(lexer):
+def test_all_keypress_commands():
     code = "\n".join(Lexer.COMMANDS)
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
 
     expected_tokens = []
     for i, command in enumerate(Lexer.COMMANDS):
@@ -105,7 +104,7 @@ def test_all_keypress_commands(lexer):
     assert tokens == expected_tokens
 
 
-def test_if_else_statement(lexer):
+def test_if_else_statement():
     code = """IF 1 THEN
 STRING Hello, World!
 ELSE IF 1 THEN
@@ -114,7 +113,7 @@ ELSE
 STRING Hey there!
 END_IF
 """
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.IF, "IF", 1, 1),
         Token(Tok.NUMBER, "1", 1, 4),
@@ -142,12 +141,12 @@ END_IF
     assert tokens == expected_tokens
 
 
-def test_all_keywords_tokens(lexer):
+def test_all_keywords_tokens():
     code = """STRING Hello, World!
 VAR $x = 1 + 2 * 3 / 4 - 5 & 6 | 7 << 8 >> 9
 VAR $y = 1 == 2 != 3 > 4 < 5 >= 6 <= 7 && 8 || 9
 DELAY 10"""
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 1, 1),
         Token(Tok.STRING, "Hello, World!", 1, 9),
@@ -202,12 +201,12 @@ DELAY 10"""
     assert tokens == expected_tokens
 
 
-def test_while_statement_with_expression(lexer):
+def test_while_statement_with_expression():
     code = """WHILE ($x > 0)
 STRING Hello, World!
 $x = $x - 1
 END_WHILE"""
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.WHILE, "WHILE", 1, 1),
         Token(Tok.LPAREN, "(", 1, 7),
@@ -232,9 +231,9 @@ END_WHILE"""
     assert tokens == expected_tokens
 
 
-def test_true_literal(lexer):
+def test_true_literal():
     code = "TRUE"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     assert tokens == [
         Token(Tok.TRUE, "TRUE", 1, 1),
         Token(Tok.EOL),
@@ -242,9 +241,9 @@ def test_true_literal(lexer):
     ]
 
 
-def test_false_literal(lexer):
+def test_false_literal():
     code = "FALSE"
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     assert tokens == [
         Token(Tok.FALSE, "FALSE", 1, 1),
         Token(Tok.EOL),
@@ -252,29 +251,29 @@ def test_false_literal(lexer):
     ]
 
 
-def test_unexpected_character(lexer):
+def test_unexpected_character():
     code = "VAR $x = 8 @"
     with pytest.raises(
         SyntaxError, match=r"Unexpected character '@' at line 1, column 12"
     ):
-        list(lexer.tokenize(code))
+        list(lexer(code).tokenize())
 
 
-def test_invalid_operator(lexer):
+def test_invalid_operator():
     code = "VAR $x = 8 £ 2"
     with pytest.raises(
         SyntaxError, match=r"Unexpected character '£' at line 1, column 12"
     ):
-        list(lexer.tokenize(code))
+        list(lexer(code).tokenize())
 
 
-def test_comments(lexer):
+def test_comments():
     code = """
 REM This is a comment
 STRING Hello, World!
 REM This is another comment
 """
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 3, 1),
         Token(Tok.STRING, "Hello, World!", 3, 9),
@@ -284,14 +283,14 @@ REM This is another comment
     assert tokens == expected_tokens
 
 
-def test_comments_blocks(lexer):
+def test_comments_blocks():
     code = """
 REM_BLOCK
 STRING A
 END_REM
 STRING B
 """
-    tokens = list(lexer.tokenize(code))
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 5, 1),
         Token(Tok.STRING, "B", 5, 9),
@@ -301,12 +300,11 @@ STRING B
     assert tokens == expected_tokens
 
 
-def test_function_declaration(lexer):
+def test_function_declaration():
     code = """FUNCTION MyFunction()
     STRING Hello, World!
 END_FUNCTION"""
-    tokens = list(lexer.tokenize(code))
-    print(tokens)
+    tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.FUNCTION, "FUNCTION", 1, 1),
         Token(Tok.IDENTIFIER, "MyFunction", 1, 10),
