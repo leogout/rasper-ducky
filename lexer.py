@@ -177,7 +177,7 @@ class Lexer:
         (Tok.MISMATCH, r"."),
     ]
 
-    TOKEN_REGEX = re.compile("|".join(f"(?P<{t.name}>{r})" for t, r in TOKEN_SPEC))
+    TOKEN_REGEX = "|".join(f"(?P<{t.name}>{r})" for t, r in TOKEN_SPEC)
 
     def __init__(self, code: str):
         self.line_num = 1
