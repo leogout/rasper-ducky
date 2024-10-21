@@ -11,3 +11,4 @@ layout = KeyboardLayout(kbd)
 
 def type_string(string):
     layout.write(string)
+

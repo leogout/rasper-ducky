@@ -1,10 +1,4 @@
-import supervisor
-
 import time
-import digitalio
-from board import *
-import board
-import pwmio
 
 from rasper_ducky.interpreter.lexer import Lexer
 from rasper_ducky.interpreter.parser import Parser

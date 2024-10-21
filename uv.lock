@@ -36,15 +36,6 @@ wheels = [
 ]
 
 [[package]]
-name = "circuitpython-stubs"
-version = "9.1.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/04/fa/eb4ccfe56660f9a2238567c69ece47689eeb63d442ff331661bc82464133/circuitpython_stubs-9.1.4.tar.gz", hash = "sha256:49cb3546c31340c9a664135d685ff06cb0e41e6f60c9c61b1342dd6259f8fa6f", size = 309612 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/54/6ba54b8d28c8f5126098bbd696b1c6eaae027c379c0fc85d6d39d23db2a8/circuitpython_stubs-9.1.4-py3-none-any.whl", hash = "sha256:5429561165a13711033075461c226a0fbed1c5abd892d1ba02c23f42ae65feaf", size = 876394 },
-]
-
-[[package]]
 name = "click"
 version = "8.1.7"
 source = { registry = "https://pypi.org/simple" }
@@ -207,7 +198,6 @@ source = { virtual = "." }
 [package.dev-dependencies]
 dev = [
     { name = "black" },
-    { name = "circuitpython-stubs" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-mock" },
@@ -219,7 +209,6 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = ">=24.10.0" },
-    { name = "circuitpython-stubs", specifier = ">=9.1.4" },
     { name = "mypy", specifier = ">=1.11.2" },
     { name = "pytest", specifier = ">=8.3.3" },
     { name = "pytest-mock", specifier = ">=3.14.0" },

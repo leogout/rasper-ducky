@@ -107,7 +107,8 @@ class Interpreter:
 
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
-
+        type_string(node.value.value)
+        
     def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
 
