@@ -16,4 +16,5 @@ dev-dependencies = [
     "mypy>=1.11.2",
     "pytest-mock>=3.14.0",
     "circuitpython-stubs>=9.1.4",
+    "pytest-watcher>=0.4.3",
 ]

@@ -1,5 +1,6 @@
 import operator as op
 import time
+from rasper_ducky.keyboard import type_string
 from rasper_ducky.interpreter.parser import (
     VarStmt,
     Binary,
@@ -102,6 +103,7 @@ class Interpreter:
 
     def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
+        type_string(node.value.value)
 
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
