@@ -1,27 +1,8 @@
 import operator as op
 import time
-from rasper_ducky.keyboard import type_string
-from rasper_ducky.interpreter.parser import (
-    VarStmt,
-    Binary,
-    Unary,
-    Literal,
-    Grouping,
-    Variable,
-    StringStmt,
-    IfStmt,
-    WhileStmt,
-    Expr,
-    Token,
-    Tok,
-    StringLnStmt,
-    DelayStmt,
-    FunctionStmt,
-    Stmt,
-    ExpressionStmt,
-    Assign,
-    Call,
-)
+from rasper_ducky.keyboard import type_string, press_key
+from rasper_ducky.interpreter.parser import *
+
 
 class Interpreter:
     OPERATORS = operators = {
@@ -108,7 +89,7 @@ class Interpreter:
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
         type_string(node.value.value)
-        
+
     def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
 
@@ -139,6 +120,8 @@ class Interpreter:
             return self._evaluate(node.expression)
         elif isinstance(node, Call):
             return self._execute_function_call(node)
+        elif isinstance(node, KeyPress):
+            press_key(node.key.value)  # TODO: handle release
         else:
             raise RuntimeError(
                 f"Type de noeud inconnu pour l'évaluation : {type(node)}"

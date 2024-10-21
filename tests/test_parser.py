@@ -426,3 +426,16 @@ def test_function_call(parser):
     ]
     ast = parser(tokens).parse()
     expected_ast = [Call(Token(Tok.IDENTIFIER, "myFunction"))]
+
+
+def test_keypress_statement(parser):
+    tokens = []
+    for key in Lexer.COMMANDS:
+        tokens.append(Token(Tok.KEYPRESS, key))
+        tokens.append(Token(Tok.EOL))
+    tokens.append(Token(Tok.EOF))
+    ast = parser(tokens).parse()
+    expected_ast = [
+        ExpressionStmt(KeyPress(Token(Tok.KEYPRESS, key))) for key in Lexer.COMMANDS
+    ]
+    assert ast == expected_ast

@@ -51,6 +51,14 @@ class Variable(Expr):
 
 
 @dataclass
+class KeyPress(Expr):
+    key: Token
+
+    def __repr__(self):
+        return f"KEYPRESS({self.key})"
+
+
+@dataclass
 class Call(Expr):
     name: Token
 
@@ -341,6 +349,8 @@ class Parser:
             return Literal(self.previous().value)
         if self.match(Tok.IDENTIFIER):
             return Variable(self.previous())
+        if self.match(Tok.KEYPRESS):
+            return KeyPress(self.previous())
 
         if self.match(Tok.LPAREN):
             expr = self.expression()

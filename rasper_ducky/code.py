@@ -6,7 +6,7 @@ from rasper_ducky.interpreter.interpreter import Interpreter
 from rasper_ducky.interpreter.preprocessor import Preprocessor
 
 # sleep at the start to allow the device to be recognized by the host computer
-time.sleep(.5)
+time.sleep(0.5)
 
 
 def execute(code: str):

@@ -12,6 +12,10 @@ pythonpath = [".", "stubs"]
 [tool.pyright]
 extraPaths = ["stubs"]
 
+[tool.mypy]
+mypy_path = "stubs"
+
+
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.3.3",

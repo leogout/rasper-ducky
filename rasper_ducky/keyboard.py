@@ -12,3 +12,10 @@ layout = KeyboardLayout(kbd)
 def type_string(string):
     layout.write(string)
 
+
+def press_key(key):
+    kbd.press(key)
+
+
+def release_all():
+    kbd.release_all()
