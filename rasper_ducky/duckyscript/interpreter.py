@@ -1,7 +1,7 @@
 import operator as op
 import time
 from rasper_ducky.keyboard import release_all, type_string, press_key
-from rasper_ducky.duckyscript.parser import *
+from .parser import *
 
 
 class Interpreter:

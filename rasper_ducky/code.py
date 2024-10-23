@@ -1,9 +1,9 @@
 import time
 
-from rasper_ducky.duckyscript.lexer import Lexer
-from rasper_ducky.duckyscript.parser import Parser
-from rasper_ducky.duckyscript.interpreter import Interpreter
-from rasper_ducky.duckyscript.preprocessor import Preprocessor
+from .duckyscript.lexer import Lexer
+from .duckyscript.parser import Parser
+from .duckyscript.interpreter import Interpreter
+from .duckyscript.preprocessor import Preprocessor
 
 # sleep at the start to allow the device to be recognized by the host computer
 time.sleep(0.5)
