@@ -1,7 +1,7 @@
 import operator as op
 import time
-from rasper_ducky.keyboard import type_string, press_key
-from rasper_ducky.interpreter.parser import *
+from rasper_ducky.keyboard import release_all, type_string, press_key
+from rasper_ducky.duckyscript.parser import *
 
 
 class Interpreter:
@@ -50,6 +50,8 @@ class Interpreter:
             self._execute_expression(node)
         elif isinstance(node, FunctionStmt):
             self._execute_function_declaration(node)
+        elif isinstance(node, KeyPressStmt):
+            self._execute_keypress(node)
         elif isinstance(node, ExpressionStmt):
             self._execute_expression(node.expression)
         elif isinstance(node, Literal):
@@ -102,6 +104,11 @@ class Interpreter:
     def _execute_function_call(self, node: Call):
         self._execute_block(self.functions[node.name.value])
 
+    def _execute_keypress(self, node: KeyPressStmt):
+        for key in node.keys:
+            press_key(key.value)
+        release_all()
+
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
             return self._evaluate_expression(node)
@@ -120,8 +127,6 @@ class Interpreter:
             return self._evaluate(node.expression)
         elif isinstance(node, Call):
             return self._execute_function_call(node)
-        elif isinstance(node, KeyPress):
-            press_key(node.key.value)  # TODO: handle release
         else:
             raise RuntimeError(
                 f"Type de noeud inconnu pour l'évaluation : {type(node)}"

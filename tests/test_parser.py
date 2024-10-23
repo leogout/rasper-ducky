@@ -1,6 +1,6 @@
 import pytest
-from rasper_ducky.interpreter.parser import *
-from rasper_ducky.interpreter.lexer import *
+from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.lexer import *
 
 
 @pytest.fixture
@@ -435,7 +435,19 @@ def test_keypress_statement(parser):
         tokens.append(Token(Tok.EOL))
     tokens.append(Token(Tok.EOF))
     ast = parser(tokens).parse()
+    expected_ast = [KeyPressStmt([Token(Tok.KEYPRESS, key)]) for key in Lexer.COMMANDS]
+    assert ast == expected_ast
+
+
+def test_keypress_statement_with_multiple_keys(parser):
+    tokens = [
+        Token(Tok.KEYPRESS, "CTRL"),
+        Token(Tok.KEYPRESS, "B"),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
     expected_ast = [
-        ExpressionStmt(KeyPress(Token(Tok.KEYPRESS, key))) for key in Lexer.COMMANDS
+        KeyPressStmt([Token(Tok.KEYPRESS, "CTRL"), Token(Tok.KEYPRESS, "B")])
     ]
     assert ast == expected_ast

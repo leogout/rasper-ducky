@@ -1,11 +1,22 @@
+from unittest.mock import call
 import pytest
-from rasper_ducky.interpreter.interpreter import *
-from rasper_ducky.interpreter.parser import *
+from rasper_ducky.duckyscript.interpreter import *
+from rasper_ducky.duckyscript.parser import *
 
 
 @pytest.fixture
 def interpreter():
     return Interpreter()
+
+
+@pytest.fixture
+def mock_press_key(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.press_key")
+
+
+@pytest.fixture
+def mock_release_all(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.release_all")
 
 
 def test_var_declaration(interpreter):
@@ -393,3 +404,10 @@ def test_delay_statement(interpreter, mocker):
     interpreter.interpret(ast)
     mock_sleep.assert_called_once_with(10)
     assert interpreter.execution_stack == []
+
+
+def test_keypress_statement(interpreter, mock_press_key, mock_release_all):
+    ast = [KeyPressStmt([Token(Tok.KEYPRESS, "A"), Token(Tok.KEYPRESS, "B")])]
+    interpreter.interpret(ast)
+    mock_press_key.assert_has_calls([call("A"), call("B")])
+    mock_release_all.assert_called_once()

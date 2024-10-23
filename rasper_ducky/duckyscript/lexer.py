@@ -22,9 +22,15 @@ class Tok(Enum):
 
     WAIT_FOR_BUTTON_PRESS = auto()
     ATTACKMODE = auto()
-    HID = auto()  # Functions as a Human Interface Device, or Keyboard, for keystroke injection.
-    STORAGE = auto()  # Functions as USB Mass Storage, or a Flash Drive, for copying files to/from the target.
-    OFF = auto()  # Will not function as any device. May be used to disconnect the device from the target
+    HID = (
+        auto()
+    )  # Functions as a Human Interface Device, or Keyboard, for keystroke injection.
+    STORAGE = (
+        auto()
+    )  # Functions as USB Mass Storage, or a Flash Drive, for copying files to/from the target.
+    OFF = (
+        auto()
+    )  # Will not function as any device. May be used to disconnect the device from the target
 
     IF = auto()
     THEN = auto()
@@ -131,6 +137,32 @@ class Lexer:
         "F3",
         "F2",
         "F1",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
     ]
 
     def __init__(self):

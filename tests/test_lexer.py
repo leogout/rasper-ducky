@@ -1,5 +1,5 @@
 import pytest
-from rasper_ducky.interpreter.lexer import *
+from rasper_ducky.duckyscript.lexer import *
 
 
 @pytest.fixture
@@ -103,6 +103,17 @@ def test_all_keypress_commands(lexer):
     expected_tokens.append(Token(Tok.EOF))
 
     assert tokens == expected_tokens
+
+
+def test_keypress_statement_with_multiple_keys(lexer):
+    code = "A B"
+    tokens = list(lexer.tokenize(code))
+    expected_tokens = [
+        Token(Tok.KEYPRESS, "A", 1, 10),
+        Token(Tok.KEYPRESS, "B", 1, 12),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
 
 
 def test_if_else_statement(lexer):

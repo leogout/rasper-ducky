@@ -1,13 +1,23 @@
 import pytest
-from rasper_ducky.interpreter.lexer import Lexer
-from rasper_ducky.interpreter.parser import *
-from rasper_ducky.interpreter.interpreter import Interpreter
+from rasper_ducky.duckyscript.lexer import Lexer
+from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.interpreter import Interpreter
 from unittest.mock import call
 
 
 @pytest.fixture
 def mock_type_string(mocker):
-    return mocker.patch('rasper_ducky.interpreter.interpreter.type_string')
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.type_string")
+
+
+@pytest.fixture
+def mock_press_key(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.press_key")
+
+
+@pytest.fixture
+def mock_release_all(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.release_all")
 
 
 def execute(code: str):
@@ -102,7 +112,7 @@ def test_booleans(mock_type_string):
     )
     assert interpreter.variables == {}
     assert mock_type_string.call_count == 2
-    mock_type_string.assert_has_calls([call("A"),call("B")])
+    mock_type_string.assert_has_calls([call("A"), call("B")])
 
 
 def test_nested_if_statements(mock_type_string):
@@ -122,7 +132,7 @@ def test_nested_if_statements(mock_type_string):
         """
     )
     assert mock_type_string.call_count == 1
-    mock_type_string.assert_called_with("B")    
+    mock_type_string.assert_called_with("B")
 
 
 def test_delay_statement(mocker):
@@ -174,3 +184,15 @@ def test_global_variables():
         """
     )
     assert interpreter.variables["$x"] == 13
+
+
+def test_keypress_statement(mock_press_key, mock_release_all):
+    execute("CTRL")
+    mock_press_key.assert_has_calls([call("CTRL")])
+    mock_release_all.assert_called_once()
+
+
+def test_keypress_statement_with_multiple_keys(mock_press_key, mock_release_all):
+    execute("CTRL ALT B")
+    mock_press_key.assert_has_calls([call("CTRL"), call("ALT"), call("B")])
+    mock_release_all.assert_called_once()

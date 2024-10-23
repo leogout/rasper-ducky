@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from rasper_ducky.interpreter.lexer import Tok, Token
+from rasper_ducky.duckyscript.lexer import Tok, Token
 
 
 # EXPRESSIONS
@@ -48,14 +48,6 @@ class Variable(Expr):
 
     def __repr__(self):
         return f"VAR({self.name})"
-
-
-@dataclass
-class KeyPress(Expr):
-    key: Token
-
-    def __repr__(self):
-        return f"KEYPRESS({self.key})"
 
 
 @dataclass
@@ -125,6 +117,14 @@ class IfStmt(Stmt):
 
 
 @dataclass
+class KeyPressStmt(Stmt):
+    keys: list[Token]
+
+    def __repr__(self):
+        return f"KEYPRESS({self.keys})"
+
+
+@dataclass
 class WhileStmt(Stmt):
     condition: Expr
     body: list[Stmt]
@@ -181,6 +181,8 @@ class Parser:
             return self.while_stmt()
         elif self.match(Tok.FUNCTION):
             return self.function_stmt()
+        elif self.match(Tok.KEYPRESS):
+            return self.keypress_stmt()
 
         return self.expression_stmt()
 
@@ -248,6 +250,13 @@ class Parser:
         self.consume(Tok.END_FUNCTION, "Expected 'END_FUNCTION'")
         self.consume(Tok.EOL, "Expected a line break after 'END_FUNCTION'")
         return FunctionStmt(name, body)
+
+    def keypress_stmt(self) -> KeyPressStmt:
+        keys = [self.previous()]
+        while self.match(Tok.KEYPRESS):
+            keys.append(self.previous())
+        self.consume(Tok.EOL, "Expected a line break after a keypress")
+        return KeyPressStmt(keys)
 
     def block(self) -> list[Stmt]:
         statements = []
@@ -349,8 +358,6 @@ class Parser:
             return Literal(self.previous().value)
         if self.match(Tok.IDENTIFIER):
             return Variable(self.previous())
-        if self.match(Tok.KEYPRESS):
-            return KeyPress(self.previous())
 
         if self.match(Tok.LPAREN):
             expr = self.expression()
@@ -393,7 +400,11 @@ class Parser:
     def consume(self, type, message) -> Token:
         if self.check(type):
             return self.advance()
-        raise SyntaxError(message, self.peek().line, self.peek().column)
+        raise SyntaxError(
+            f"{message}\n\ttoken précédent : {self.previous().type} -> '{self.previous().value}'\n\ttoken courant : {self.peek().type} -> '{self.peek().value}'",
+            self.peek().line,
+            self.peek().column,
+        )
 
     def synchronize(self):
         # may be used later for error recovery
