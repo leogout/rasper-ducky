@@ -1,6 +1,7 @@
 import pytest
 from rasper_ducky.duckyscript.parser import *
 from rasper_ducky.duckyscript.lexer import *
+from rasper_ducky.duckyscript.token import Token, Tok
 
 
 @pytest.fixture

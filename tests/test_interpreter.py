@@ -2,6 +2,7 @@ from unittest.mock import call
 import pytest
 from rasper_ducky.duckyscript.interpreter import *
 from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.token import Token, Tok
 
 
 @pytest.fixture

@@ -1,91 +1,7 @@
 import re
-from enum import Enum, auto
-from dataclasses import dataclass
 from typing import Iterator
 
-
-class Tok(Enum):
-    VAR = auto()
-    DELAY = auto()
-    IDENTIFIER = auto()
-    ASSIGN = auto()
-    SKIP = auto()
-    MISMATCH = auto()
-    PRINTSTRING = auto()
-    PRINTSTRINGLN = auto()
-    EOF = auto()
-    EOL = auto()
-    KEYPRESS = auto()
-    REM = auto()
-    REM_BLOCK = auto()
-    END_REM_BLOCK = auto()
-
-    WAIT_FOR_BUTTON_PRESS = auto()
-    ATTACKMODE = auto()
-    HID = (
-        auto()
-    )  # Functions as a Human Interface Device, or Keyboard, for keystroke injection.
-    STORAGE = (
-        auto()
-    )  # Functions as USB Mass Storage, or a Flash Drive, for copying files to/from the target.
-    OFF = (
-        auto()
-    )  # Will not function as any device. May be used to disconnect the device from the target
-
-    IF = auto()
-    THEN = auto()
-    END_IF = auto()
-    ELSE = auto()
-    ELSE_IF = auto()
-
-    WHILE = auto()
-    END_WHILE = auto()
-
-    LPAREN = auto()
-    RPAREN = auto()
-
-    FUNCTION = auto()
-    END_FUNCTION = auto()
-    RETURN = auto()
-
-    # OPERATORS
-    OP_SHIFT_LEFT = auto()
-    OP_SHIFT_RIGHT = auto()
-    OP_GREATER_EQUAL = auto()
-    OP_LESS_EQUAL = auto()
-    OP_EQUAL = auto()
-    OP_NOT_EQUAL = auto()
-    OP_GREATER = auto()
-    OP_LESS = auto()
-    OP_OR = auto()
-    OP_BITWISE_AND = auto()
-    OP_BITWISE_OR = auto()
-    OP_PLUS = auto()
-    OP_MINUS = auto()
-    OP_MULTIPLY = auto()
-    OP_DIVIDE = auto()
-    OP_MODULO = auto()
-    OP_POWER = auto()
-    OP_NOT = auto()
-    OP_AND = auto()
-
-    # LITERALS
-    STRING = auto()
-    NUMBER = auto()
-    TRUE = auto()
-    FALSE = auto()
-    # CONTINUE = auto()
-
-    # Not in duckyscript 3.0 but why not implement it later
-    # BREAK = auto()
-
-
-@dataclass
-class Token:
-    type: Tok
-    value: str = ""
-    line: int = 0
-    column: int = 0
+from .token import Token, Tok
 
 
 class Lexer:
@@ -166,64 +82,62 @@ class Lexer:
     ]
 
     def __init__(self):
-        self.token_specification = [
-            (Tok.ATTACKMODE, r"^\bATTACKMODE\b"),
-            (Tok.HID, r"\bHID\b"),
-            (Tok.STORAGE, r"\bSTORAGE\b"),
-            (Tok.OFF, r"\bOFF\b"),
-            (Tok.WAIT_FOR_BUTTON_PRESS, r"^\bWAIT_FOR_BUTTON_PRESS\b"),
-            (Tok.REM, r"^\bREM\b.*"),
-            (Tok.VAR, r"^\bVAR\b"),
-            (Tok.DELAY, r"^\bDELAY\b"),
-            (Tok.IF, r"^\bIF\b"),
-            (Tok.THEN, r"\bTHEN\b"),
-            (Tok.END_IF, r"^\bEND_IF\b"),
-            (Tok.ELSE_IF, r"^\bELSE\s+IF\b"),
-            (Tok.ELSE, r"^\bELSE\b"),
-            (Tok.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
-            (Tok.PRINTSTRING, r"^\bSTRING\b\s.*"),
-            (Tok.TRUE, r"\bTRUE\b"),
-            (Tok.FALSE, r"\bFALSE\b"),
-            (Tok.WHILE, r"^\bWHILE\b"),
-            (Tok.END_WHILE, r"^\bEND_WHILE\b"),
-            (Tok.FUNCTION, r"^\bFUNCTION\b"),
-            (Tok.END_FUNCTION, r"^\bEND_FUNCTION\b"),
-            (Tok.NUMBER, r"\d+"),
-            (Tok.LPAREN, r"\("),
-            (Tok.RPAREN, r"\)"),
-            (Tok.OP_SHIFT_LEFT, r"<<"),
-            (Tok.OP_SHIFT_RIGHT, r">>"),
-            (Tok.OP_GREATER_EQUAL, r">="),
-            (Tok.OP_LESS_EQUAL, r"<="),
-            (Tok.OP_EQUAL, r"=="),
-            (Tok.OP_AND, r"&&"),
-            (Tok.OP_NOT_EQUAL, r"!="),
-            (Tok.OP_GREATER, r">"),
-            (Tok.OP_LESS, r"<"),
-            (Tok.OP_OR, r"\|\|"),
-            (Tok.OP_BITWISE_AND, r"&"),
-            (Tok.OP_BITWISE_OR, r"\|"),
-            (Tok.OP_PLUS, r"\+"),
-            (Tok.OP_MINUS, r"\-"),
-            (Tok.OP_MULTIPLY, r"\*"),
-            (Tok.OP_DIVIDE, r"/"),
-            (Tok.OP_MODULO, r"%"),
-            (Tok.OP_POWER, r"\^"),
-            (Tok.OP_NOT, r"!"),
-            (Tok.ASSIGN, r"="),
-            (Tok.SKIP, r"[ \t]+"),
-            (
-                Tok.KEYPRESS,
-                r"\b(" + "|".join(re.escape(cmd) for cmd in self.COMMANDS) + r")\b",
-            ),
-            # Anything that is not a keyword is an identifier
-            (Tok.REM_BLOCK, r"^\bREM_BLOCK\b.*"),
-            (Tok.END_REM_BLOCK, r"^\bEND_REM\b"),
-            (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
-            (Tok.MISMATCH, r"."),
-        ]
+        self.token_specification = {
+            "ATTACKMODE": r"^\bATTACKMODE\b",
+            "HID": r"\bHID\b",
+            "STORAGE": r"\bSTORAGE\b",
+            "OFF": r"\bOFF\b",
+            "WAIT_FOR_BUTTON_PRESS": r"^\bWAIT_FOR_BUTTON_PRESS\b",
+            "REM": r"^\bREM\b.*",
+            "VAR": r"^\bVAR\b",
+            "DELAY": r"^\bDELAY\b",
+            "IF": r"^\bIF\b",
+            "THEN": r"\bTHEN\b",
+            "END_IF": r"^\bEND_IF\b",
+            "ELSE_IF": r"^\bELSE\s+IF\b",
+            "ELSE": r"^\bELSE\b",
+            "PRINTSTRINGLN": r"^\bSTRINGLN\b\s.*",
+            "PRINTSTRING": r"^\bSTRING\b\s.*",
+            "TRUE": r"\bTRUE\b",
+            "FALSE": r"\bFALSE\b",
+            "WHILE": r"^\bWHILE\b",
+            "END_WHILE": r"^\bEND_WHILE\b",
+            "FUNCTION": r"^\bFUNCTION\b",
+            "END_FUNCTION": r"^\bEND_FUNCTION\b",
+            "NUMBER": r"\d+",
+            "LPAREN": r"\(",
+            "RPAREN": r"\)",
+            "OP_SHIFT_LEFT": r"<<",
+            "OP_SHIFT_RIGHT": r">>",
+            "OP_GREATER_EQUAL": r">=",
+            "OP_LESS_EQUAL": r"<=",
+            "OP_EQUAL": r"==",
+            "OP_AND": r"&&",
+            "OP_NOT_EQUAL": r"!=",
+            "OP_GREATER": r">",
+            "OP_LESS": r"<",
+            "OP_OR": r"\|\|",
+            "OP_BITWISE_AND": r"&",
+            "OP_BITWISE_OR": r"\|",
+            "OP_PLUS": r"\+",
+            "OP_MINUS": r"\-",
+            "OP_MULTIPLY": r"\*",
+            "OP_DIVIDE": r"/",
+            "OP_MODULO": r"%",
+            "OP_POWER": r"\^",
+            "OP_NOT": r"!",
+            "ASSIGN": r"=",
+            "SKIP": r"[ \t]+",
+            "KEYPRESS": r"\b("
+            + "|".join(re.escape(cmd) for cmd in self.COMMANDS)
+            + r")\b",
+            "REM_BLOCK": r"^\bREM_BLOCK\b.*",
+            "END_REM_BLOCK": r"^\bEND_REM\b",
+            "IDENTIFIER": r"\$?[a-zA-Z_][a-zA-Z0-9_]*",
+            "MISMATCH": r".",
+        }
         self.token_regex = "|".join(
-            f"(?P<{t.name}>{r})" for t, r in self.token_specification
+            f"(?P<{t}>{r})" for t, r in self.token_specification.items()
         )
 
     def tokenize(self, code: str) -> Iterator[Token]:
@@ -245,7 +159,7 @@ class Lexer:
                         f"Unexpected character '{mo.group()}' at line {line_num}, column {mo.start() + 1}"
                     )
 
-                kind = Tok[mo.lastgroup]
+                kind = getattr(Tok, mo.lastgroup)
                 value = mo.group()
                 column = mo.start() + 1
                 if kind == Tok.MISMATCH:
