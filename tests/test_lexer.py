@@ -1,5 +1,5 @@
 import pytest
-from lexer import *
+from rasper_ducky.duckyscript.lexer import *
 
 
 def lexer(code: str):
@@ -315,6 +315,30 @@ END_FUNCTION"""
         Token(Tok.STRING, "Hello, World!", 2, 9),
         Token(Tok.EOL),
         Token(Tok.END_FUNCTION, "END_FUNCTION", 3, 1),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens
+
+
+def test_attack_modes():
+    code = "ATTACKMODE HID STORAGE"
+    tokens = list(lexer(code).tokenize())
+    expected_tokens = [
+        Token(Tok.ATTACKMODE, "ATTACKMODE", 1, 1),
+        Token(Tok.HID, "HID", 1, 12),
+        Token(Tok.STORAGE, "STORAGE", 1, 16),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    assert tokens == expected_tokens
+
+
+def test_wait_for_button_press():
+    code = "WAIT_FOR_BUTTON_PRESS"
+    tokens = list(lexer(code).tokenize())
+    expected_tokens = [
+        Token(Tok.WAIT_FOR_BUTTON_PRESS, "WAIT_FOR_BUTTON_PRESS", 1, 1),
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]

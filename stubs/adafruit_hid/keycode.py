@@ -1,0 +1,2 @@
+class Keycode:
+    pass

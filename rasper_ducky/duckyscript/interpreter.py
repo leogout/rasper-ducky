@@ -1,6 +1,9 @@
 import operator as op
 import time
-from parser import (
+
+from rasper_ducky.keyboard import press_key, release_all, type_string
+from .parser import (
+    KeyPressStmt,
     VarStmt,
     Binary,
     Unary,
@@ -69,6 +72,8 @@ class Interpreter:
             self._execute_expression(node)
         elif isinstance(node, FunctionStmt):
             self._execute_function_declaration(node)
+        elif isinstance(node, KeyPressStmt):
+            self._execute_keypress(node)
         elif isinstance(node, ExpressionStmt):
             self._execute_expression(node.expression)
         elif isinstance(node, Literal):
@@ -103,9 +108,13 @@ class Interpreter:
 
     def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
+        type_string(node.value.value)
 
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
+        type_string(node.value.value)
+        press_key("ENTER")  # TODO: use Keycode.ENTER
+        release_all()
 
     def _execute_delay(self, node: DelayStmt):
         time.sleep(int(node.value.value))
@@ -118,6 +127,11 @@ class Interpreter:
 
     def _execute_function_call(self, node: Call):
         self._execute_block(self.functions[node.name.value])
+
+    def _execute_keypress(self, node: KeyPressStmt):
+        for key in node.keys:
+            press_key(key.value)
+        release_all()
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):

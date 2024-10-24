@@ -20,6 +20,13 @@ class Tok(Enum):
     REM_BLOCK = auto()
     END_REM_BLOCK = auto()
 
+    WAIT_FOR_BUTTON_PRESS = auto()
+
+    ATTACKMODE = auto()
+    HID = auto()
+    STORAGE = auto()
+    OFF = auto()
+
     IF = auto()
     THEN = auto()
     END_IF = auto()
@@ -125,10 +132,41 @@ class Lexer:
         "F3",
         "F2",
         "F1",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
     ]
 
     TOKEN_SPEC = [
         (Tok.EOL, r"$"),
+        (Tok.WAIT_FOR_BUTTON_PRESS, r"^\bWAIT_FOR_BUTTON_PRESS\b"),
+        (Tok.ATTACKMODE, r"^\bATTACKMODE\b"),
+        (Tok.HID, r"\bHID\b"),
+        (Tok.STORAGE, r"\bSTORAGE\b"),
+        (Tok.OFF, r"\bOFF\b"),
         (Tok.VAR, r"^\bVAR\b"),
         (Tok.DELAY, r"^\bDELAY\b"),
         (Tok.IF, r"^\bIF\b"),
@@ -211,7 +249,8 @@ class Lexer:
         """Skip a block of comments."""
         if self.skip_line(r"^\bREM_BLOCK\b"):
             while not self.skip_line(r"^\bEND_REM\b"):
-                pass
+                self.advance()
+
             return True
         return False
 

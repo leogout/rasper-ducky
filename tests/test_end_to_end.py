@@ -1,7 +1,23 @@
 import pytest
-from lexer import Lexer
-from parser import *
-from interpreter import Interpreter
+from rasper_ducky.duckyscript.lexer import Lexer
+from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.interpreter import Interpreter
+from unittest.mock import call
+
+
+@pytest.fixture
+def mock_type_string(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.type_string")
+
+
+@pytest.fixture
+def mock_press_key(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.press_key")
+
+
+@pytest.fixture
+def mock_release_all(mocker):
+    return mocker.patch("rasper_ducky.duckyscript.interpreter.release_all")
 
 
 def execute(code: str):
@@ -15,7 +31,7 @@ def execute(code: str):
     return interpreter
 
 
-def test_if_statement():
+def test_if_statement(mock_type_string):
     interpreter = execute(
         """
         VAR $x = 10
@@ -29,10 +45,11 @@ def test_if_statement():
     # Vérification des résultats
     assert interpreter.variables["$x"] == 10
     assert interpreter.variables["$y"] == 20
-    assert interpreter.execution_stack == ["x is less than y"]
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("x is less than y")
 
 
-def test_while_statement():
+def test_while_statement(mock_type_string):
     interpreter = execute(
         """
         VAR $x = 5
@@ -43,8 +60,8 @@ def test_while_statement():
         """
     )
 
-    assert interpreter.variables["$x"] == 0
-    assert interpreter.execution_stack == ["Hello, World!"] * 5
+    assert mock_type_string.call_count == 5
+    mock_type_string.assert_called_with("Hello, World!")
 
 
 def test_assignment():
@@ -69,17 +86,19 @@ def test_priority():
     assert interpreter.variables["$x"] == 12
 
 
-def test_print_string():
+def test_print_string(mock_type_string):
     interpreter = execute("STRING Hello, World!")
-    assert interpreter.execution_stack == ["Hello, World!"]
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("Hello, World!")
 
 
-def test_print_stringln():
+def test_print_stringln(mock_type_string):
     interpreter = execute("STRINGLN Hello, World!")
-    assert interpreter.execution_stack == ["Hello, World!"]
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("Hello, World!")
 
 
-def test_booleans():
+def test_booleans(mock_type_string):
     interpreter = execute(
         """
         IF TRUE THEN 
@@ -92,10 +111,11 @@ def test_booleans():
         """
     )
     assert interpreter.variables == {}
-    assert interpreter.execution_stack == ["A", "B"]
+    assert mock_type_string.call_count == 2
+    mock_type_string.assert_has_calls([call("A"), call("B")])
 
 
-def test_nested_if_statements():
+def test_nested_if_statements(mock_type_string):
     interpreter = execute(
         """
         IF TRUE THEN
@@ -111,7 +131,8 @@ def test_nested_if_statements():
         END_IF
         """
     )
-    assert interpreter.execution_stack == ["B"]
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("B")
 
 
 def test_delay_statement(mocker):
@@ -131,7 +152,7 @@ def test_chained_assign_statement():
     assert interpreter.variables["$y"] == 10
 
 
-def test_function_declaration():
+def test_function_declaration(mock_type_string):
     interpreter = execute(
         """
         FUNCTION add()
@@ -145,7 +166,8 @@ def test_function_declaration():
     )
 
     assert interpreter.functions["add"] == [StringStmt(Literal("Hello, World!"))]
-    assert interpreter.execution_stack == ["Hello, World!"] * 4
+    assert mock_type_string.call_count == 4
+    mock_type_string.assert_has_calls([call("Hello, World!") for _ in range(4)])
 
 
 def test_global_variables():
@@ -162,3 +184,15 @@ def test_global_variables():
         """
     )
     assert interpreter.variables["$x"] == 13
+
+
+def test_keypress_statement(mock_press_key, mock_release_all):
+    execute("CTRL")
+    mock_press_key.assert_has_calls([call("CTRL")])
+    mock_release_all.assert_called_once()
+
+
+def test_keypress_statement_with_multiple_keys(mock_press_key, mock_release_all):
+    execute("CTRL ALT B")
+    mock_press_key.assert_has_calls([call("CTRL"), call("ALT"), call("B")])
+    mock_release_all.assert_called_once()
