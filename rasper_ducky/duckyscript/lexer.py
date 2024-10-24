@@ -1,83 +1,82 @@
 import re
-from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Iterator
 
 
-class Tok(Enum):
-    VAR = auto()
-    DELAY = auto()
-    IDENTIFIER = auto()
-    ASSIGN = auto()
-    SKIP = auto()
-    MISMATCH = auto()
-    PRINTSTRING = auto()
-    PRINTSTRINGLN = auto()
-    EOF = auto()
-    EOL = auto()
-    KEYPRESS = auto()
-    REM = auto()
-    REM_BLOCK = auto()
-    END_REM_BLOCK = auto()
+class Tok:
+    VAR = "VAR"
+    DELAY = "DELAY"
+    IDENTIFIER = "IDENTIFIER"
+    ASSIGN = "ASSIGN"
+    SKIP = "SKIP"
+    MISMATCH = "MISMATCH"
+    PRINTSTRING = "PRINTSTRING"
+    PRINTSTRINGLN = "PRINTSTRINGLN"
+    EOF = "EOF"
+    EOL = "EOL"
+    KEYPRESS = "KEYPRESS"
+    REM = "REM"
+    REM_BLOCK = "REM_BLOCK"
+    END_REM_BLOCK = "END_REM_BLOCK"
 
-    WAIT_FOR_BUTTON_PRESS = auto()
+    WAIT_FOR_BUTTON_PRESS = "WAIT_FOR_BUTTON_PRESS"
 
-    ATTACKMODE = auto()
-    HID = auto()
-    STORAGE = auto()
-    OFF = auto()
+    ATTACKMODE = "ATTACKMODE"
+    HID = "HID"
+    STORAGE = "STORAGE"
+    OFF = "OFF"
 
-    IF = auto()
-    THEN = auto()
-    END_IF = auto()
-    ELSE = auto()
-    ELSE_IF = auto()
+    IF = "IF"
+    THEN = "THEN"
+    END_IF = "END_IF"
+    ELSE = "ELSE"
+    ELSE_IF = "ELSE_IF"
 
-    WHILE = auto()
-    END_WHILE = auto()
+    WHILE = "WHILE"
+    END_WHILE = "END_WHILE"
 
-    LPAREN = auto()
-    RPAREN = auto()
+    LPAREN = "LPAREN"
+    RPAREN = "RPAREN"
 
-    FUNCTION = auto()
-    END_FUNCTION = auto()
-    RETURN = auto()
+    FUNCTION = "FUNCTION"
+    END_FUNCTION = "END_FUNCTION"
+    RETURN = "RETURN"
 
     # OPERATORS
-    OP_SHIFT_LEFT = auto()
-    OP_SHIFT_RIGHT = auto()
-    OP_GREATER_EQUAL = auto()
-    OP_LESS_EQUAL = auto()
-    OP_EQUAL = auto()
-    OP_NOT_EQUAL = auto()
-    OP_GREATER = auto()
-    OP_LESS = auto()
-    OP_OR = auto()
-    OP_BITWISE_AND = auto()
-    OP_BITWISE_OR = auto()
-    OP_PLUS = auto()
-    OP_MINUS = auto()
-    OP_MULTIPLY = auto()
-    OP_DIVIDE = auto()
-    OP_MODULO = auto()
-    OP_POWER = auto()
-    OP_NOT = auto()
-    OP_AND = auto()
+    OP_SHIFT_LEFT = "OP_SHIFT_LEFT"
+    OP_SHIFT_RIGHT = "OP_SHIFT_RIGHT"
+    OP_GREATER_EQUAL = "OP_GREATER_EQUAL"
+    OP_LESS_EQUAL = "OP_LESS_EQUAL"
+    OP_EQUAL = "OP_EQUAL"
+    OP_NOT_EQUAL = "OP_NOT_EQUAL"
+    OP_GREATER = "OP_GREATER"
+    OP_LESS = "OP_LESS"
+    OP_OR = "OP_OR"
+    OP_BITWISE_AND = "OP_BITWISE_AND"
+    OP_BITWISE_OR = "OP_BITWISE_OR"
+    OP_PLUS = "OP_PLUS"
+    OP_MINUS = "OP_MINUS"
+    OP_MULTIPLY = "OP_MULTIPLY"
+    OP_DIVIDE = "OP_DIVIDE"
+    OP_MODULO = "OP_MODULO"
+    OP_POWER = "OP_POWER"
+    OP_NOT = "OP_NOT"
+    OP_AND = "OP_AND"
 
     # LITERALS
-    STRING = auto()
-    NUMBER = auto()
-    TRUE = auto()
-    FALSE = auto()
-    # CONTINUE = auto()
+    STRING = "STRING"
+    NUMBER = "NUMBER"
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+    # CONTINUE = "CONTINUE"
 
     # Not in duckyscript 3.0 but why not implement it later
-    # BREAK = auto()
+    # BREAK = "BREAK"
 
 
 @dataclass
 class Token:
-    type: Tok
+    type: str
     value: str = ""
     line: int = 0
     column: int = 0
@@ -161,61 +160,61 @@ class Lexer:
     ]
 
     TOKEN_SPEC = [
-        (Tok.EOL, r"$"),
-        (Tok.WAIT_FOR_BUTTON_PRESS, r"^\bWAIT_FOR_BUTTON_PRESS\b"),
-        (Tok.ATTACKMODE, r"^\bATTACKMODE\b"),
-        (Tok.HID, r"\bHID\b"),
-        (Tok.STORAGE, r"\bSTORAGE\b"),
-        (Tok.OFF, r"\bOFF\b"),
-        (Tok.VAR, r"^\bVAR\b"),
-        (Tok.DELAY, r"^\bDELAY\b"),
-        (Tok.IF, r"^\bIF\b"),
-        (Tok.THEN, r"\bTHEN\b"),
-        (Tok.END_IF, r"^\bEND_IF\b"),
-        (Tok.ELSE_IF, r"^\bELSE\s+IF\b"),
-        (Tok.ELSE, r"^\bELSE\b"),
-        (Tok.PRINTSTRINGLN, r"^\bSTRINGLN\b\s.*"),
-        (Tok.PRINTSTRING, r"^\bSTRING\b\s.*"),
-        (Tok.TRUE, r"\bTRUE\b"),
-        (Tok.FALSE, r"\bFALSE\b"),
-        (Tok.WHILE, r"^\bWHILE\b"),
-        (Tok.END_WHILE, r"^\bEND_WHILE\b"),
-        (Tok.FUNCTION, r"^\bFUNCTION\b"),
-        (Tok.END_FUNCTION, r"^\bEND_FUNCTION\b"),
-        (Tok.NUMBER, r"\d+"),
-        (Tok.LPAREN, r"\("),
-        (Tok.RPAREN, r"\)"),
-        (Tok.OP_SHIFT_LEFT, r"<<"),
-        (Tok.OP_SHIFT_RIGHT, r">>"),
-        (Tok.OP_GREATER_EQUAL, r">="),
-        (Tok.OP_LESS_EQUAL, r"<="),
-        (Tok.OP_EQUAL, r"=="),
-        (Tok.OP_AND, r"&&"),
-        (Tok.OP_NOT_EQUAL, r"!="),
-        (Tok.OP_GREATER, r">"),
-        (Tok.OP_LESS, r"<"),
-        (Tok.OP_OR, r"\|\|"),
-        (Tok.OP_BITWISE_AND, r"&"),
-        (Tok.OP_BITWISE_OR, r"\|"),
-        (Tok.OP_PLUS, r"\+"),
-        (Tok.OP_MINUS, r"\-"),
-        (Tok.OP_MULTIPLY, r"\*"),
-        (Tok.OP_DIVIDE, r"/"),
-        (Tok.OP_MODULO, r"%"),
-        (Tok.OP_POWER, r"\^"),
-        (Tok.OP_NOT, r"!"),
-        (Tok.ASSIGN, r"="),
-        (Tok.SKIP, r"[ \t]+"),
+        ("EOL", r"$"),
+        ("WAIT_FOR_BUTTON_PRESS", r"^\bWAIT_FOR_BUTTON_PRESS\b"),
+        ("ATTACKMODE", r"^\bATTACKMODE\b"),
+        ("HID", r"\bHID\b"),
+        ("STORAGE", r"\bSTORAGE\b"),
+        ("OFF", r"\bOFF\b"),
+        ("VAR", r"^\bVAR\b"),
+        ("DELAY", r"^\bDELAY\b"),
+        ("IF", r"^\bIF\b"),
+        ("THEN", r"\bTHEN\b"),
+        ("END_IF", r"^\bEND_IF\b"),
+        ("ELSE_IF", r"^\bELSE\s+IF\b"),
+        ("ELSE", r"^\bELSE\b"),
+        ("PRINTSTRINGLN", r"^\bSTRINGLN\b\s.*"),
+        ("PRINTSTRING", r"^\bSTRING\b\s.*"),
+        ("TRUE", r"\bTRUE\b"),
+        ("FALSE", r"\bFALSE\b"),
+        ("WHILE", r"^\bWHILE\b"),
+        ("END_WHILE", r"^\bEND_WHILE\b"),
+        ("FUNCTION", r"^\bFUNCTION\b"),
+        ("END_FUNCTION", r"^\bEND_FUNCTION\b"),
+        ("NUMBER", r"\d+"),
+        ("LPAREN", r"\("),
+        ("RPAREN", r"\)"),
+        ("OP_SHIFT_LEFT", r"<<"),
+        ("OP_SHIFT_RIGHT", r">>"),
+        ("OP_GREATER_EQUAL", r">="),
+        ("OP_LESS_EQUAL", r"<="),
+        ("OP_EQUAL", r"=="),
+        ("OP_AND", r"&&"),
+        ("OP_NOT_EQUAL", r"!="),
+        ("OP_GREATER", r">"),
+        ("OP_LESS", r"<"),
+        ("OP_OR", r"\|\|"),
+        ("OP_BITWISE_AND", r"&"),
+        ("OP_BITWISE_OR", r"\|"),
+        ("OP_PLUS", r"\+"),
+        ("OP_MINUS", r"\-"),
+        ("OP_MULTIPLY", r"\*"),
+        ("OP_DIVIDE", r"/"),
+        ("OP_MODULO", r"%"),
+        ("OP_POWER", r"\^"),
+        ("OP_NOT", r"!"),
+        ("ASSIGN", r"="),
+        ("SKIP", r"[ \t]+"),
         (
-            Tok.KEYPRESS,
+            "KEYPRESS",
             r"\b(" + "|".join(re.escape(cmd) for cmd in COMMANDS) + r")\b",
         ),
         # Anything that is not a keyword is an identifier
-        (Tok.IDENTIFIER, r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
-        (Tok.MISMATCH, r"."),
+        ("IDENTIFIER", r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
+        ("MISMATCH", r"."),
     ]
 
-    TOKEN_REGEX = "|".join(f"(?P<{t.name}>{r})" for t, r in TOKEN_SPEC)
+    TOKEN_REGEX = "|".join(f"(?P<{t}>{r})" for t, r in TOKEN_SPEC)
 
     def __init__(self, code: str):
         self.line_num = 1
@@ -254,7 +253,7 @@ class Lexer:
             return True
         return False
 
-    def consume_token(self, kind: Tok, value: str, column: int):
+    def consume_token(self, kind: str, value: str, column: int):
         """Consume a token and yield the appropriate Token object."""
         match kind:
             case Tok.MISMATCH:
@@ -283,7 +282,7 @@ class Lexer:
                     f"Unrecognized token '{mo.group()}' at line {self.line_num}, column {mo.start() + 1}"
                 )
 
-            kind = Tok[mo.lastgroup]
+            kind = getattr(Tok, mo.lastgroup)
             value = mo.group()
             column = mo.start() + 1
 

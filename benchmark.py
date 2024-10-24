@@ -1,7 +1,8 @@
 import timeit
 
+
 def benchmark_lexer():
-    setup = "from lexer import Lexer"
+    setup = "from rasper_ducky.duckyscript.lexer import Lexer"
     stmt = """
 lexer = Lexer('''
     IF TRUE THEN
@@ -130,5 +131,6 @@ tokens = list(lexer.tokenize())
     while True:
         result = timeit.timeit(stmt, setup, number=1000)
         print(f"Average time per run: {result/1000:.6f} seconds")
+
 
 benchmark_lexer()
