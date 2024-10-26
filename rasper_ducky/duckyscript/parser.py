@@ -1,67 +1,67 @@
-from dataclasses import dataclass, field
 from .lexer import Tok, Token
 
 
 # EXPRESSIONS
 class Expr:
-    pass
+    def __eq__(self, other):
+        return self.__repr__() == other.__repr__()
 
 
-@dataclass
 class Binary(Expr):
-    left: Expr
-    operator: Token
-    right: Expr
+    def __init__(self, left: Expr, operator: Token, right: Expr):
+        self.left = left
+        self.operator = operator
+        self.right = right
 
     def __repr__(self):
         return f"EXPR({self.left}, {self.operator.value}, {self.right})"
 
 
-@dataclass
 class Unary(Expr):
-    operator: Token
-    right: Expr
+    def __init__(self, operator: Token, right: Expr):
+        self.operator = operator
+        self.right = right
 
     def __repr__(self):
         return f"EXPR({self.operator.value}, {self.right})"
 
 
-@dataclass
 class Literal(Expr):
-    value: bool | int | str
+    def __init__(self, value: bool | int | str):
+        self.value = value
 
     def __repr__(self):
         return f"LITERAL({self.value})"
 
 
-@dataclass
 class Grouping(Expr):
-    expression: Expr
+    def __init__(self, expression: Expr):
+        self.expression = expression
 
     def __repr__(self):
         return f"GROUP({self.expression})"
 
 
-@dataclass
 class Variable(Expr):
-    name: Token
+    def __init__(self, name: Token):
+        self.name = name
 
     def __repr__(self):
         return f"VAR({self.name})"
 
 
-@dataclass
 class Call(Expr):
-    name: Token
+    def __init__(self, name: Token):
+        self.name = name
 
     def __repr__(self):
         return f"CALL({self.callee})"
 
 
-@dataclass
 class Assign(Expr):
-    name: Token
-    value: Expr
+    def __init__(self, name: Token, value: Expr):
+        self.name = name
+        self.value = value
 
     def __repr__(self):
         return f"ASSIGN({self.name}, {self.value})"
@@ -69,82 +69,89 @@ class Assign(Expr):
 
 # STATEMENTS
 class Stmt:
-    pass
+    def __eq__(self, other):
+        return self.__repr__() == other.__repr__()
 
 
-@dataclass
 class KeyPressStmt(Stmt):
-    keys: list[Token]
+    def __init__(self, keys: list[Token]):
+        self.keys = keys
 
     def __repr__(self):
         return f"KEYPRESS({self.keys})"
 
 
-@dataclass
 class VarStmt(Stmt):
-    name: Token
-    value: Expr
+    def __init__(self, name: Token, value: Expr):
+        self.name = name
+        self.value = value
 
     def __repr__(self):
         return f"VAR_DECL({self.name}, {self.value})"
 
 
-@dataclass
 class DelayStmt(Stmt):
-    value: Literal
+    def __init__(self, value: Literal):
+        self.value = value
 
     def __repr__(self):
         return f"DELAY({self.value})"
 
 
-@dataclass
 class StringStmt(Stmt):
-    value: Literal
+    def __init__(self, value: Literal):
+        self.value = value
 
     def __repr__(self):
         return f"PRINT_STR({self.value})"
 
 
-@dataclass
 class StringLnStmt(Stmt):
-    value: Literal
+    def __init__(self, value: Literal):
+        self.value = value
 
     def __repr__(self):
         return f"PRINT_STRLN({self.value})"
 
 
-@dataclass
 class IfStmt(Stmt):
-    condition: Expr
-    then_block: list[Stmt]
-    else_if_blocks: list["IfStmt"] = field(default_factory=list)
-    else_block: list[Stmt] = field(default_factory=list)
+    def __init__(
+        self,
+        condition: Expr,
+        then_block: list[Stmt],
+        else_if_blocks: list["IfStmt"] | None = None,
+        else_block: list[Stmt] | None = None,
+    ):
+        self.condition = condition
+        self.then_block = then_block
+        self.else_if_blocks = else_if_blocks or []
+        self.else_block = else_block or []
 
     def __repr__(self):
         return f"IF({self.condition}, {self.then_block}, {self.else_if_blocks}, {self.else_block})"
 
 
-@dataclass
 class WhileStmt(Stmt):
-    condition: Expr
-    body: list[Stmt]
+    def __init__(self, condition: Expr, body: list[Stmt]):
+        self.condition = condition
+        self.body = body
 
     def __repr__(self):
         return f"WHILE({self.condition}, {self.body})"
 
 
-@dataclass
 class ExpressionStmt(Stmt):
-    expression: Expr
+    def __init__(self, expression: Expr):
+        self.expression = expression
 
     def __repr__(self):
-        return f"EXPRESSION({self.expression})"
+        return f"EXPR_STMT({self.expression})"
 
 
-@dataclass
 class FunctionStmt(Stmt):
-    name: Token
-    body: list[Stmt]
+    def __init__(self, name: Token, body: list[Stmt]):
+        self.name = name
+        self.body = body
 
     def __repr__(self):
         return f"FUNCTION({self.name}, {self.body})"

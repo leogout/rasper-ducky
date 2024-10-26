@@ -1,6 +1,9 @@
 import re
-from dataclasses import dataclass
-from typing import Iterator
+
+try:
+    from typing import Iterator
+except ImportError:
+    pass
 
 
 class Tok:
@@ -74,12 +77,18 @@ class Tok:
     # BREAK = "BREAK"
 
 
-@dataclass
 class Token:
-    type: str
-    value: str = ""
-    line: int = 0
-    column: int = 0
+    def __init__(self, type: str, value: str = "", line: int = 0, column: int = 0):
+        self.type = type
+        self.value = value
+        self.line = line
+        self.column = column
+
+    def __eq__(self, other):
+        return self.__repr__() == other.__repr__()
+
+    def __repr__(self) -> str:
+        return f"TOKEN({self.type}, {self.value}, {self.line}, {self.column})"
 
 
 class Lexer:
@@ -207,14 +216,12 @@ class Lexer:
         ("SKIP", r"[ \t]+"),
         (
             "KEYPRESS",
-            r"\b(" + "|".join(re.escape(cmd) for cmd in COMMANDS) + r")\b",
+            r"\b(" + "|".join(COMMANDS) + r")\b",
         ),
         # Anything that is not a keyword is an identifier
         ("IDENTIFIER", r"\$?[a-zA-Z_][a-zA-Z0-9_]*"),
         ("MISMATCH", r"."),
     ]
-
-    TOKEN_REGEX = "|".join(f"(?P<{t}>{r})" for t, r in TOKEN_SPEC)
 
     def __init__(self, code: str):
         self.line_num = 1
@@ -255,38 +262,54 @@ class Lexer:
 
     def consume_token(self, kind: str, value: str, column: int):
         """Consume a token and yield the appropriate Token object."""
-        match kind:
-            case Tok.MISMATCH:
-                raise SyntaxError(
-                    f"Unexpected character '{value}' at line {self.line_num}, column {column}"
-                )
-            case Tok.PRINTSTRING:
-                yield Token(kind, "STRING", self.line_num, column)
-                yield Token(Tok.STRING, value[7:], self.line_num, column + 8)
-            case Tok.PRINTSTRINGLN:
-                yield Token(kind, "STRINGLN", self.line_num, column)
-                yield Token(Tok.STRING, value[9:], self.line_num, column + 10)
-            case Tok.KEYPRESS:
-                yield Token(kind, value.strip(), self.line_num, column)
-            case Tok.EOL:
-                yield Token(kind)
-            case _ if kind != Tok.SKIP:
-                yield Token(kind, value, self.line_num, column)
+        if kind == Tok.MISMATCH:
+            raise SyntaxError(
+                f"Unexpected character '{value}' at line {self.line_num}, column {column}"
+            )
+        elif kind == Tok.PRINTSTRING:
+            yield Token(kind, "STRING", self.line_num, column)
+            yield Token(Tok.STRING, value[7:].strip(), self.line_num, column + 8)
+        elif kind == Tok.PRINTSTRINGLN:
+            yield Token(kind, "STRINGLN", self.line_num, column)
+            yield Token(Tok.STRING, value[9:].strip(), self.line_num, column + 10)
+        elif kind == Tok.KEYPRESS:
+            yield Token(kind, value.strip(), self.line_num, column)
+        elif kind == Tok.EOL:
+            yield Token(kind)
+        elif kind != Tok.SKIP:
+            yield Token(kind, value, self.line_num, column)
 
     def consume_line(self) -> Iterator[Token]:
         """Consume tokens from the current line."""
         line = self.get_line()
-        for mo in re.finditer(self.TOKEN_REGEX, line.strip()):
-            if mo.lastgroup is None:
+        column = 1
+
+        while line:
+            match_found = False
+            for kind, pattern in self.TOKEN_SPEC:
+                match = re.match(pattern, line)
+                if match:
+                    value = match.group(0)
+                    match_found = True
+                    line = line[len(value) :]  # Avance dans la ligne
+                    yield from self.consume_token(kind, value, column)
+                    column += len(value)
+                    break
+
+            if not match_found:
                 raise SyntaxError(
-                    f"Unrecognized token '{mo.group()}' at line {self.line_num}, column {mo.start() + 1}"
+                    f"Unrecognized token at line {self.line_num}, column {column}"
                 )
 
-            kind = getattr(Tok, mo.lastgroup)
-            value = mo.group()
-            column = mo.start() + 1
+            if not line:
+                yield Token(Tok.EOL)
 
-            yield from self.consume_token(kind, value, column)
+    def consume_line_no_regex(self) -> Iterator[Token]:
+        """Consume tokens from the current line without using regex."""
+        line = self.get_line()
+        for command in self.COMMANDS:
+            if line.startswith(command):
+                yield Token(command)
 
     def tokenize(self) -> Iterator[Token]:
         """Tokenize the input code."""

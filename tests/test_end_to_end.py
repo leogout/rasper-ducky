@@ -102,11 +102,11 @@ def test_booleans(mock_type_string):
     interpreter = execute(
         """
         IF TRUE THEN 
-            STRING A 
+            STRING A
         END_IF
         IF FALSE THEN 
         ELSE 
-            STRING B 
+            STRING B
         END_IF
         """
     )

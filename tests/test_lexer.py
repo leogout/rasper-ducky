@@ -311,8 +311,8 @@ END_FUNCTION"""
         Token(Tok.LPAREN, "(", 1, 20),
         Token(Tok.RPAREN, ")", 1, 21),
         Token(Tok.EOL),
-        Token(Tok.PRINTSTRING, "STRING", 2, 1),
-        Token(Tok.STRING, "Hello, World!", 2, 9),
+        Token(Tok.PRINTSTRING, "STRING", 2, 5),
+        Token(Tok.STRING, "Hello, World!", 2, 13),
         Token(Tok.EOL),
         Token(Tok.END_FUNCTION, "END_FUNCTION", 3, 1),
         Token(Tok.EOL),
@@ -343,3 +343,18 @@ def test_wait_for_button_press():
         Token(Tok.EOF),
     ]
     assert tokens == expected_tokens
+
+
+def test_trailing_spaces_ignored_after_print_commands():
+    code = "STRING Hello, World!    "
+    code += "\nSTRINGLN Hello, World!   "
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.PRINTSTRING, "STRING", 1, 1),
+        Token(Tok.STRING, "Hello, World!", 1, 9),
+        Token(Tok.EOL),
+        Token(Tok.PRINTSTRINGLN, "STRINGLN", 2, 1),
+        Token(Tok.STRING, "Hello, World!", 2, 11),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]

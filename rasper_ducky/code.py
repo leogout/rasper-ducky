@@ -1,8 +1,8 @@
 import time
 
-from .duckyscript.lexer import Lexer
-from .duckyscript.parser import Parser
-from .duckyscript.interpreter import Interpreter
+from duckyscript.lexer import Lexer
+from duckyscript.parser import Parser
+from duckyscript.interpreter import Interpreter
 
 import asyncio
 
