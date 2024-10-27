@@ -293,7 +293,7 @@ STRING B
     tokens = list(lexer(code).tokenize())
     expected_tokens = [
         Token(Tok.PRINTSTRING, "STRING", 5, 1),
-        Token(Tok.STRING, "B", 5, 9),
+        Token(Tok.STRING, "B", 5, 8),
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]
@@ -312,7 +312,7 @@ END_FUNCTION"""
         Token(Tok.RPAREN, ")", 1, 21),
         Token(Tok.EOL),
         Token(Tok.PRINTSTRING, "STRING", 2, 5),
-        Token(Tok.STRING, "Hello, World!", 2, 13),
+        Token(Tok.STRING, "Hello, World!", 2, 12),
         Token(Tok.EOL),
         Token(Tok.END_FUNCTION, "END_FUNCTION", 3, 1),
         Token(Tok.EOL),
@@ -351,10 +351,10 @@ def test_trailing_spaces_ignored_after_print_commands():
     tokens = list(lexer(code).tokenize())
     assert tokens == [
         Token(Tok.PRINTSTRING, "STRING", 1, 1),
-        Token(Tok.STRING, "Hello, World!", 1, 9),
+        Token(Tok.STRING, "Hello, World!", 1, 8),
         Token(Tok.EOL),
         Token(Tok.PRINTSTRINGLN, "STRINGLN", 2, 1),
-        Token(Tok.STRING, "Hello, World!", 2, 11),
+        Token(Tok.STRING, "Hello, World!", 2, 10),
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]
