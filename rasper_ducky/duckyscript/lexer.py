@@ -324,6 +324,7 @@ class Token:
 #             yield from self.consume_line()
 #             self.advance()
 
+
 #         yield Token(Tok.EOF)
 class Lexer:
     OPERATORS = {
@@ -353,16 +354,13 @@ class Lexer:
 
     KEYWORDS = {
         "VAR": Tok.VAR,
-
         "IF": Tok.IF,
         "THEN": Tok.THEN,
         "END_IF": Tok.END_IF,
         "ELSE": Tok.ELSE,
         "ELSE IF": Tok.ELSE_IF,
-
         "WHILE": Tok.WHILE,
         "END_WHILE": Tok.END_WHILE,
-
         "DELAY": Tok.DELAY,
         "STRING": Tok.PRINTSTRING,
         "STRINGLN": Tok.PRINTSTRINGLN,
@@ -371,13 +369,14 @@ class Lexer:
         "HID": Tok.HID,
         "STORAGE": Tok.STORAGE,
         "OFF": Tok.OFF,
-
         "FUNCTION": Tok.FUNCTION,
         "END_FUNCTION": Tok.END_FUNCTION,
         "RETURN": Tok.RETURN,
         "TRUE": Tok.TRUE,
         "FALSE": Tok.FALSE,
-
+        "REM": Tok.REM,
+        "REM_BLOCK": Tok.REM_BLOCK,
+        "END_REM": Tok.END_REM_BLOCK,
         "WINDOWS": Tok.KEYPRESS,
         "GUI": Tok.KEYPRESS,
         "APP": Tok.KEYPRESS,
@@ -464,7 +463,6 @@ class Lexer:
         return self.current >= self.count
 
     def advance(self):
-        current = self.current
         if not self.is_at_end():
             self.current += 1
         return self.previous()
@@ -502,20 +500,37 @@ class Lexer:
         while not self.is_at_end():
             self.start = self.current
             yield from self.scan_token()
-        yield Token(Tok.EOL)
         yield Token(Tok.EOF)
 
-    def is_digit(self, char: str):
+    def is_digit(self, char: str | None):
+        if char is None:
+            return False
         return char.isdigit()
 
-    def is_alpha(self, char: str):
+    def is_alpha(self, char: str | None):
+        if char is None:
+            return False
         return char.isalpha() or char == "$" or char == "_"
 
-    def is_alphanumeric(self, char: str):
+    def is_alphanumeric(self, char: str | None):
+        if char is None:
+            return False
         return self.is_digit(char) or self.is_alpha(char)
 
-    def is_operator(self, char: str):
+    def is_operator(self, char: str | None):
+        if char is None:
+            return False
         return char in "=><!&|^+-*/%^&|<>()"
+
+    def is_comment(self, char: str | None):
+        if char is None:
+            return False
+        return char == "R" and self.match("EM")
+
+    def is_comment_block(self, char: str | None):
+        if char is None:
+            return False
+        return char == "R" and self.match("EM_BLOCK")
 
     def number(self):
         while self.is_digit(self.peek()):
@@ -527,7 +542,7 @@ class Lexer:
             while self.is_digit(self.peek()):
                 self.advance()
 
-        return self.token(Tok.NUMBER, float(self.code[self.start : self.current]))
+        return self.token(Tok.NUMBER, int(self.code[self.start : self.current]))
 
     def string(self):
         while not self.is_at_end() and self.peek() != "\n":
@@ -545,12 +560,20 @@ class Lexer:
             while self.peek() == " ":
                 self.advance()
             if self.match("IF"):
-                return self.token(Tok.ELSE_IF)
+                return self.token(Tok.ELSE_IF, "ELSE IF")
 
         if keyword is not None:
             return self.token(keyword, identifier)
 
         return self.token(Tok.IDENTIFIER, identifier)
+
+    def column(self):
+        return self.start - self.line_start + 1
+
+    def unexpected_character(self, char: str):
+        return SyntaxError(
+            f"Unexpected character: '{char}' at line {self.line}, column {self.column()}"
+        )
 
     def operator(self):
         prev = self.previous()
@@ -561,19 +584,39 @@ class Lexer:
             return self.token(self.OPERATORS[double_char], double_char)
         elif prev in self.OPERATORS:
             return self.token(self.OPERATORS[prev], prev)
-        
-        raise Exception(f"Unexpected character: '{self.code[self.current - 1]}'")
+
+        raise self.unexpected_character(curr)
+
+    def skip_comment(self):
+        while not self.is_at_end() and self.peek() != "\n":
+            self.advance()
+
+        if self.peek() == "\n":
+            self.advance()
+            self.eol()
+
+    def skip_comment_block(self):
+        while not self.match("END_REM"):
+            self.skip_comment()
+
+        if self.peek() == "\n":
+            self.advance()
+            self.eol()
 
     def token(self, tok: str, value: str = ""):
-        return Token(tok, value, self.line, (self.start - self.line_start) + 1)
+        return Token(tok, value, self.line, self.column())
 
     def eol(self):
         self.line += 1
         self.line_start = self.current
-        yield Token(Tok.EOL)
+        return Token(Tok.EOL)
 
     def scan_token(self):
         char = self.advance()
+
+        if char == "\n" and self.start == self.line_start:
+            self.eol()  # Update line and line_start without yielding EOL
+            return
 
         if self.is_operator(char):
             yield self.operator()
@@ -581,16 +624,31 @@ class Lexer:
             yield self.eol()
         elif self.is_digit(char):
             yield self.number()
-
+        elif self.is_comment_block(char):
+            self.skip_comment_block()
+        elif self.is_comment(char):
+            self.skip_comment()
         elif self.is_alpha(char):
             identifier = self.identifier()
             yield identifier
-            if identifier.type == Tok.PRINTSTRING or identifier.type == Tok.PRINTSTRINGLN:
+            if (
+                identifier.type == Tok.PRINTSTRING
+                or identifier.type == Tok.PRINTSTRINGLN
+            ):
                 self.advance()
                 self.start = self.current
-                yield self.string()
+                string = self.string()
+                yield string
 
         elif char == " ":
             pass
         else:
-            raise Exception(f"Unexpected character: {char}")
+            raise self.unexpected_character(char)
+
+
+if __name__ == "__main__":
+    # lexer = Lexer("VAR $val = 10\nVAR $val2 = 20\n")
+    # lexer = Lexer("CTRL A\nIF $val == 10 THEN\nELSE IF $val == 20 THEN\nEND_IF\n")
+    # lexer = Lexer(' '.join(Lexer.OPERATORS.keys()))
+    lexer = Lexer("STRING Hello, World!\nSTRINGLN Hello, World!")
+    print(list(lexer.tokenize()))

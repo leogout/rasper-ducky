@@ -197,32 +197,31 @@ class Parser:
         keys = [self.previous()]
         while self.match(Tok.KEYPRESS):
             keys.append(self.previous())
-        self.consume(Tok.EOL, "Expected a line break after a keypress")
+        self.consume_termination("Expected a line break after a keypress")
         return KeyPressStmt(keys)
 
     def var_stmt(self) -> VarStmt:
         name = self.consume(Tok.IDENTIFIER, "Expected an identifier after VAR")
         self.consume(Tok.ASSIGN, "Expected '=' after identifier")
         initializer = self.expression()
-        self.consume(
-            Tok.EOL,
+        self.consume_termination(
             "Expected a line break after variable initialization",
         )
         return VarStmt(name, initializer)
 
     def string_stmt(self) -> StringStmt:
         value = self.consume(Tok.STRING, "Expected a string after STRING")
-        self.consume(Tok.EOL, "Expected a line break after a string")
+        self.consume_termination("Expected a line break after a string")
         return StringStmt(Literal(value.value))
 
     def stringln_stmt(self) -> StringLnStmt:
         value = self.consume(Tok.STRING, "Expected a string after STRINGLN")
-        self.consume(Tok.EOL, "Expected a line break after a string")
+        self.consume_termination("Expected a line break after a string")
         return StringLnStmt(Literal(value.value))
 
     def delay_stmt(self) -> DelayStmt:
         value = self.consume(Tok.NUMBER, "Expected a number after DELAY")
-        self.consume(Tok.EOL, "Expected a line break after a number")
+        self.consume_termination("Expected a line break after a delay duration")
         return DelayStmt(Literal(value.value))
 
     def if_stmt(self) -> IfStmt:
@@ -244,7 +243,7 @@ class Parser:
             self.consume(Tok.EOL, "Expected a line break after 'ELSE'")
             else_block = self.block()
         self.consume(Tok.END_IF, "Expected 'END_IF'")
-        self.consume(Tok.EOL, "Expected a line break after 'END_IF'")
+        self.consume_termination("Expected a line break after 'END_IF'")
         return IfStmt(condition, then_block, else_if_blocks, else_block)
 
     def while_stmt(self) -> WhileStmt:
@@ -252,7 +251,7 @@ class Parser:
         self.consume(Tok.EOL, "Expected a line break after the condition")
         body = self.block()
         self.consume(Tok.END_WHILE, "Expected 'END_WHILE'")
-        self.consume(Tok.EOL, "Expected a line break after 'END_WHILE'")
+        self.consume_termination("Expected a line break after 'END_WHILE'")
         return WhileStmt(condition, body)
 
     def function_stmt(self) -> FunctionStmt:
@@ -262,7 +261,7 @@ class Parser:
         self.consume(Tok.EOL, "Expected a line break after the function parameters")
         body = self.block()
         self.consume(Tok.END_FUNCTION, "Expected 'END_FUNCTION'")
-        self.consume(Tok.EOL, "Expected a line break after 'END_FUNCTION'")
+        self.consume_termination("Expected a line break after 'END_FUNCTION'")
         return FunctionStmt(name, body)
 
     def block(self) -> list[Stmt]:
@@ -280,7 +279,7 @@ class Parser:
 
     def expression_stmt(self) -> ExpressionStmt:
         expr = self.expression()
-        self.consume(Tok.EOL, "Expected a line break after an expression")
+        self.consume_termination("Expected a line break after an expression")
         return ExpressionStmt(expr)
 
     def expression(self) -> Expr:
@@ -407,6 +406,12 @@ class Parser:
     def consume(self, type, message) -> Token:
         if self.check(type):
             return self.advance()
+        raise SyntaxError(message, self.peek().line, self.peek().column)
+
+    def consume_termination(self, message: str) -> Token:
+        if self.is_at_end() or self.check(Tok.EOL):
+            return self.advance()
+
         raise SyntaxError(message, self.peek().line, self.peek().column)
 
     def synchronize(self):
