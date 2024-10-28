@@ -1,6 +1,8 @@
-import operator as op
 import time
-from parser import (
+
+from ..keyboard import press_key, release_all, type_string
+from .parser import (
+    KeyPressStmt,
     VarStmt,
     Binary,
     Unary,
@@ -25,22 +27,22 @@ from parser import (
 
 class Interpreter:
     OPERATORS = operators = {
-        Tok.OP_PLUS: op.add,
-        Tok.OP_MINUS: op.sub,
-        Tok.OP_MULTIPLY: op.mul,
-        Tok.OP_DIVIDE: op.truediv,
-        Tok.OP_LESS: op.lt,
-        Tok.OP_GREATER: op.gt,
-        Tok.OP_LESS_EQUAL: op.le,
-        Tok.OP_GREATER_EQUAL: op.ge,
-        Tok.OP_EQUAL: op.eq,
-        Tok.OP_NOT_EQUAL: op.ne,
+        Tok.OP_PLUS: lambda l, r: l + r,
+        Tok.OP_MINUS: lambda l, r: l - r,
+        Tok.OP_MULTIPLY: lambda l, r: l * r,
+        Tok.OP_DIVIDE: lambda l, r: l / r,
+        Tok.OP_LESS: lambda l, r: l < r,
+        Tok.OP_GREATER: lambda l, r: l > r,
+        Tok.OP_LESS_EQUAL: lambda l, r: l <= r,
+        Tok.OP_GREATER_EQUAL: lambda l, r: l >= r,
+        Tok.OP_EQUAL: lambda l, r: l == r,
+        Tok.OP_NOT_EQUAL: lambda l, r: l != r,
         Tok.OP_AND: lambda l, r: l and r,
         Tok.OP_OR: lambda l, r: l or r,
-        Tok.OP_BITWISE_AND: op.and_,
-        Tok.OP_BITWISE_OR: op.or_,
-        Tok.OP_SHIFT_LEFT: op.lshift,
-        Tok.OP_SHIFT_RIGHT: op.rshift,
+        Tok.OP_BITWISE_AND: lambda l, r: l & r,
+        Tok.OP_BITWISE_OR: lambda l, r: l | r,
+        Tok.OP_SHIFT_LEFT: lambda l, r: l << r,
+        Tok.OP_SHIFT_RIGHT: lambda l, r: l >> r,
     }
 
     def __init__(self):
@@ -69,6 +71,8 @@ class Interpreter:
             self._execute_expression(node)
         elif isinstance(node, FunctionStmt):
             self._execute_function_declaration(node)
+        elif isinstance(node, KeyPressStmt):
+            self._execute_keypress(node)
         elif isinstance(node, ExpressionStmt):
             self._execute_expression(node.expression)
         elif isinstance(node, Literal):
@@ -103,12 +107,16 @@ class Interpreter:
 
     def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
+        type_string(node.value.value)
 
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
+        type_string(node.value.value)
+        press_key("ENTER")  # TODO: use Keycode.ENTER
+        release_all()
 
     def _execute_delay(self, node: DelayStmt):
-        time.sleep(int(node.value.value))
+        time.sleep(float(node.value.value) / 1000)
 
     def _execute_expression(self, node: Expr):
         self._evaluate(node)
@@ -118,6 +126,11 @@ class Interpreter:
 
     def _execute_function_call(self, node: Call):
         self._execute_block(self.functions[node.name.value])
+
+    def _execute_keypress(self, node: KeyPressStmt):
+        for key in node.keys:
+            press_key(key.value)
+        release_all()
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):

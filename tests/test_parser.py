@@ -1,6 +1,6 @@
 import pytest
-from parser import *
-from lexer import *
+from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.lexer import *
 
 
 @pytest.fixture
@@ -17,7 +17,6 @@ def test_var_declaration(parser):
         Token(Tok.IDENTIFIER, "$x"),
         Token(Tok.ASSIGN, "="),
         Token(Tok.NUMBER, "10"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -33,7 +32,6 @@ def test_expression(parser):
         Token(Tok.IDENTIFIER, "$x"),
         Token(Tok.OP_MULTIPLY, "*"),
         Token(Tok.NUMBER, "2"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -69,7 +67,6 @@ def test_if_else_statement(parser):
         Token(Tok.STRING, "Hey there!"),
         Token(Tok.EOL),
         Token(Tok.END_IF, "END_IF"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -92,7 +89,6 @@ def test_string_statement(parser):
     tokens = [
         Token(Tok.PRINTSTRING, "STRING"),
         Token(Tok.STRING, "Hello, World!"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -104,7 +100,6 @@ def test_stringln_statement(parser):
     tokens = [
         Token(Tok.PRINTSTRINGLN, "STRINGLN"),
         Token(Tok.STRING, "Hello, World!"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -147,7 +142,6 @@ def test_if_else_if_else_statement(parser):
         Token(Tok.STRING, "D"),
         Token(Tok.EOL),
         Token(Tok.END_IF, "END_IF"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -187,7 +181,6 @@ def test_print_string(parser):
     tokens = [
         Token(Tok.PRINTSTRING, "PRINTSTRING"),
         Token(Tok.STRING, "Hello, World!"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -208,7 +201,6 @@ def test_while_statement(parser):
         Token(Tok.STRING, "Hello, World!"),
         Token(Tok.EOL),
         Token(Tok.END_WHILE, "END_WHILE"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -239,7 +231,6 @@ def test_parentheses_priority_in_expression(parser):
         Token(Tok.OP_PLUS, "+"),
         Token(Tok.NUMBER, "2"),
         Token(Tok.RPAREN, ")"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -270,7 +261,6 @@ def test_parentheses_in_simple_expression(parser):
         Token(Tok.LPAREN, "("),
         Token(Tok.NUMBER, "1"),
         Token(Tok.RPAREN, ")"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -288,7 +278,6 @@ def test_parentheses_in_while_statement(parser):
         Token(Tok.RPAREN, ")"),
         Token(Tok.EOL),
         Token(Tok.END_WHILE, "END_WHILE"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -313,7 +302,6 @@ def test_while_statement_with_number(parser):
         Token(Tok.NUMBER, "10"),
         Token(Tok.EOL),
         Token(Tok.END_WHILE, "END_WHILE"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -329,7 +317,6 @@ def test_while_statement_without_parentheses(parser):
         Token(Tok.NUMBER, "0"),
         Token(Tok.EOL),
         Token(Tok.END_WHILE, "END_WHILE"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -355,7 +342,6 @@ def test_literals(parser):
         Token(Tok.NUMBER, "10"),
         Token(Tok.EOL),
         Token(Tok.STRING, "Hello, World!"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -372,7 +358,6 @@ def test_delay_statement(parser):
     tokens = [
         Token(Tok.DELAY, "DELAY"),
         Token(Tok.NUMBER, "10"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -384,7 +369,6 @@ def test_unary_expression(parser):
     tokens = [
         Token(Tok.OP_MINUS, "-"),
         Token(Tok.NUMBER, "10"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -403,7 +387,6 @@ def test_function_declaration(parser):
         Token(Tok.STRING, "Hello, World!"),
         Token(Tok.EOL),
         Token(Tok.END_FUNCTION, "END_FUNCTION"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
@@ -421,7 +404,6 @@ def test_function_call(parser):
         Token(Tok.IDENTIFIER, "myFunction"),
         Token(Tok.LPAREN, "("),
         Token(Tok.RPAREN, ")"),
-        Token(Tok.EOL),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()

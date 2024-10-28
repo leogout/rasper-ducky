@@ -1,5 +1,5 @@
 import pytest
-from preprocessor import *
+from rasper_ducky.duckyscript.preprocessor import *
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 import pytest
-from interpreter import *
-from parser import *
+from rasper_ducky.duckyscript.interpreter import *
+from rasper_ducky.duckyscript.parser import *
 
 
 @pytest.fixture
@@ -391,5 +391,5 @@ def test_delay_statement(interpreter, mocker):
     mock_sleep = mocker.patch("time.sleep")
     ast = [DelayStmt(Literal("10"))]
     interpreter.interpret(ast)
-    mock_sleep.assert_called_once_with(10)
+    mock_sleep.assert_called_once_with(0.01)
     assert interpreter.execution_stack == []
