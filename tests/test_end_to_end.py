@@ -138,7 +138,7 @@ def test_nested_if_statements(mock_type_string):
 def test_delay_statement(mocker):
     mock_sleep = mocker.patch("time.sleep")
     execute("DELAY 10")
-    mock_sleep.assert_called_once_with(10)
+    mock_sleep.assert_called_once_with(0.01)
 
 
 def test_chained_assign_statement():

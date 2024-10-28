@@ -1,10 +1,8 @@
 import time
 
-from duckyscript.lexer import Lexer
-from duckyscript.parser import Parser
-from duckyscript.interpreter import Interpreter
-
-import asyncio
+from .duckyscript.lexer import Lexer
+from .duckyscript.parser import Parser
+from .duckyscript.interpreter import Interpreter
 
 
 # sleep at the start to allow the device to be recognized by the host computer

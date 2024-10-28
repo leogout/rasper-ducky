@@ -28,6 +28,18 @@ def test_eof_token_multiple_lines_code():
     assert tokens[-1] == Token(Tok.EOF)
 
 
+def test_skip_tabs():
+    code = "\tVAR $x = 8"
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.VAR, "VAR", 1, 2),
+        Token(Tok.IDENTIFIER, "$x", 1, 6),
+        Token(Tok.ASSIGN, "=", 1, 9),
+        Token(Tok.NUMBER, "8", 1, 11),
+        Token(Tok.EOF),
+    ]
+
+
 def test_eof_token_with_empty_lines():
     code = "\n\n\n\n\n\n"
     tokens = list(lexer(code).tokenize())

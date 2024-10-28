@@ -1,6 +1,6 @@
 import time
 
-from rasper_ducky.keyboard import press_key, release_all, type_string
+from ..keyboard import press_key, release_all, type_string
 from .parser import (
     KeyPressStmt,
     VarStmt,
@@ -116,7 +116,7 @@ class Interpreter:
         release_all()
 
     def _execute_delay(self, node: DelayStmt):
-        time.sleep(int(node.value.value))
+        time.sleep(float(node.value.value) / 1000)
 
     def _execute_expression(self, node: Expr):
         self._evaluate(node)
