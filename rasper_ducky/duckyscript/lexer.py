@@ -63,10 +63,9 @@ class Tok:
     NUMBER = "NUMBER"
     TRUE = "TRUE"
     FALSE = "FALSE"
-    # CONTINUE = "CONTINUE"
 
-    # Not in duckyscript 3.0 but why not implement it later
-    # BREAK = "BREAK"
+    # CUSTOM RASPER DUCKY COMMANDS (non rubber ducky standards)
+    RD_KEYBOARD_LAYOUT = "RD_KEYBOARD_LAYOUT"
 
 
 class Token:
@@ -110,6 +109,8 @@ class Lexer:
     }
 
     KEYWORDS = {
+        "RD_KEYBOARD_LAYOUT": Tok.RD_KEYBOARD_LAYOUT,
+
         "VAR": Tok.VAR,
         "IF": Tok.IF,
         "THEN": Tok.THEN,
