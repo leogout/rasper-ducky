@@ -407,4 +407,19 @@ def test_function_call(parser):
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [Call(Token(Tok.IDENTIFIER, "myFunction"))]
+    expected_ast = [ExpressionStmt(Call(Token(Tok.IDENTIFIER, "myFunction")))]
+    assert ast == expected_ast
+
+
+def test_kbd_statement(parser):
+    tokens = [
+        Token(Tok.RD_KBD, "RD_KBD"),
+        Token(Tok.RD_KBD_PLATFORM, "WIN"),
+        Token(Tok.RD_KBD_LANGUAGE, "FR"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        KbdStmt(Token(Tok.RD_KBD_PLATFORM, "WIN"), Token(Tok.RD_KBD_LANGUAGE, "FR"))
+    ]
+    assert ast == expected_ast

@@ -22,6 +22,7 @@ from .parser import (
     ExpressionStmt,
     Assign,
     Call,
+    KbdStmt,
 )
 
 
@@ -74,6 +75,8 @@ class Interpreter:
             self._execute_function_declaration(node)
         elif isinstance(node, KeyPressStmt):
             self._execute_keypress(node)
+        elif isinstance(node, KbdStmt):
+            self._execute_kbd(node)
         elif isinstance(node, ExpressionStmt):
             self._execute_expression(node.expression)
         elif isinstance(node, Literal):
@@ -132,6 +135,11 @@ class Interpreter:
         for key in node.keys:
             self.keyboard.press_key(key.value)
         self.keyboard.release_all()
+
+    def _execute_kbd(self, node: KbdStmt):
+        self.keyboard = RasperDuckyKeyboard(
+            node.platform.value.lower(), node.language.value.lower()
+        )
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):

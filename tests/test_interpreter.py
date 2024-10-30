@@ -393,3 +393,10 @@ def test_delay_statement(interpreter, mocker):
     interpreter.interpret(ast)
     mock_sleep.assert_called_once_with(0.01)
     assert interpreter.execution_stack == []
+
+
+def test_kbd_statement(interpreter):
+    ast = [KbdStmt(Token(Tok.RD_KBD_PLATFORM, "WIN"), Token(Tok.RD_KBD_LANGUAGE, "FR"))]
+    interpreter.interpret(ast)
+    assert interpreter.keyboard.platform == "win"
+    assert interpreter.keyboard.language == "fr"

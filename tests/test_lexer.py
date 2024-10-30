@@ -360,3 +360,14 @@ def test_trailing_spaces_ignored_after_print_commands():
         Token(Tok.STRING, "Hello, World!", 2, 10),
         Token(Tok.EOF),
     ]
+
+
+def test_kbd_commands():
+    code = "RD_KBD WIN FR"
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.RD_KBD, "RD_KBD", 1, 1),
+        Token(Tok.RD_KBD_PLATFORM, "WIN", 1, 8),
+        Token(Tok.RD_KBD_LANGUAGE, "FR", 1, 12),
+        Token(Tok.EOF),
+    ]

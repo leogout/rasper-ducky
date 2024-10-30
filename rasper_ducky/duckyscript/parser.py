@@ -55,7 +55,7 @@ class Call(Expr):
         self.name = name
 
     def __repr__(self):
-        return f"CALL({self.callee})"
+        return f"CALL({self.name})"
 
 
 class Assign(Expr):
@@ -112,6 +112,15 @@ class StringLnStmt(Stmt):
 
     def __repr__(self):
         return f"PRINT_STRLN({self.value})"
+
+
+class KbdStmt(Stmt):
+    def __init__(self, platform: Token, language: Token):
+        self.platform = platform
+        self.language = language
+
+    def __repr__(self):
+        return f"KBD({self.platform}, {self.language})"
 
 
 class IfStmt(Stmt):
@@ -180,6 +189,8 @@ class Parser:
             return self.string_stmt()
         elif self.match(Tok.PRINTSTRINGLN):
             return self.stringln_stmt()
+        elif self.match(Tok.RD_KBD):
+            return self.kbd_stmt()
         elif self.match(Tok.DELAY):
             return self.delay_stmt()
         elif self.match(Tok.IF):
@@ -218,6 +229,14 @@ class Parser:
         value = self.consume(Tok.STRING, "Expected a string after STRINGLN")
         self.consume_termination("Expected a line break after a string")
         return StringLnStmt(Literal(value.value))
+
+    def kbd_stmt(self) -> KbdStmt:
+        platform = self.consume(Tok.RD_KBD_PLATFORM, "Expected a platform after RD_KBD")
+        language = self.consume(
+            Tok.RD_KBD_LANGUAGE, "Expected a language after RD_KBD_PLATFORM"
+        )
+        self.consume_termination("Expected a line break after a keyboard statement")
+        return KbdStmt(platform, language)
 
     def delay_stmt(self) -> DelayStmt:
         value = self.consume(Tok.NUMBER, "Expected a number after DELAY")

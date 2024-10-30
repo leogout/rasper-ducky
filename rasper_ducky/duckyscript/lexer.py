@@ -65,7 +65,9 @@ class Tok:
     FALSE = "FALSE"
 
     # CUSTOM RASPER DUCKY COMMANDS (non rubber ducky standards)
-    RD_KEYBOARD_LAYOUT = "RD_KEYBOARD_LAYOUT"
+    RD_KBD = "RD_KBD"
+    RD_KBD_PLATFORM = "RD_KBD_PLATFORM"
+    RD_KBD_LANGUAGE = "RD_KBD_LANGUAGE"
 
 
 class Token:
@@ -109,8 +111,7 @@ class Lexer:
     }
 
     KEYWORDS = {
-        "RD_KEYBOARD_LAYOUT": Tok.RD_KEYBOARD_LAYOUT,
-
+        "RD_KBD": Tok.RD_KBD,
         "VAR": Tok.VAR,
         "IF": Tok.IF,
         "THEN": Tok.THEN,
@@ -288,6 +289,20 @@ class Lexer:
         self.advance_while(lambda c: c != "\n")
         return self.token(Tok.STRING, self.code[self.start : self.current].strip())
 
+    def kbd_platform(self):
+        self.start += 1
+        self.advance_while(lambda c: c != " ")
+        return self.token(
+            Tok.RD_KBD_PLATFORM, self.code[self.start : self.current].strip()
+        )
+
+    def kbd_language(self):
+        self.start += 1
+        self.advance_while(lambda c: c != "\n")
+        return self.token(
+            Tok.RD_KBD_LANGUAGE, self.code[self.start : self.current].strip()
+        )
+
     def identifier(self):
         while self.is_alphanumeric(self.peek()):
             self.advance()
@@ -365,6 +380,10 @@ class Lexer:
             return self.eol()
         elif previous and previous.type in {Tok.PRINTSTRING, Tok.PRINTSTRINGLN}:
             return self.string()
+        elif previous and previous.type == Tok.RD_KBD:
+            return self.kbd_platform()
+        elif previous and previous.type == Tok.RD_KBD_PLATFORM:
+            return self.kbd_language()
         elif self.is_operator(char):
             return self.operator()
         elif self.is_digit(char):

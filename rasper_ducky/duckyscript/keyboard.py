@@ -5,6 +5,9 @@ from adafruit_hid.keyboard import Keyboard
 # type: ignore
 class RasperDuckyKeyboard:
     def __init__(self, platform: str, language: str):
+        self.platform = platform
+        self.language = language
+
         try:
             layout = __import__(f"keyboard_layout_{platform}_{language}")
             keycode = __import__(f"keycode_{platform}_{language}")
