@@ -10,10 +10,10 @@ dependencies = []
 pythonpath = [".", "stubs"]
 
 [tool.pyright]
-extraPaths = ["stubs"]
+extraPaths = ["stubs", "rasper_ducky"]
 
 [tool.mypy]
-mypy_path = "stubs"
+mypy_path = ["stubs", "rasper_ducky"]
 
 
 [tool.uv]

@@ -1,6 +1,6 @@
 import time
 
-from ..keyboard import press_key, release_all, type_string
+from .keyboard import RasperDuckyKeyboard
 from .parser import (
     KeyPressStmt,
     VarStmt,
@@ -49,6 +49,7 @@ class Interpreter:
         self.variables = {}
         self.functions = {}
         self.execution_stack = []
+        self.keyboard = RasperDuckyKeyboard("win", "fr")
 
     def interpret(self, ast: list[Stmt]):
         for node in ast:
@@ -107,13 +108,13 @@ class Interpreter:
 
     def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
-        type_string(node.value.value)
+        self.keyboard.type_string(node.value.value)
 
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
-        type_string(node.value.value)
-        press_key("ENTER")  # TODO: use Keycode.ENTER
-        release_all()
+        self.keyboard.type_string(node.value.value)
+        self.keyboard.press_key("ENTER")  # TODO: use Keycode.ENTER
+        self.keyboard.release_all()
 
     def _execute_delay(self, node: DelayStmt):
         time.sleep(float(node.value.value) / 1000)
@@ -129,8 +130,8 @@ class Interpreter:
 
     def _execute_keypress(self, node: KeyPressStmt):
         for key in node.keys:
-            press_key(key.value)
-        release_all()
+            self.keyboard.press_key(key.value)
+        self.keyboard.release_all()
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):

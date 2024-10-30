@@ -1,8 +1,8 @@
 import time
 
-from .duckyscript.lexer import Lexer
-from .duckyscript.parser import Parser
-from .duckyscript.interpreter import Interpreter
+from duckyscript.lexer import Lexer
+from duckyscript.parser import Parser
+from duckyscript.interpreter import Interpreter
 
 
 # sleep at the start to allow the device to be recognized by the host computer
@@ -20,5 +20,6 @@ def execute(code: str):
 
 with open("payload.dd", "r") as file:
     payload_code = file.read()
+
 
 execute(payload_code)

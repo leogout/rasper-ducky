@@ -7,17 +7,23 @@ from unittest.mock import call
 
 @pytest.fixture
 def mock_type_string(mocker):
-    return mocker.patch("rasper_ducky.duckyscript.interpreter.type_string")
+    return mocker.patch(
+        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.type_string"
+    )
 
 
 @pytest.fixture
 def mock_press_key(mocker):
-    return mocker.patch("rasper_ducky.duckyscript.interpreter.press_key")
+    return mocker.patch(
+        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.press_key"
+    )
 
 
 @pytest.fixture
 def mock_release_all(mocker):
-    return mocker.patch("rasper_ducky.duckyscript.interpreter.release_all")
+    return mocker.patch(
+        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.release_all"
+    )
 
 
 def execute(code: str):
