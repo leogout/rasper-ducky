@@ -93,13 +93,13 @@ def test_priority():
 
 
 def test_print_string(mock_type_string):
-    interpreter = execute("STRING Hello, World!")
+    execute("STRING Hello, World!")
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("Hello, World!")
 
 
 def test_print_stringln(mock_type_string):
-    interpreter = execute("STRINGLN Hello, World!")
+    execute("STRINGLN Hello, World!")
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("Hello, World!")
 
@@ -122,7 +122,7 @@ def test_booleans(mock_type_string):
 
 
 def test_nested_if_statements(mock_type_string):
-    interpreter = execute(
+    execute(
         """
         IF TRUE THEN
             IF FALSE THEN
@@ -202,3 +202,51 @@ def test_keypress_statement_with_multiple_keys(mock_press_key, mock_release_all)
     execute("CTRL ALT B")
     mock_press_key.assert_has_calls([call("CTRL"), call("ALT"), call("B")])
     mock_release_all.assert_called_once()
+
+
+def test_logical_operator_and(mock_type_string):
+    execute(
+        """
+        IF (TRUE && TRUE) THEN
+            STRING A
+        END_IF
+        IF (TRUE && FALSE) THEN
+            STRING B
+        END_IF
+        IF (FALSE && FALSE) THEN
+            STRING C
+        END_IF
+    """
+    )
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("A")
+
+
+def test_logical_operator_or(mock_type_string):
+    execute(
+        """
+        IF (TRUE || TRUE) THEN
+            STRING A
+        END_IF
+        IF (TRUE || FALSE) THEN
+            STRING B
+        END_IF
+        IF (FALSE || FALSE) THEN
+            STRING C
+        END_IF
+    """
+    )
+    assert mock_type_string.call_count == 2
+    mock_type_string.assert_has_calls([call("A"), call("B")])
+
+
+def test_multiple_conditions(mock_type_string):
+    execute(
+        """
+        IF ((TRUE == TRUE) && (FALSE == FALSE)) THEN
+            STRING True
+        END_IF
+        """
+    )
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("True")

@@ -10,8 +10,6 @@ no_storage_status = NO_STORAGE_PIN.value
 if board.board_id == "raspberry_pi_pico":
     # On Pi Pico, default to USB visible
     no_storage = not no_storage_status
-elif board.board_id == "raspberry_pi_pico_w":
-    no_storage = no_storage_status
 else:
     no_storage = False
 

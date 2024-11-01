@@ -305,7 +305,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expr:
-        expr = self.equality()
+        expr = self.logical()
 
         if self.match(Tok.ASSIGN):
             value = self.assignment()  # allows for assignment chains like a = b = c = 1
@@ -313,6 +313,15 @@ class Parser:
             if isinstance(expr, Variable):
                 return Assign(expr.name, value)
 
+        return expr
+
+    def logical(self) -> Expr:
+        expr = self.equality()
+
+        while self.match(Tok.OP_AND, Tok.OP_OR):
+            operator = self.previous()
+            right = self.equality()
+            expr = Binary(expr, operator, right)
         return expr
 
     def equality(self) -> Expr:
