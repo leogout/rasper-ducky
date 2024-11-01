@@ -2,6 +2,7 @@ import pytest
 from rasper_ducky.duckyscript.lexer import Lexer
 from rasper_ducky.duckyscript.parser import *
 from rasper_ducky.duckyscript.interpreter import Interpreter
+from rasper_ducky.duckyscript.preprocessor import Preprocessor
 from unittest.mock import call
 
 
@@ -27,6 +28,8 @@ def mock_release_all(mocker):
 
 
 def execute(code: str):
+    preprocessor = Preprocessor()
+    code = preprocessor.process(code)
     lexer = Lexer(code)
     tokens = list(lexer.tokenize())
     parser = Parser(tokens)
@@ -255,7 +258,7 @@ def test_unary_operator_not(mock_type_string):
     mock_type_string.assert_called_with("A")
 
 
-def test_unary_operator_minus(mock_type_string):
+def test_unary_operator_minus():
     interpreter = execute("VAR $x = -10")
     assert interpreter.variables["$x"] == -10
 
@@ -270,3 +273,16 @@ def test_multiple_conditions(mock_type_string):
     )
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("True")
+
+
+def test_define_statement(mock_type_string):
+    execute(
+        """
+        DEFINE #COUNT 3
+        IF #COUNT == 3 THEN
+            STRING A
+        END_IF
+    """
+    )
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("A")

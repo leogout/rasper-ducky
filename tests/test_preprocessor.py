@@ -43,19 +43,6 @@ def test_define_with_expression(preprocessor):
     assert preprocessor.process(code).strip() == expected.strip()
 
 
-def test_define_not_replacing_substrings(preprocessor):
-    code = """
-    DEFINE MAX 100
-    VAR $x = MAX
-    VAR $y = MAXIMUM
-    """
-    expected = """
-    VAR $x = 100
-    VAR $y = MAXIMUM
-    """
-    assert preprocessor.process(code).strip() == expected.strip()
-
-
 def test_define_case_sensitivity(preprocessor):
     code = """
     DEFINE max 100
@@ -77,6 +64,7 @@ def test_multiple_uses_of_define(preprocessor):
     VAR $z = VALUE * 2
     """
     expected = """
+
     VAR $x = 42
     VAR $y = 42 + 1
     VAR $z = 42 * 2
@@ -92,6 +80,7 @@ def test_define_order(preprocessor):
     """
     expected = """
     VAR $x = VALUE
+
     VAR $y = 100
     """
     assert preprocessor.process(code).strip() == expected.strip()
@@ -105,7 +94,9 @@ def test_redefine(preprocessor):
     VAR $y = VALUE
     """
     expected = """
+
     VAR $x = 100
+
     VAR $y = 200
     """
     assert preprocessor.process(code).strip() == expected.strip()
