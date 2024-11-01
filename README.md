@@ -4,6 +4,13 @@
   <img src="docs/img/rasper-ducky-logo.png" alt="Rasper Ducky Logo">
 </p>
 
+<div align="center">
+  <img alt="GitHub license" src="https://img.shields.io/github/license/leogout/rasper-ducky">
+  <img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/leogout/rasper-ducky/ci.yml">
+</div>
+
+![ci status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+
 Welcome to the Rasper Ducky project! This project aims to provide a comprehensive, open-source implementation of DuckyScript3, a scripting language used for automating tasks on USB Rubber Ducky devices. My goal is to achieve a 1-to-1 implementation of DuckyScript3, enabling developers to write and execute scripts on a Raspberry Pi Pico. This project is still in its early stages of development, but I'm working hard to add more features and improve the overall experience.
 
 ## Features
