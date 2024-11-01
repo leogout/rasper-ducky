@@ -27,7 +27,7 @@ from .parser import (
 
 
 class Interpreter:
-    OPERATORS = operators = {
+    BINARY_OPERATORS = {
         Tok.OP_PLUS: lambda l, r: l + r,
         Tok.OP_MINUS: lambda l, r: l - r,
         Tok.OP_MULTIPLY: lambda l, r: l * r,
@@ -44,6 +44,12 @@ class Interpreter:
         Tok.OP_BITWISE_OR: lambda l, r: l | r,
         Tok.OP_SHIFT_LEFT: lambda l, r: l << r,
         Tok.OP_SHIFT_RIGHT: lambda l, r: l >> r,
+    }
+
+    UNARY_OPERATORS = {
+        Tok.OP_MINUS: lambda l: -l,
+        Tok.OP_PLUS: lambda l: l,
+        Tok.OP_NOT: lambda l: not l,
     }
 
     def __init__(self):
@@ -144,6 +150,8 @@ class Interpreter:
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
             return self._evaluate_expression(node)
+        elif isinstance(node, Unary):
+            return self._evaluate_unary(node)
         elif isinstance(node, Literal):
             return int(node.value)
         elif isinstance(node, Variable):
@@ -169,11 +177,20 @@ class Interpreter:
         right = self._evaluate(node.right)
         return self._apply_operator(node.operator, left, right)
 
-    def _apply_operator(self, operator: Token, left, right):
+    def _evaluate_unary(self, node: Unary):
+        value = self._evaluate(node.right)
+        return self._apply_unary_operator(node.operator, value)
 
-        if operator.type in self.OPERATORS:
-            return self.OPERATORS[operator.type](left, right)
+    def _apply_operator(self, operator: Token, left, right):
+        if operator.type in self.BINARY_OPERATORS:
+            return self.BINARY_OPERATORS[operator.type](left, right)
         elif operator.value == "=":
             return right
+        else:
+            raise RuntimeError(f"Opérateur inconnu : {operator.value}")
+
+    def _apply_unary_operator(self, operator: Token, value):
+        if operator.type in self.UNARY_OPERATORS:
+            return self.UNARY_OPERATORS[operator.type](value)
         else:
             raise RuntimeError(f"Opérateur inconnu : {operator.value}")

@@ -240,6 +240,26 @@ def test_logical_operator_or(mock_type_string):
     mock_type_string.assert_has_calls([call("A"), call("B")])
 
 
+def test_unary_operator_not(mock_type_string):
+    execute(
+        """
+        IF (!FALSE) THEN
+            STRING A
+        END_IF
+        IF (!TRUE) THEN
+            STRING B
+        END_IF
+    """
+    )
+    assert mock_type_string.call_count == 1
+    mock_type_string.assert_called_with("A")
+
+
+def test_unary_operator_minus(mock_type_string):
+    interpreter = execute("VAR $x = -10")
+    assert interpreter.variables["$x"] == -10
+
+
 def test_multiple_conditions(mock_type_string):
     execute(
         """
