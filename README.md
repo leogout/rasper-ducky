@@ -27,13 +27,29 @@ To contribute, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 ### Installation on Raspberry Pi Pico 2
 #### Install CircuitPython 9.2.0
 - Go to the [CircuitPython website](https://circuitpython.org/board/raspberry_pi_pico/) and download the `CircuitPython 9.2.0` firmware for Raspberry Pi Pico 2 using the "DOWNLOAD .UF2 NOW" button.
+<p align="center">
+  <img src="docs/img/tuto-download-circuitpy.png" alt="Download CircuitPython">
+</p>
+
 - Hold the BOOTSEL button on your Raspberry Pi Pico 2 and connect it to your computer using a USB cable. Once `RPI-RP2` appears in the device manager, release the BOOTSEL button.
+<p align="center">
+  <img src="docs/img/tuto-bootsel.png" alt="Hold BOOTSEL and connect">
+</p>
+
 - Open your `RPI-RP2` drive and drag and drop the downloaded `.UF2` file to the Raspberry Pi Pico 2.
+<p align="center">
+  <img src="docs/img/tuto-rpi-rp2.png" alt="RPI-RP2 drive">
+</p>
+
 - Once the Raspberry Pi Pico is restarted, it will appear as `CIRCUITPY` in the device manager.
 
 #### Install the rasper-ducky library
 - Connect your Raspberry Pi Pico to your computer and copy/paste the content of the `rasper_ducky` folder to the `CIRCUITPY` drive.
 - Create a new file named `payload.dd` at the root of the `CIRCUITPY` drive containing your DuckyScript3 script.
+<p align="center">
+  <img src="docs/img/tuto-add-files-to-pico.png" alt="Add files to Pico">
+</p>
+
 - You can try it out with this simple script, which will open a PowerShell window and print "Hello, World!" 3 times, separated by a space:
 ```plaintext
 DEFINE #COUNT 3
@@ -57,6 +73,10 @@ open_powershell()
 DELAY 1000
 hello_world()
 ```
+<p align="center">
+  <img src="docs/img/tuto-have-fun.png" alt="Have fun">
+</p>
+
 
 ## Debugging
 
