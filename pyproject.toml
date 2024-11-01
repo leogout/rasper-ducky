@@ -15,7 +15,6 @@ extraPaths = ["stubs", "rasper_ducky"]
 [tool.mypy]
 mypy_path = ["stubs", "rasper_ducky"]
 
-
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.3.3",

@@ -32,4 +32,4 @@ jobs:
       run: uv run black --check .
 
     - name: Type check with MyPy
-      run: uv run mypy .
+      run: uv run mypy rasper_ducky && uv run mypy tests
