@@ -65,3 +65,11 @@ Once connected, you should see the output of the script in the serial console.
  - [ ] HOLD / RELEASE
  - [ ] RESTART_PAYLOAD / STOP_PAYLOAD
 - [ ] Improve error handling and debugging features
+
+
+## Thanks
+
+- Thanks to [@hak5](https://github.com/hak5) for the original DuckyScript language.
+- Thanks to [@dbisu](https://github.com/dbisu) for [Pico-Ducky](https://github.com/dbisu/pico-ducky), which was the starting point for this project.
+- Thanks to the team behind [CircuitPython](https://github.com/adafruit/circuitpython) for the amazing work on this firmware and their support.
+- Thanks to the rest of the community for making this fun little project possible (AdaFruit, MicroPython, etc.).
