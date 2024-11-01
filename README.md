@@ -7,7 +7,7 @@
 </p>
 
 <div align="center">
-  <img src="docs/img/rasper-ducky-logo.png" alt="Rasper Ducky Logo">
+  <img src="docs/img/rasper-ducky-logo.png" alt="RasperDucky Logo">
 </div>
 
 <div align="center">
@@ -15,18 +15,7 @@
   <img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/leogout/rasper-ducky/ci.yml">
 </div>
 
-Welcome to the Rasper Ducky project! This project aims to provide a comprehensive, open-source implementation of DuckyScript3, a scripting language used for automating tasks on USB Rubber Ducky devices. My goal is to achieve a 1-to-1 implementation of DuckyScript3, enabling developers to write and execute scripts on a Raspberry Pi Pico. This project is still in its early stages of development, but I'm working hard to add more features and improve the overall experience.
-
-## Features
-
-- **Partial DuckyScript3 Syntax Support**: Parse and execute scripts written in DuckyScript3, including standard commands and syntax.
-- **Logical and Assignment Operations**: Support for complex logical expressions and variable assignments.
-- **Extensible Architecture**: Easily extend the parser and interpreter to support additional features or custom commands.
-- **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico 2.
-- **Full test suite**: Ensure the implementation is correct and reliable.
-- **Open Source**: Contribute to the project and help me improve the implementation.
-
-To contribute, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+This project aims to provide an open-source implementation of DuckyScript3, a scripting language used for automating tasks on USB Rubber Ducky devices. Its goal is to achieve a 1-to-1 implementation of DuckyScript3 targeting a Raspberry Pi Pico and Raspberry Pi Pico 2.
 
 ## Getting Started
 
@@ -89,6 +78,35 @@ hello_world()
 To debug the script, connect to the Raspberry Pi Pico 2 using Putty or similar and use the serial console. I've seen ports up to COM8 on my computer so try them all until you find the correct one.
 Once connected, you should see the output of the script in the serial console.
 
+
+## Disclaimer
+I am not affiliated with Hak5 or USB Rubber Ducky in any way. This is a side project and I do it for fun. 
+
+There are some choices in the DuckyScript3 language that I dislike and may want to change in the future, maybe in a fork of this project. For example, in DuckyScript3 :
+- Functions do not take parameters and can't return values
+- Every variable is a global variable, no scoping is implemented, variables declared in functions will bleed into the global scope
+- No mathematical operator precedence, requiring parenthesis for simple expressions (10 + 2 * 3 will be interpreted as (10 + 2) * 3)
+- Variables can only be integers
+- DELAY, STRING and STRINGLN don't accept variables
+
+## Features
+- **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
+- **Full test suite**: Ensure the implementation is correct and reliable.
+- **Open Source**: Contribute to the project and help me improve the implementation, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+- **Partial DuckyScript3 Syntax Support**: Parse and execute scripts written in DuckyScript3, including standard commands and syntax.
+  - **Conditional Statements**: `IF`, `ELSE`, `ELSE IF`
+  - **Loops**: `WHILE ($x < 10)`
+  - **Functions**: `FUNCTION hello_world()`
+  - **Defines**: `DEFINE #COUNT 3`
+  - **Variables, operators**: `$x = -12 + 34 * 10`
+  - **Keywords**: `DELAY 1000`, `STRING Hello, World!`, `STRINGLN Hello, World!`
+  - **Keys and shortcuts**: `GUI R`, `SPACE`, `CTRL ALT DEL`, `BACKSPACE`, `ALT TAB`, `ESC`, etc.
+  - **Comparison operators**: `==`, `!=`, `>`, `>=`, `<`, `<=`
+- **Additional features (not included in DuckyScript3 but nice to have)**:
+  - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
+  - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
+
+
 ## Roadmap
 
 - [ ] Complete the roadmap
@@ -105,6 +123,7 @@ Once connected, you should see the output of the script in the serial console.
 ## Thanks
 
 - Thanks to [@hak5](https://github.com/hak5) for the original DuckyScript language.
+- Thanks to [@munificent](https://github.com/munificent) for the crafting interpreters web book, which was a great help to understand how to implement a scripting language.
 - Thanks to [@dbisu](https://github.com/dbisu) for [Pico-Ducky](https://github.com/dbisu/pico-ducky), which was the starting point for this project.
-- Thanks to the team behind [CircuitPython](https://github.com/adafruit/circuitpython) for the amazing work on this firmware and their support.
+- Thanks to the Team behind [CircuitPython](https://github.com/adafruit/circuitpython) for the amazing work on this firmware and their support.
 - Thanks to the rest of the community for making this fun little project possible (AdaFruit, MicroPython, etc.).
