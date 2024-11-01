@@ -88,20 +88,24 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - No mathematical operator precedence, requiring parenthesis for simple expressions (10 + 2 * 3 will be interpreted as (10 + 2) * 3)
 - Variables can only be integers
 - DELAY, STRING and STRINGLN don't accept variables
+- No for loops, only WHILE loops are supported
 
 ## Features
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
 - **Full test suite**: Ensure the implementation is correct and reliable.
 - **Open Source**: Contribute to the project and help me improve the implementation, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 - **Partial DuckyScript3 Syntax Support**: Parse and execute scripts written in DuckyScript3, including standard commands and syntax.
-  - **Conditional Statements**: `IF`, `ELSE`, `ELSE IF`
+  - **Conditional Statements**: `IF`, `ELSE IF`, `ELSE`
+  - **Comments**: `REM`, `REM_BLOCK`
+  - **Variables**: `VAR $x = 10`
   - **Loops**: `WHILE ($x < 10)`
   - **Functions**: `FUNCTION hello_world()`
   - **Defines**: `DEFINE #COUNT 3`
-  - **Variables, operators**: `$x = -12 + 34 * 10`
-  - **Keywords**: `DELAY 1000`, `STRING Hello, World!`, `STRINGLN Hello, World!`
+  - **Operators**: `$x = (-12 + 34) * 10 / 2`
+  - **Keywords**: `TRUE`, `FALSE`, `DELAY 1000`, `STRING Hello, World!`, `STRINGLN Hello, World!`
   - **Keys and shortcuts**: `GUI R`, `SPACE`, `CTRL ALT DEL`, `BACKSPACE`, `ALT TAB`, `ESC`, etc.
   - **Comparison operators**: `==`, `!=`, `>`, `>=`, `<`, `<=`
+  - **Unary operators**: `-$x`, `!($x > 10)`
 - **Additional features (not included in DuckyScript3 but nice to have)**:
   - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
   - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
@@ -111,12 +115,12 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 
 - [ ] Complete the roadmap
 - [ ] Complete 1-to-1 DuckyScript3 implementation
- - [ ] WAIT_FOR_BUTTON_PRESS
- - [ ] BUTTON_DEF
- - [ ] LED_R / LED_G (only one green led on the Raspberry Pi Pico 2)
- - [ ] Random characters (RANDOM_LOWERCASE_LETTER, RANDOM_UPPERCASE_LETTER, RANDOM_LETTER, RANDOM_NUMBER, RANDOM_CHAR)
- - [ ] HOLD / RELEASE
- - [ ] RESTART_PAYLOAD / STOP_PAYLOAD
+  - [ ] `WAIT_FOR_BUTTON_PRESS`
+  - [ ] `BUTTON_DEF`
+  - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico 2)
+  - [ ] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_CHAR`
+  - [ ] `HOLD` / `RELEASE`
+  - [ ] `RESTART_PAYLOAD` / `STOP_PAYLOAD`
 - [ ] Improve error handling and debugging features
 
 
