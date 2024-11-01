@@ -1,8 +1,14 @@
-# Rasper Ducky
+<h1 align="center">
+  RasperDucky
+</h1>
 
 <p align="center">
-  <img src="docs/img/rasper-ducky-logo.png" alt="Rasper Ducky Logo">
+  <strong>An open-source implementation of DuckyScript3 with CircuitPython for Raspberry Pi Pico</strong>
 </p>
+
+<div align="center">
+  <img src="docs/img/rasper-ducky-logo.png" alt="Rasper Ducky Logo">
+</div>
 
 <div align="center">
   <img alt="GitHub license" src="https://img.shields.io/github/license/leogout/rasper-ducky">
