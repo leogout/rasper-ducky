@@ -50,18 +50,18 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 DEFINE #COUNT 3
 
 FUNCTION open_powershell()
-	GUI R
-	STRINGLN powershell
+    GUI R
+    STRINGLN powershell
 END_FUNCTION
 
 FUNCTION hello_world()
-	$x = 0
-	WHILE ($x < #COUNT)
-	    DELAY 500
-		STRING Hello, World!
+    $x = 0
+    WHILE ($x < #COUNT)
+        DELAY 500
+        STRING Hello, World!
         SPACE
-		$x = $x + 1
-	END_WHILE
+        $x = $x + 1
+    END_WHILE
 END_FUNCTION
 
 open_powershell()
@@ -89,6 +89,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - Variables can only be integers
 - DELAY, STRING and STRINGLN don't accept variables
 - No for loops, only WHILE loops are supported
+- Need to declare variables before using them
 
 ## Features
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
@@ -109,6 +110,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - **Additional features (not included in DuckyScript3 but nice to have)**:
   - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
   - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
+  - **No need for VAR**: No need to declare variables before using them, just use them directly : `$x = 10` is equivalent to `VAR $x = 10`
 
 
 ## Roadmap
