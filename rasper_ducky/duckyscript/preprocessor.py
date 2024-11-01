@@ -1,6 +1,3 @@
-import re
-
-
 class Preprocessor:
     def __init__(self):
         self.define_table = {}
