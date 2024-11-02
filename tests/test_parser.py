@@ -423,3 +423,30 @@ def test_kbd_statement(parser):
         KbdStmt(Token(Tok.RD_KBD_PLATFORM, "WIN"), Token(Tok.RD_KBD_LANGUAGE, "FR"))
     ]
     assert ast == expected_ast
+
+
+def test_random_commands(parser):
+    tokens = [
+        Token(Tok.RANDOM_CHAR, "RANDOM_LOWERCASE_LETTER"),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_UPPERCASE_LETTER"),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_LETTER"),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_NUMBER"),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_SPECIAL"),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_CHAR"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_LOWERCASE_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_UPPERCASE_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_NUMBER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_SPECIAL")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_CHAR")),
+    ]
+    assert ast == expected_ast

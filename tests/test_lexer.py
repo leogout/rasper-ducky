@@ -384,15 +384,15 @@ RANDOM_CHAR
 """
     tokens = list(lexer(code).tokenize())
     assert tokens == [
-        Token(Tok.RANDOM_LOWERCASE_LETTER, "RANDOM_LOWERCASE_LETTER", 2, 1),
+        Token(Tok.RANDOM_CHAR, "RANDOM_LOWERCASE_LETTER", 2, 1),
         Token(Tok.EOL),
-        Token(Tok.RANDOM_UPPERCASE_LETTER, "RANDOM_UPPERCASE_LETTER", 3, 1),
+        Token(Tok.RANDOM_CHAR, "RANDOM_UPPERCASE_LETTER", 3, 1),
         Token(Tok.EOL),
-        Token(Tok.RANDOM_LETTER, "RANDOM_LETTER", 4, 1),
+        Token(Tok.RANDOM_CHAR, "RANDOM_LETTER", 4, 1),
         Token(Tok.EOL),
-        Token(Tok.RANDOM_NUMBER, "RANDOM_NUMBER", 5, 1),
+        Token(Tok.RANDOM_CHAR, "RANDOM_NUMBER", 5, 1),
         Token(Tok.EOL),
-        Token(Tok.RANDOM_SPECIAL, "RANDOM_SPECIAL", 6, 1),
+        Token(Tok.RANDOM_CHAR, "RANDOM_SPECIAL", 6, 1),
         Token(Tok.EOL),
         Token(Tok.RANDOM_CHAR, "RANDOM_CHAR", 7, 1),
         Token(Tok.EOL),
