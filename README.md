@@ -95,23 +95,11 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
 - **Full test suite**: Ensure the implementation is correct and reliable.
 - **Open Source**: Contribute to the project and help me improve the implementation, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
-- **Partial DuckyScript3 Syntax Support**: Parse and execute scripts written in DuckyScript3, including standard commands and syntax.
-  - **Conditional Statements**: `IF`, `ELSE IF`, `ELSE`
-  - **Comments**: `REM`, `REM_BLOCK`
-  - **Variables**: `VAR $x = 10`
-  - **Loops**: `WHILE ($x < 10)`
-  - **Functions**: `FUNCTION hello_world()`
-  - **Defines**: `DEFINE #COUNT 3`
-  - **Operators**: `$x = (-12 + 34) * 10 / 2`
-  - **Keywords**: `TRUE`, `FALSE`, `DELAY 1000`, `STRING Hello, World!`, `STRINGLN Hello, World!`
-  - **Keys and shortcuts**: `GUI R`, `SPACE`, `CTRL ALT DEL`, `BACKSPACE`, `ALT TAB`, `ESC`, etc.
-  - **Comparison operators**: `==`, `!=`, `>`, `>=`, `<`, `<=`
-  - **Unary operators**: `-$x`, `!($x > 10)`
+- **Partial DuckyScript3 Syntax Support**: See [INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for the supported syntax.
 - **Additional features (not included in DuckyScript3 but nice to have)**:
   - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
   - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
   - **No need for VAR**: No need to declare variables before using them, just use them directly : `$x = 10` is equivalent to `VAR $x = 10`
-
 
 ## Roadmap
 
