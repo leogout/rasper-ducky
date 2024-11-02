@@ -116,8 +116,7 @@ DEFINE #DELAY_MS 500
 # Using constants
 $attempts = 0
 WHILE ($attempts < #MAX_ATTEMPTS)
-    STRING Attempt 
-    STRING $attempts
+    STRING password123
     ENTER
     DELAY #DELAY_MS
     $attempts = $attempts + 1

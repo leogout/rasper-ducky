@@ -90,6 +90,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - DELAY, STRING and STRINGLN don't accept variables
 - No for loops, only WHILE loops are supported
 - Need to declare variables before using them
+- No BREAK or CONTINUE statements in loops
 
 ## Features
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
