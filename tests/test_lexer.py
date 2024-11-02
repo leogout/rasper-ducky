@@ -371,3 +371,30 @@ def test_kbd_commands():
         Token(Tok.RD_KBD_LANGUAGE, "FR", 1, 12),
         Token(Tok.EOF),
     ]
+
+
+def test_random_commands():
+    code = """
+RANDOM_LOWERCASE_LETTER
+RANDOM_UPPERCASE_LETTER
+RANDOM_LETTER
+RANDOM_NUMBER
+RANDOM_SPECIAL
+RANDOM_CHAR
+"""
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.RANDOM_LOWERCASE_LETTER, "RANDOM_LOWERCASE_LETTER", 2, 1),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_UPPERCASE_LETTER, "RANDOM_UPPERCASE_LETTER", 3, 1),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_LETTER, "RANDOM_LETTER", 4, 1),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_NUMBER, "RANDOM_NUMBER", 5, 1),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_SPECIAL, "RANDOM_SPECIAL", 6, 1),
+        Token(Tok.EOL),
+        Token(Tok.RANDOM_CHAR, "RANDOM_CHAR", 7, 1),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
