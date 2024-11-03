@@ -1,3 +1,4 @@
+from unittest.mock import call
 import pytest
 from rasper_ducky.duckyscript.interpreter import *
 from rasper_ducky.duckyscript.parser import *
@@ -255,7 +256,7 @@ def test_division_by_zero(interpreter):
 
 def test_unknown_operator(interpreter):
     ast = [Binary(Literal("1"), Token(2000, "unknown"), Literal("2"))]
-    with pytest.raises(RuntimeError, match="Opérateur inconnu"):
+    with pytest.raises(RuntimeError, match="Unknown operator: unknown"):
         interpreter.interpret(ast)
 
 
@@ -267,7 +268,7 @@ def test_undefined_variable(interpreter):
             Literal("2"),
         )
     ]
-    with pytest.raises(RuntimeError, match="Variable non définie"):
+    with pytest.raises(RuntimeError, match="Undefined variable: \$undefined"):
         interpreter.interpret(ast)
 
 
@@ -400,3 +401,21 @@ def test_kbd_statement(interpreter):
     interpreter.interpret(ast)
     assert interpreter.keyboard.platform == "win"
     assert interpreter.keyboard.language == "fr"
+
+
+def test_random_char_statement(interpreter, mocker):
+    mock_choice = mocker.patch("random.choice")
+
+    ast = [
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_LOWERCASE_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_UPPERCASE_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_LETTER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_NUMBER")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_SPECIAL")),
+        RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_CHAR")),
+    ]
+    interpreter.interpret(ast)
+    assert mock_choice.call_count == len(Interpreter.RANDOM_CHAR_SETS)
+    
+    for value in Interpreter.RANDOM_CHAR_SETS.values():
+        mock_choice.assert_any_call(value)

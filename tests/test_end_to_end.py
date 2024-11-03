@@ -286,3 +286,23 @@ def test_define_statement(mock_type_string):
     )
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("A")
+
+
+def test_random_char_statement(mocker):
+    mock_choice = mocker.patch("random.choice")
+
+    execute(
+        """
+        RANDOM_LOWERCASE_LETTER
+        RANDOM_UPPERCASE_LETTER
+        RANDOM_LETTER
+        RANDOM_NUMBER
+        RANDOM_SPECIAL
+        RANDOM_CHAR
+    """
+    )
+
+    assert mock_choice.call_count == len(Interpreter.RANDOM_CHAR_SETS)
+
+    for value in Interpreter.RANDOM_CHAR_SETS.values():
+        mock_choice.assert_any_call(value)

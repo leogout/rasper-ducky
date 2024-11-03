@@ -135,7 +135,7 @@ class Interpreter:
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
         self.keyboard.type_string(node.value.value)
-        self.keyboard.press_key("ENTER")  # TODO: use Keycode.ENTER
+        self.keyboard.press_key("ENTER")
         self.keyboard.release_all()
 
     def _execute_delay(self, node: DelayStmt):
@@ -161,11 +161,10 @@ class Interpreter:
         )
 
     def _execute_random_char(self, node: RandomCharStmt):
-        char_set = self.RANDOM_CHAR_SETS.get(node.type.value)
-        if char_set:
-            self.keyboard.type_string(random.choice(char_set))
-        else:
-            raise RuntimeError(f"Unknown random char type: {node.type.value}")
+        if node.type.value not in self.RANDOM_CHAR_SETS:
+            raise RuntimeError(f"Unknown random character set: {node.type.value}")
+        char_set = self.RANDOM_CHAR_SETS[node.type.value]
+        self.keyboard.type_string(random.choice(char_set))
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
