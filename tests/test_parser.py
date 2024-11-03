@@ -1,6 +1,25 @@
 import pytest
-from rasper_ducky.duckyscript.parser import *
-from rasper_ducky.duckyscript.lexer import *
+from rasper_ducky.duckyscript.parser import (
+    Parser,
+    Token,
+    Tok,
+    VarStmt,
+    Binary,
+    Variable,
+    Literal,
+    IfStmt,
+    StringStmt,
+    StringLnStmt,
+    WhileStmt,
+    Grouping,
+    Call,
+    FunctionStmt,
+    KbdStmt,
+    RandomCharStmt,
+    DelayStmt,
+    Unary,
+    ExpressionStmt,
+)
 
 
 @pytest.fixture

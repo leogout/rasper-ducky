@@ -1,7 +1,22 @@
-from unittest.mock import call
 import pytest
-from rasper_ducky.duckyscript.interpreter import *
-from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.interpreter import (
+    Interpreter,
+)
+from rasper_ducky.duckyscript.parser import (
+    Token,
+    Tok,
+    VarStmt,
+    Literal,
+    Binary,
+    Variable,
+    IfStmt,
+    StringStmt,
+    StringLnStmt,
+    WhileStmt,
+    DelayStmt,
+    KbdStmt,
+    RandomCharStmt,
+)
 
 
 @pytest.fixture
@@ -332,8 +347,8 @@ def test_equality_and_inequality(interpreter):
         ),
     ]
     interpreter.interpret(ast)
-    assert interpreter.variables["$x"] == True
-    assert interpreter.variables["$y"] == True
+    assert interpreter.variables["$x"]
+    assert interpreter.variables["$y"]
 
 
 def test_printstringln(interpreter):

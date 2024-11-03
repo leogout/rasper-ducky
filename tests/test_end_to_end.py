@@ -1,6 +1,6 @@
 import pytest
 from rasper_ducky.duckyscript.lexer import Lexer
-from rasper_ducky.duckyscript.parser import *
+from rasper_ducky.duckyscript.parser import Literal, Parser, StringStmt
 from rasper_ducky.duckyscript.interpreter import Interpreter
 from rasper_ducky.duckyscript.preprocessor import Preprocessor
 from unittest.mock import call
@@ -59,7 +59,7 @@ def test_if_statement(mock_type_string):
 
 
 def test_while_statement(mock_type_string):
-    interpreter = execute(
+    execute(
         """
         VAR $x = 5
         WHILE ($x > 0)
