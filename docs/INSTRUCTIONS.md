@@ -252,3 +252,11 @@ WHILE ($x < 10)
 END_WHILE
 ```
 Will output something like : `hDz4)6mSl7)EyZN0#AfXW8*8aGf6)ZkZX3%8jJe3&@fKH7*1wEu0)JfAo3$R`
+
+### Random character from a string
+
+The `RANDOM_CHAR_FROM` instruction allows you to type a random character from a given string.
+
+```duckyscript
+RANDOM_CHAR_FROM aAzZ!#1,;:!()
+```

@@ -306,3 +306,12 @@ def test_random_char_statement(mocker):
 
     for value in Interpreter.RANDOM_CHAR_SETS.values():
         mock_choice.assert_any_call(value)
+
+
+def test_random_char_from_statement(mocker):
+    mock_choice = mocker.patch("random.choice")
+
+    execute("RANDOM_CHAR_FROM aAzZ!#1,;:!()")
+
+    assert mock_choice.call_count == 1
+    mock_choice.assert_any_call("aAzZ!#1,;:!()")

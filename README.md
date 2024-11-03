@@ -100,6 +100,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
   - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
   - **No need for VAR**: No need to declare variables before using them, just use them directly : `$x = 10` is equivalent to `VAR $x = 10`
+  - **Random character from a string**: `RANDOM_CHAR_FROM aAzZ!#1,;:!()` will type a random character from the given string
 
 ## Roadmap
 - [ ] Complete the roadmap
@@ -119,7 +120,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - [ ] Prevent the user from shadowing a keyword with a `DEFINE`
   - [ ] Add a `CONTINUE` and a `BREAK` statement to loops
   - [ ] Add a `PRINT` statement to debug scripts
-  - [ ] Add a `RANDOM_CHAR_FROM` instruction to generate random characters from a given string
+  - [x] Add a `RANDOM_CHAR_FROM` instruction to generate random characters from a given string
 - [ ] Custom backward incompatible features
   - [ ] Scope variables
 

@@ -1,6 +1,7 @@
 import pytest
 from rasper_ducky.duckyscript.parser import (
     Parser,
+    RandomCharFromStmt,
     Token,
     Tok,
     VarStmt,
@@ -467,5 +468,21 @@ def test_random_commands(parser):
         RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_NUMBER")),
         RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_SPECIAL")),
         RandomCharStmt(Token(Tok.RANDOM_CHAR, "RANDOM_CHAR")),
+    ]
+    assert ast == expected_ast
+
+
+def test_random_char_from_statement(parser):
+    tokens = [
+        Token(Tok.RANDOM_CHAR_FROM, "RANDOM_CHAR_FROM"),
+        Token(Tok.STRING, "aAzZ!#1,;:!()"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        RandomCharFromStmt(
+            Token(Tok.RANDOM_CHAR_FROM, "RANDOM_CHAR_FROM"),
+            Literal("aAzZ!#1,;:!()"),
+        )
     ]
     assert ast == expected_ast

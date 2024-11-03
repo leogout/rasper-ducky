@@ -25,6 +25,7 @@ from .parser import (
     Assign,
     Call,
     KbdStmt,
+    RandomCharFromStmt,
 )
 
 
@@ -98,6 +99,8 @@ class Interpreter:
             self._execute_expression(node.expression)
         elif isinstance(node, RandomCharStmt):
             self._execute_random_char(node)
+        elif isinstance(node, RandomCharFromStmt):
+            self._execute_random_char_from(node)
         elif isinstance(node, Literal):
             pass  # A literal is a value, nothing to execute
         else:
@@ -165,6 +168,9 @@ class Interpreter:
             raise RuntimeError(f"Unknown random character set: {node.type.value}")
         char_set = self.RANDOM_CHAR_SETS[node.type.value]
         self.keyboard.type_string(random.choice(char_set))
+
+    def _execute_random_char_from(self, node: RandomCharFromStmt):
+        self.keyboard.type_string(random.choice(str(node.value.value)))
 
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
