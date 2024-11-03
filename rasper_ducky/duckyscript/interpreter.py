@@ -1,8 +1,10 @@
+import random
 import time
 
 from .keyboard import RasperDuckyKeyboard
 from .parser import (
     KeyPressStmt,
+    RandomCharStmt,
     VarStmt,
     Binary,
     Unary,
@@ -52,6 +54,15 @@ class Interpreter:
         Tok.OP_NOT: lambda l: not l,
     }
 
+    RANDOM_CHAR_SETS = {
+        "RANDOM_LOWERCASE_LETTER": "abcdefghijklmnopqrstuvwxyz",
+        "RANDOM_UPPERCASE_LETTER": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "RANDOM_LETTER": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "RANDOM_NUMBER": "0123456789",
+        "RANDOM_SPECIAL": "!@#$%^&*()",
+        "RANDOM_CHAR": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()",
+    }
+
     def __init__(self):
         self.variables = {}
         self.functions = {}
@@ -85,10 +96,12 @@ class Interpreter:
             self._execute_kbd(node)
         elif isinstance(node, ExpressionStmt):
             self._execute_expression(node.expression)
+        elif isinstance(node, RandomCharStmt):
+            self._execute_random_char(node)
         elif isinstance(node, Literal):
             pass  # A literal is a value, nothing to execute
         else:
-            raise RuntimeError(f"Type de noeud inconnu : {type(node)}")
+            raise RuntimeError(f"Unknown node type: {type(node)}")
 
     def _execute_var_declaration(self, node: VarStmt):
         value = self._evaluate(node.value)
@@ -122,7 +135,7 @@ class Interpreter:
     def _execute_print_stringln(self, node: StringLnStmt):
         self.execution_stack.append(node.value.value)
         self.keyboard.type_string(node.value.value)
-        self.keyboard.press_key("ENTER")  # TODO: use Keycode.ENTER
+        self.keyboard.press_key("ENTER")
         self.keyboard.release_all()
 
     def _execute_delay(self, node: DelayStmt):
@@ -147,6 +160,12 @@ class Interpreter:
             node.platform.value.lower(), node.language.value.lower()
         )
 
+    def _execute_random_char(self, node: RandomCharStmt):
+        if node.type.value not in self.RANDOM_CHAR_SETS:
+            raise RuntimeError(f"Unknown random character set: {node.type.value}")
+        char_set = self.RANDOM_CHAR_SETS[node.type.value]
+        self.keyboard.type_string(random.choice(char_set))
+
     def _evaluate(self, node: Expr):
         if isinstance(node, Binary):
             return self._evaluate_expression(node)
@@ -158,7 +177,7 @@ class Interpreter:
             try:
                 return self.variables[node.name.value]
             except KeyError:
-                raise RuntimeError(f"Variable non définie : {node.name.value}")
+                raise RuntimeError(f"Undefined variable: {node.name.value}")
         elif isinstance(node, Assign):
             value = self._evaluate(node.value)
             self.variables[node.name.value] = value
@@ -168,9 +187,7 @@ class Interpreter:
         elif isinstance(node, Call):
             return self._execute_function_call(node)
         else:
-            raise RuntimeError(
-                f"Type de noeud inconnu pour l'évaluation : {type(node)}"
-            )
+            raise RuntimeError(f"Unknown node type for evaluation: {type(node)}")
 
     def _evaluate_expression(self, node: Binary):
         left = self._evaluate(node.left)
@@ -187,10 +204,10 @@ class Interpreter:
         elif operator.value == "=":
             return right
         else:
-            raise RuntimeError(f"Opérateur inconnu : {operator.value}")
+            raise RuntimeError(f"Unknown operator: {operator.value}")
 
     def _apply_unary_operator(self, operator: Token, value):
         if operator.type in self.UNARY_OPERATORS:
             return self.UNARY_OPERATORS[operator.type](value)
         else:
-            raise RuntimeError(f"Opérateur inconnu : {operator.value}")
+            raise RuntimeError(f"Unknown operator: {operator.value}")

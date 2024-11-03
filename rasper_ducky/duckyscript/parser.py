@@ -166,6 +166,14 @@ class FunctionStmt(Stmt):
         return f"FUNCTION({self.name}, {self.body})"
 
 
+class RandomCharStmt(Stmt):
+    def __init__(self, type: Token):
+        self.type = type
+
+    def __repr__(self):
+        return f"RANDOM_CHAR({self.type})"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -201,6 +209,8 @@ class Parser:
             return self.function_stmt()
         elif self.match(Tok.KEYPRESS):
             return self.keypress_stmt()
+        elif self.match(Tok.RANDOM_CHAR):
+            return self.random_char_stmt()
 
         return self.expression_stmt()
 
@@ -274,7 +284,7 @@ class Parser:
         return WhileStmt(condition, body)
 
     def function_stmt(self) -> FunctionStmt:
-        name = self.consume(Tok.IDENTIFIER, "Expected an identifier after FUNCTION")
+        name = self.consume(Tok.IDENTIFIER, "Expected an identifier after 'FUNCTION'")
         self.consume(Tok.LPAREN, "Expected '(' after function name")
         self.consume(Tok.RPAREN, "Expected ')' after function parameters")
         self.consume(Tok.EOL, "Expected a line break after the function parameters")
@@ -282,6 +292,11 @@ class Parser:
         self.consume(Tok.END_FUNCTION, "Expected 'END_FUNCTION'")
         self.consume_termination("Expected a line break after 'END_FUNCTION'")
         return FunctionStmt(name, body)
+
+    def random_char_stmt(self) -> RandomCharStmt:
+        type = self.previous()
+        self.consume_termination(f"Expected a line break after '{type.value}'")
+        return RandomCharStmt(type)
 
     def block(self) -> list[Stmt]:
         statements = []
