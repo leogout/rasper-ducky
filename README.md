@@ -119,6 +119,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - [ ] Prevent the user from shadowing a keyword with a `DEFINE`
   - [ ] Add a `CONTINUE` and a `BREAK` statement to loops
   - [ ] Add a `PRINT` statement to debug scripts
+  - [ ] Add a `RANDOM_CHAR_FROM` instruction to generate random characters from a given string
 - [ ] Custom backward incompatible features
   - [ ] Scope variables
 
