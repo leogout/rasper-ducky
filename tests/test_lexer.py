@@ -1,5 +1,9 @@
 import pytest
-from rasper_ducky.duckyscript.lexer import *
+from rasper_ducky.duckyscript.lexer import (
+    Lexer,
+    Token,
+    Tok,
+)
 
 
 def lexer(code: str):

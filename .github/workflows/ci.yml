@@ -29,7 +29,7 @@ jobs:
       run: uv run pytest
 
     - name: Check code formatting with Black
-      run: uv run black --check .
+      run: uv run ruff check .
 
     - name: Type check with MyPy
       run: uv run mypy rasper_ducky && uv run mypy tests

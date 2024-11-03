@@ -15,10 +15,13 @@ extraPaths = ["stubs", "rasper_ducky"]
 [tool.mypy]
 mypy_path = ["stubs", "rasper_ducky"]
 
+[tool.ruff.lint]
+ignore = ["E741"]
+
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.3.3",
-    "black>=24.10.0",
     "mypy>=1.11.2",
     "pytest-mock>=3.14.0",
+    "ruff>=0.7.2",
 ]
