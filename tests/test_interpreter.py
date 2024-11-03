@@ -416,6 +416,6 @@ def test_random_char_statement(interpreter, mocker):
     ]
     interpreter.interpret(ast)
     assert mock_choice.call_count == len(Interpreter.RANDOM_CHAR_SETS)
-    
+
     for value in Interpreter.RANDOM_CHAR_SETS.values():
         mock_choice.assert_any_call(value)
