@@ -40,7 +40,7 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 
 #### Install the rasper-ducky library
 - Connect your Raspberry Pi Pico to your computer and copy/paste the content of the `rasper_ducky` folder to the `CIRCUITPY` drive.
-- Create a new file named `payload.dd` at the root of the `CIRCUITPY` drive containing your DuckyScript3 script.
+- Edit the `payload.dd` file at the root of the `CIRCUITPY` drive to change the payload.
 <p align="center">
   <img src="docs/img/tuto-add-files-to-pico.png" alt="Add files to Pico">
 </p>
@@ -72,7 +72,6 @@ hello_world()
   <img src="docs/img/tuto-have-fun.png" alt="Have fun">
 </p>
 
-
 ## Debugging
 
 To debug the script, connect to the Raspberry Pi Pico 2 using Putty or similar and use the serial console. I've seen ports up to COM8 on my computer so try them all until you find the correct one.
@@ -103,16 +102,25 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - **No need for VAR**: No need to declare variables before using them, just use them directly : `$x = 10` is equivalent to `VAR $x = 10`
 
 ## Roadmap
-
 - [ ] Complete the roadmap
+- [ ] Derecursify parts of the parser to limit stack overflows
 - [ ] Complete 1-to-1 DuckyScript3 implementation
   - [ ] `WAIT_FOR_BUTTON_PRESS`
   - [ ] `BUTTON_DEF`
-  - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico 2)
-  - [ ] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_CHAR`
+  - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico)
+  - [x] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_SPECIAL`, `RANDOM_CHAR`
   - [ ] `HOLD` / `RELEASE`
   - [ ] `RESTART_PAYLOAD` / `STOP_PAYLOAD`
 - [ ] Improve error handling and debugging features
+- [ ] Custom backward compatible features
+  - [ ] Pass a variable to `DELAY`
+  - [ ] Pass a variable to `STRING` and `STRINGLN`
+  - [ ] Add support for `#` comments
+  - [ ] Prevent the user from shadowing a keyword with a `DEFINE`
+  - [ ] Add a `CONTINUE` and a `BREAK` statement to loops
+  - [ ] Add a `PRINT` statement to debug scripts
+- [ ] Custom backward incompatible features
+  - [ ] Scope variables
 
 
 ## Thanks
