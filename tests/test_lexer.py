@@ -402,3 +402,13 @@ RANDOM_CHAR
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]
+
+
+def test_random_char_from():
+    code = "RANDOM_CHAR_FROM aAzZ!#1,;:!()"
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.RANDOM_CHAR_FROM, "RANDOM_CHAR_FROM", 1, 1),
+        Token(Tok.STRING, "aAzZ!#1,;:!()", 1, 18),
+        Token(Tok.EOF),
+    ]

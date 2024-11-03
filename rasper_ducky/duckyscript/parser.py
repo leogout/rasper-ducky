@@ -174,6 +174,15 @@ class RandomCharStmt(Stmt):
         return f"RANDOM_CHAR({self.type})"
 
 
+class RandomCharFromStmt(Stmt):
+    def __init__(self, type: Token, value: Literal):
+        self.type = type
+        self.value = value
+
+    def __repr__(self):
+        return f"RANDOM_CHAR_FROM({self.type}, {self.value})"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -211,6 +220,8 @@ class Parser:
             return self.keypress_stmt()
         elif self.match(Tok.RANDOM_CHAR):
             return self.random_char_stmt()
+        elif self.match(Tok.RANDOM_CHAR_FROM):
+            return self.random_char_from_stmt()
 
         return self.expression_stmt()
 
@@ -297,6 +308,12 @@ class Parser:
         type = self.previous()
         self.consume_termination(f"Expected a line break after '{type.value}'")
         return RandomCharStmt(type)
+
+    def random_char_from_stmt(self) -> RandomCharFromStmt:
+        type = self.previous()
+        value = self.consume(Tok.STRING, "Expected a string after 'RANDOM_CHAR_FROM'")
+        self.consume_termination(f"Expected a line break after '{type.value}'")
+        return RandomCharFromStmt(type, Literal(value.value))
 
     def block(self) -> list[Stmt]:
         statements = []

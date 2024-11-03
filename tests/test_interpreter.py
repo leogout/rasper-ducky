@@ -3,6 +3,7 @@ from rasper_ducky.duckyscript.interpreter import (
     Interpreter,
 )
 from rasper_ducky.duckyscript.parser import (
+    RandomCharFromStmt,
     Token,
     Tok,
     VarStmt,
@@ -434,3 +435,17 @@ def test_random_char_statement(interpreter, mocker):
 
     for value in Interpreter.RANDOM_CHAR_SETS.values():
         mock_choice.assert_any_call(value)
+
+
+def test_random_char_from_statement(interpreter, mocker):
+    mock_choice = mocker.patch("random.choice")
+
+    ast = [
+        RandomCharFromStmt(
+            Token(Tok.RANDOM_CHAR_FROM, "RANDOM_CHAR_FROM"),
+            Literal("aAzZ!#1,;:!()"),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert mock_choice.call_count == 1
+    mock_choice.assert_any_call("aAzZ!#1,;:!()")

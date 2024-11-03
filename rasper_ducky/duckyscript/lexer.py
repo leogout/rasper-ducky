@@ -17,6 +17,7 @@ class Tok:
     WAIT_FOR_BUTTON_PRESS = "WAIT_FOR_BUTTON_PRESS"
 
     RANDOM_CHAR = "RANDOM_CHAR"
+    RANDOM_CHAR_FROM = "RANDOM_CHAR_FROM"
 
     ATTACKMODE = "ATTACKMODE"
     HID = "HID"
@@ -132,6 +133,7 @@ class Lexer:
         "RANDOM_NUMBER": Tok.RANDOM_CHAR,
         "RANDOM_SPECIAL": Tok.RANDOM_CHAR,
         "RANDOM_CHAR": Tok.RANDOM_CHAR,
+        "RANDOM_CHAR_FROM": Tok.RANDOM_CHAR_FROM,
         "ATTACKMODE": Tok.ATTACKMODE,
         "HID": Tok.HID,
         "STORAGE": Tok.STORAGE,
@@ -386,7 +388,11 @@ class Lexer:
 
         if char == "\n":
             return self.eol()
-        elif previous and previous.type in {Tok.PRINTSTRING, Tok.PRINTSTRINGLN}:
+        elif previous and previous.type in {
+            Tok.PRINTSTRING,
+            Tok.PRINTSTRINGLN,
+            Tok.RANDOM_CHAR_FROM,
+        }:
             return self.string()
         elif previous and previous.type == Tok.RD_KBD:
             return self.kbd_platform()
