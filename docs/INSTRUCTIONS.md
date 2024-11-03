@@ -9,6 +9,7 @@ This document provides detailed documentation for all supported DuckyScript3 ins
 - [Constants](#constants)
 - [Keyboard Commands](#keyboard-commands)
 - [Operators](#operators)
+- [Random Characters](#random-characters)
 
 ## Variables
 
@@ -233,3 +234,21 @@ IF !($x == 0) THEN
     STRING X is not zero
 END_IF
 ```
+
+### Random Characters
+
+The `RANDOM_CHAR` instruction allows you to generate random characters from specified sets, including lowercase letters, uppercase letters, numbers, special characters, or a combination of these. These instructions can be used to introduce randomness into your scripts, useful for tasks like generating random passwords or obfuscating text.
+
+```duckyscript
+$x = 0
+WHILE ($x < 10)
+    RANDOM_LOWERCASE_LETTER
+    RANDOM_UPPERCASE_LETTER
+    RANDOM_LETTER
+    RANDOM_NUMBER
+    RANDOM_SPECIAL
+    RANDOM_CHAR
+    $x = $x + 1
+END_WHILE
+```
+Will output something like : `hDz4)6mSl7)EyZN0#AfXW8*8aGf6)ZkZX3%8jJe3&@fKH7*1wEu0)JfAo3$R`
