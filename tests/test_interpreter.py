@@ -284,7 +284,7 @@ def test_undefined_variable(interpreter):
             Literal("2"),
         )
     ]
-    with pytest.raises(RuntimeError, match="Undefined variable: \$undefined"):
+    with pytest.raises(RuntimeError, match=r"Undefined variable: \$undefined"):
         interpreter.interpret(ast)
 
 
