@@ -15,6 +15,9 @@ class Tok:
     END_REM_BLOCK = "END_REM_BLOCK"
 
     WAIT_FOR_BUTTON_PRESS = "WAIT_FOR_BUTTON_PRESS"
+    
+    HOLD = "HOLD"
+    RELEASE = "RELEASE"
 
     RANDOM_CHAR = "RANDOM_CHAR"
     RANDOM_CHAR_FROM = "RANDOM_CHAR_FROM"
@@ -113,6 +116,8 @@ class Lexer:
         ")": Tok.RPAREN,
     }
 
+    OPERATORS_SET = set("=><!&|^+-*/%^&|()")
+
     KEYWORDS = {
         "RD_KBD": Tok.RD_KBD,
         "VAR": Tok.VAR,
@@ -126,6 +131,8 @@ class Lexer:
         "DELAY": Tok.DELAY,
         "STRING": Tok.PRINTSTRING,
         "STRINGLN": Tok.PRINTSTRINGLN,
+        "HOLD": Tok.HOLD,
+        "RELEASE": Tok.RELEASE,
         "WAIT_FOR_BUTTON_PRESS": Tok.WAIT_FOR_BUTTON_PRESS,
         "RANDOM_LOWERCASE_LETTER": Tok.RANDOM_CHAR,
         "RANDOM_UPPERCASE_LETTER": Tok.RANDOM_CHAR,
@@ -270,7 +277,7 @@ class Lexer:
         return self.is_digit(char) or self.is_alpha(char)
 
     def is_operator(self, char: str | None):
-        return char in "=><!&|^+-*/%^&|<>()" if char else False
+        return char in self.OPERATORS_SET if char else False
 
     def is_comment(self, char: str | None):
         if char is None:

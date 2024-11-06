@@ -1,5 +1,6 @@
 import pytest
 from rasper_ducky.duckyscript.parser import (
+    KeyPressStmt,
     Parser,
     RandomCharFromStmt,
     Token,
@@ -484,5 +485,25 @@ def test_random_char_from_statement(parser):
             Token(Tok.RANDOM_CHAR_FROM, "RANDOM_CHAR_FROM"),
             Literal("aAzZ!#1,;:!()"),
         )
+    ]
+    assert ast == expected_ast
+
+def test_keypress_hold_release_statement(parser):
+    tokens = [
+        Token(Tok.KEYPRESS, "A"),
+        Token(Tok.EOL),
+        Token(Tok.HOLD, "HOLD"),
+        Token(Tok.KEYPRESS, "A"),
+        Token(Tok.EOL),
+        Token(Tok.RELEASE, "RELEASE"),
+        Token(Tok.KEYPRESS, "A"),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [
+        KeyPressStmt([Token(Tok.KEYPRESS, "A")], False, False),
+        KeyPressStmt([Token(Tok.KEYPRESS, "A")], True, False),
+        KeyPressStmt([Token(Tok.KEYPRESS, "A")], False, True),
     ]
     assert ast == expected_ast

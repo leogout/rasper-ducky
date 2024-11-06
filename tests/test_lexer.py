@@ -412,3 +412,26 @@ def test_random_char_from():
         Token(Tok.STRING, "aAzZ!#1,;:!()", 1, 18),
         Token(Tok.EOF),
     ]
+
+
+def test_hold_release():
+    code = """
+HOLD A B C CTRL
+RELEASE A B C CTRL
+"""
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.HOLD, "HOLD", 2, 1),
+        Token(Tok.KEYPRESS, "A", 2, 6),
+        Token(Tok.KEYPRESS, "B", 2, 8),
+        Token(Tok.KEYPRESS, "C", 2, 10),
+        Token(Tok.KEYPRESS, "CTRL", 2, 12),
+        Token(Tok.EOL),
+        Token(Tok.RELEASE, "RELEASE", 3, 1),
+        Token(Tok.KEYPRESS, "A", 3, 9),
+        Token(Tok.KEYPRESS, "B", 3, 11),
+        Token(Tok.KEYPRESS, "C", 3, 13),
+        Token(Tok.KEYPRESS, "CTRL", 3, 15),
+        Token(Tok.EOL),
+        Token(Tok.EOF),
+    ]
