@@ -412,3 +412,14 @@ def test_random_char_from():
         Token(Tok.STRING, "aAzZ!#1,;:!()", 1, 18),
         Token(Tok.EOF),
     ]
+
+
+def test_double_char_operator_at_end_of_file():
+    code = "add()"
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.IDENTIFIER, "add", 1, 1),
+        Token(Tok.LPAREN, "(", 1, 4),
+        Token(Tok.RPAREN, ")", 1, 5),
+        Token(Tok.EOF),
+    ]

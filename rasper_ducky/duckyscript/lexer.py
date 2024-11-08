@@ -231,18 +231,18 @@ class Lexer:
     def is_at_end(self):
         return self.current >= self.end
 
-    def advance(self):
+    def advance(self) -> str:
         if not self.is_at_end():
             self.current += 1
         return self.code[self.current - 1]
 
-    def previous(self):
+    def previous(self) -> str | None:
         return self.code[self.current - 1] if self.current > 0 else None
 
-    def peek(self):
+    def peek(self) -> str | None:
         return self.code[self.current] if not self.is_at_end() else None
 
-    def peek_next(self):
+    def peek_next(self) -> str | None:
         return self.code[self.current + 1] if self.current + 1 < self.end else None
 
     def match(self, expected: str):
@@ -345,17 +345,25 @@ class Lexer:
             f"Unexpected character: '{char}' at line {self.line}, column {self.column()}"
         )
 
-    def operator(self):
-        prev = self.previous()
-        curr = self.peek()
-        double_char = prev + curr
+    def unexpected_none(self):
+        return SyntaxError(
+            f"Unexpected None character at line {self.line}, column {self.column()}"
+        )
+
+    def operator(self) -> Token:
+        prev, curr = self.previous(), self.peek()
+        double_char = f"{prev}{curr}" if prev and curr else None
+
         if double_char in self.OPERATORS:
             self.advance()
             return self.token(self.OPERATORS[double_char], double_char)
-        elif prev in self.OPERATORS:
+        if prev in self.OPERATORS:
             return self.token(self.OPERATORS[prev], prev)
 
-        raise self.unexpected_character(curr)
+        if prev is None:
+            raise self.unexpected_none()
+
+        raise self.unexpected_character(prev)
 
     def skip_comment(self):
         self.advance_while(lambda c: c != "\n")
