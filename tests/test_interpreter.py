@@ -17,12 +17,21 @@ from rasper_ducky.duckyscript.parser import (
     DelayStmt,
     KbdStmt,
     RandomCharStmt,
+    KeyPressStmt,
 )
 
 
 @pytest.fixture
 def interpreter():
     return Interpreter()
+
+
+@pytest.fixture
+def mock_keyboard(mocker):
+    mock_press = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.press_key")
+    mock_release = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.release_key")
+    mock_release_all = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.release_all")
+    return mock_press, mock_release, mock_release_all
 
 
 def test_var_declaration(interpreter):
@@ -449,3 +458,37 @@ def test_random_char_from_statement(interpreter, mocker):
     interpreter.interpret(ast)
     assert mock_choice.call_count == 1
     mock_choice.assert_any_call("aAzZ!#1,;:!()")
+
+
+def test_keypress_statement(interpreter, mock_keyboard):
+    mock_press, mock_release, mock_release_all = mock_keyboard
+
+    ast = [KeyPressStmt([Token(Tok.KEYPRESS, "A")])]
+    interpreter.interpret(ast)
+
+    mock_press.assert_called_once_with("A")
+    mock_release.assert_not_called()
+    mock_release_all.assert_called_once()
+
+
+def test_keypress_statement_with_hold(interpreter, mock_keyboard):
+    mock_press, mock_release, mock_release_all = mock_keyboard
+
+    ast = [KeyPressStmt([Token(Tok.KEYPRESS, "A")], hold=True)]
+    interpreter.interpret(ast)
+
+    mock_press.assert_called_once_with("A")
+    mock_release.assert_not_called()
+    mock_release_all.assert_not_called()
+
+
+def test_keypress_statement_with_release(interpreter, mock_keyboard):
+    mock_press, mock_release, mock_release_all = mock_keyboard
+
+    ast = [KeyPressStmt([Token(Tok.KEYPRESS, "A")], release=True)]
+    interpreter.interpret(ast)
+
+    mock_press.assert_not_called()
+    mock_release.assert_called_once_with("A")
+    mock_release_all.assert_not_called()
+

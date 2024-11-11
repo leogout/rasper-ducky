@@ -7,24 +7,12 @@ from unittest.mock import call
 
 
 @pytest.fixture
-def mock_type_string(mocker):
-    return mocker.patch(
-        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.type_string"
-    )
-
-
-@pytest.fixture
-def mock_press_key(mocker):
-    return mocker.patch(
-        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.press_key"
-    )
-
-
-@pytest.fixture
-def mock_release_all(mocker):
-    return mocker.patch(
-        "rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.release_all"
-    )
+def mock_keyboard(mocker):
+    mock_type_string = mocker.patch("rasper_ducky.duckyscript.interpreter.RasperDuckyKeyboard.type_string")
+    mock_press = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.press_key")
+    mock_release = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.release_key")
+    mock_release_all = mocker.patch("rasper_ducky.duckyscript.keyboard.RasperDuckyKeyboard.release_all")
+    return mock_type_string, mock_press, mock_release, mock_release_all
 
 
 def execute(code: str):
@@ -40,7 +28,9 @@ def execute(code: str):
     return interpreter
 
 
-def test_if_statement(mock_type_string):
+def test_if_statement(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     interpreter = execute(
         """
         VAR $x = 10
@@ -58,7 +48,9 @@ def test_if_statement(mock_type_string):
     mock_type_string.assert_called_with("x is less than y")
 
 
-def test_while_statement(mock_type_string):
+def test_while_statement(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         VAR $x = 5
@@ -95,19 +87,25 @@ def test_priority():
     assert interpreter.variables["$x"] == 12
 
 
-def test_print_string(mock_type_string):
+def test_print_string(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute("STRING Hello, World!")
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("Hello, World!")
 
 
-def test_print_stringln(mock_type_string):
+def test_print_stringln(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute("STRINGLN Hello, World!")
     assert mock_type_string.call_count == 1
     mock_type_string.assert_called_with("Hello, World!")
 
 
-def test_booleans(mock_type_string):
+def test_booleans(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     interpreter = execute(
         """
         IF TRUE THEN 
@@ -124,7 +122,9 @@ def test_booleans(mock_type_string):
     mock_type_string.assert_has_calls([call("A"), call("B")])
 
 
-def test_nested_if_statements(mock_type_string):
+def test_nested_if_statements(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         IF TRUE THEN
@@ -161,7 +161,9 @@ def test_chained_assign_statement():
     assert interpreter.variables["$y"] == 10
 
 
-def test_function_declaration(mock_type_string):
+def test_function_declaration(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     interpreter = execute(
         """
         FUNCTION add()
@@ -195,19 +197,25 @@ def test_global_variables():
     assert interpreter.variables["$x"] == 13
 
 
-def test_keypress_statement(mock_press_key, mock_release_all):
+def test_keypress_statement(mock_keyboard):
+    _, mock_press, _, mock_release_all = mock_keyboard
+
     execute("CTRL")
-    mock_press_key.assert_has_calls([call("CTRL")])
+    mock_press.assert_has_calls([call("CTRL")])
     mock_release_all.assert_called_once()
 
 
-def test_keypress_statement_with_multiple_keys(mock_press_key, mock_release_all):
+def test_keypress_statement_with_multiple_keys(mock_keyboard):
+    _, mock_press, _, mock_release_all = mock_keyboard
+
     execute("CTRL ALT B")
-    mock_press_key.assert_has_calls([call("CTRL"), call("ALT"), call("B")])
+    mock_press.assert_has_calls([call("CTRL"), call("ALT"), call("B")])
     mock_release_all.assert_called_once()
 
 
-def test_logical_operator_and(mock_type_string):
+def test_logical_operator_and(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         IF (TRUE && TRUE) THEN
@@ -225,7 +233,9 @@ def test_logical_operator_and(mock_type_string):
     mock_type_string.assert_called_with("A")
 
 
-def test_logical_operator_or(mock_type_string):
+def test_logical_operator_or(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         IF (TRUE || TRUE) THEN
@@ -243,7 +253,9 @@ def test_logical_operator_or(mock_type_string):
     mock_type_string.assert_has_calls([call("A"), call("B")])
 
 
-def test_unary_operator_not(mock_type_string):
+def test_unary_operator_not(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         IF (!FALSE) THEN
@@ -263,7 +275,9 @@ def test_unary_operator_minus():
     assert interpreter.variables["$x"] == -10
 
 
-def test_multiple_conditions(mock_type_string):
+def test_multiple_conditions(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         IF ((TRUE == TRUE) && (FALSE == FALSE)) THEN
@@ -275,7 +289,9 @@ def test_multiple_conditions(mock_type_string):
     mock_type_string.assert_called_with("True")
 
 
-def test_define_statement(mock_type_string):
+def test_define_statement(mock_keyboard):
+    mock_type_string, _, _, _ = mock_keyboard
+
     execute(
         """
         DEFINE #COUNT 3
@@ -315,3 +331,19 @@ def test_random_char_from_statement(mocker):
 
     assert mock_choice.call_count == 1
     mock_choice.assert_any_call("aAzZ!#1,;:!()")
+
+
+def test_release_statement(mock_keyboard):
+    _, _, mock_release, _ = mock_keyboard
+
+    execute("RELEASE CTRL")
+    mock_release.assert_called_once_with("CTRL")
+
+
+def test_hold_statement(mock_keyboard):
+    _, mock_press, _, mock_release_all = mock_keyboard
+
+    execute("HOLD CTRL")
+    mock_press.assert_called_once_with("CTRL")
+    mock_release_all.assert_not_called()
+

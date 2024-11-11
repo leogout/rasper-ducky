@@ -99,6 +99,9 @@ class RasperDuckyKeyboard:
 
     def press_key(self, key: str):
         self.kbd.press(self.KEYCODES[key])
+    
+    def release_key(self, key: str):
+        self.kbd.release(self.KEYCODES[key])
 
     def release_all(self):
         self.kbd.release_all()

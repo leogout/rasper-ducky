@@ -435,3 +435,14 @@ RELEASE A B C CTRL
         Token(Tok.EOL),
         Token(Tok.EOF),
     ]
+
+
+def test_double_char_operator_at_end_of_file():
+    code = "add()"
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.IDENTIFIER, "add", 1, 1),
+        Token(Tok.LPAREN, "(", 1, 4),
+        Token(Tok.RPAREN, ")", 1, 5),
+        Token(Tok.EOF),
+    ]
