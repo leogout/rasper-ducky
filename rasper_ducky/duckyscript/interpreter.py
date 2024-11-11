@@ -154,9 +154,15 @@ class Interpreter:
         self._execute_block(self.functions[node.name.value])
 
     def _execute_keypress(self, node: KeyPressStmt):
-        for key in node.keys:
-            self.keyboard.press_key(key.value)
-        self.keyboard.release_all()
+        if node.release:
+            for key in node.keys:
+                self.keyboard.release_key(key.value)
+        else:
+            for key in node.keys:
+                self.keyboard.press_key(key.value)
+
+        if not node.hold and not node.release:
+            self.keyboard.release_all()
 
     def _execute_kbd(self, node: KbdStmt):
         self.keyboard = RasperDuckyKeyboard(

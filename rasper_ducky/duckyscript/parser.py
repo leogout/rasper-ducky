@@ -74,11 +74,13 @@ class Stmt:
 
 
 class KeyPressStmt(Stmt):
-    def __init__(self, keys: list[Token]):
+    def __init__(self, keys: list[Token], hold: bool = False, release: bool = False):
         self.keys = keys
+        self.hold = hold
+        self.release = release
 
     def __repr__(self):
-        return f"KEYPRESS({self.keys})"
+        return f"KEYPRESS({self.keys}, HOLD={self.hold}, RELEASE={self.release})"
 
 
 class VarStmt(Stmt):
@@ -218,6 +220,8 @@ class Parser:
             return self.function_stmt()
         elif self.match(Tok.KEYPRESS):
             return self.keypress_stmt()
+        elif self.match(Tok.HOLD, Tok.RELEASE):
+            return self.keypress_stmt()
         elif self.match(Tok.RANDOM_CHAR):
             return self.random_char_stmt()
         elif self.match(Tok.RANDOM_CHAR_FROM):
@@ -226,11 +230,22 @@ class Parser:
         return self.expression_stmt()
 
     def keypress_stmt(self) -> KeyPressStmt:
-        keys = [self.previous()]
+        previous = self.previous()
+
+        hold = False
+        release = False
+        keys = []
+        if previous.type == Tok.HOLD:
+            hold = True
+        elif previous.type == Tok.RELEASE:
+            release = True
+        else:
+            keys = [previous]
+
         while self.match(Tok.KEYPRESS):
             keys.append(self.previous())
         self.consume_termination("Expected a line break after a keypress")
-        return KeyPressStmt(keys)
+        return KeyPressStmt(keys, hold, release)
 
     def var_stmt(self) -> VarStmt:
         name = self.consume(Tok.IDENTIFIER, "Expected an identifier after VAR")
