@@ -110,7 +110,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - [ ] `BUTTON_DEF`
   - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico)
   - [x] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_SPECIAL`, `RANDOM_CHAR`
-  - [ ] `HOLD` / `RELEASE`
+  - [x] `HOLD` / `RELEASE`
   - [ ] `RESTART_PAYLOAD` / `STOP_PAYLOAD`
 - [ ] Improve error handling and debugging features
 - [ ] Custom backward compatible features
