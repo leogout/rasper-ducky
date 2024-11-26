@@ -20,7 +20,9 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 ## Getting Started
 
 ### Installation on Raspberry Pi Pico 2
+
 #### Install CircuitPython 9.2.0
+
 - Go to the [CircuitPython website](https://circuitpython.org/board/raspberry_pi_pico/) and download the `CircuitPython 9.2.0` firmware for Raspberry Pi Pico 2 using the "DOWNLOAD .UF2 NOW" button.
 <p align="center">
   <img src="docs/img/tuto-download-circuitpy.png" alt="Download CircuitPython">
@@ -39,6 +41,7 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 - Once the Raspberry Pi Pico is restarted, it will appear as `CIRCUITPY` in the device manager.
 
 #### Install the rasper-ducky library
+
 - Connect your Raspberry Pi Pico to your computer and copy/paste the content of the `rasper_ducky` folder to the `CIRCUITPY` drive.
 - Edit the `payload.dd` file at the root of the `CIRCUITPY` drive to change the payload.
 <p align="center">
@@ -46,6 +49,7 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 </p>
 
 - You can try it out with this simple script, which will open a PowerShell window and print "Hello, World!" 3 times, separated by a space:
+
 ```plaintext
 DEFINE #COUNT 3
 
@@ -68,23 +72,41 @@ open_powershell()
 DELAY 1000
 hello_world()
 ```
+
 <p align="center">
   <img src="docs/img/tuto-have-fun.png" alt="Have fun">
 </p>
 
+## Change the keyboard layout
+
+To change the keyboard layout, you can add a line at the beginning of the `payload.dd` file to change the keyboard layout. For example, to change the keyboard layout to UK on Mac, add the following line at the beginning of the file:
+
+```plaintext
+RD_KBD MAC UK
+```
+
+Here is the list of supported keyboard layouts:
+| Platform | Layouts Supported |
+|----------|-------------------|
+| WIN | UK, FR, BR, CZ, CZ1, DA, DE, ES, HU, IT, PO, SW, TR |
+| MAC | FR |
+
+See the [Keyboard Layouts](https://github.com/Neradoc/Circuitpython_Keyboard_Layouts) repository from which this project is based on for more details.
+
 ## Debugging
 
-To debug the script, connect to the Raspberry Pi Pico 2 using Putty or similar and use the serial console. I've seen ports up to COM8 on my computer so try them all until you find the correct one.
+To debug the script, connect to the Raspberry Pi Pico 2 using Putty or similar and use the serial console. I've seen ports up to `COM8` on my computer so try them all until you find the correct one.
 Once connected, you should see the output of the script in the serial console.
 
-
 ## Disclaimer
-I am not affiliated with Hak5 or USB Rubber Ducky in any way. This is a side project and I do it for fun. 
+
+I am not affiliated with Hak5 or USB Rubber Ducky in any way. This is a side project and I do it for fun.
 
 There are some choices in the DuckyScript3 language that I dislike and may want to change in the future, maybe in a fork of this project. For example, in DuckyScript3 :
+
 - Functions do not take parameters and can't return values
 - Every variable is a global variable, no scoping is implemented, variables declared in functions will bleed into the global scope
-- No mathematical operator precedence, requiring parenthesis for simple expressions (10 + 2 * 3 will be interpreted as (10 + 2) * 3)
+- No mathematical operator precedence, requiring parenthesis for simple expressions (10 + 2 _ 3 will be interpreted as (10 + 2) _ 3)
 - Variables can only be integers
 - DELAY, STRING and STRINGLN don't accept variables
 - No for loops, only WHILE loops are supported
@@ -92,6 +114,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - No BREAK or CONTINUE statements in loops
 
 ## Features
+
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
 - **Full test suite**: Ensure the implementation is correct and reliable.
 - **Open Source**: Contribute to the project and help me improve the implementation, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
@@ -103,6 +126,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - **Random character from a string**: `RANDOM_CHAR_FROM aAzZ!#1,;:!()` will type a random character from the given string
 
 ## Roadmap
+
 - [ ] Complete the roadmap
 - [ ] Derecursify parts of the parser to limit stack overflows
 - [ ] Complete 1-to-1 DuckyScript3 implementation
@@ -123,7 +147,6 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
   - [x] Add a `RANDOM_CHAR_FROM` instruction to generate random characters from a given string
 - [ ] Custom backward incompatible features
   - [ ] Scope variables
-
 
 ## Thanks
 
