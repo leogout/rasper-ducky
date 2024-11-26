@@ -68,7 +68,7 @@ class Interpreter:
         self.variables = {}
         self.functions = {}
         self.execution_stack = []
-        self.keyboard = RasperDuckyKeyboard("win", "fr")
+        self.keyboard = RasperDuckyKeyboard("win", "uk")
 
     def interpret(self, ast: list[Stmt]):
         for node in ast:
