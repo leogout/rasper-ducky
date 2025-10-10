@@ -272,3 +272,26 @@ WAIT_FOR_BUTTON_PRESS
 STRING World
 ```
 Will output : `Hello`...waiting for you to connect PIN 15 to GND...`World`
+
+### LED Control
+
+Control the built-in LED on the Raspberry Pi Pico with `LED_G` (turn on) and `LED_OFF` (turn off).
+
+```duckyscript
+REM Blink LED 3 times
+$count = 0
+WHILE ($count < 3)
+    LED_G
+    DELAY 500
+    LED_OFF
+    DELAY 500
+    $count = $count + 1
+END_WHILE
+
+REM Use LED to indicate script status
+LED_G
+STRING Script is running...
+DELAY 2000
+LED_OFF
+STRING Done!
+```

@@ -118,7 +118,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - **Raspberry Pi Pico Support**: Execute scripts on a Raspberry Pi Pico.
 - **Full test suite**: Ensure the implementation is correct and reliable.
 - **Open Source**: Contribute to the project and help me improve the implementation, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
-- **Partial DuckyScript3 Syntax Support**: See [INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for the supported syntax.
+- **Partial DuckyScript3 Syntax Support**: See [INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for the supported keywords and statements.
 - **Additional features (not included in DuckyScript3 but nice to have)**:
   - **Keyboard layouts**: `RD_KBD WIN FR` for French keyboard on Windows, `RD_KBD MAC UK` for UK keyboard on Mac, etc.
   - **Operators precedence**: `10 + 2 * 3 / 4` will be interpreted as `10 + ((2 * 3) / 4)`
@@ -128,11 +128,11 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 ## Roadmap
 
 - [ ] Complete the roadmap
-- [ ] Derecursify parts of the parser to limit stack overflows
+- [x] Derecursify parts of the parser to limit stack overflows
 - [ ] Complete 1-to-1 DuckyScript3 implementation
   - [x] `WAIT_FOR_BUTTON_PRESS`
   - [ ] `BUTTON_DEF`
-  - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico)
+  - [x] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico)
   - [x] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_SPECIAL`, `RANDOM_CHAR`
   - [x] `HOLD` / `RELEASE`
   - [ ] `RESTART_PAYLOAD` / `STOP_PAYLOAD`

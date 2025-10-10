@@ -190,6 +190,16 @@ class WaitForButtonPressStmt(Stmt):
         return "WAIT_FOR_BUTTON_PRESS()"
 
 
+class LedOnStmt(Stmt):
+    def __repr__(self):
+        return "LED_G()"
+
+
+class LedOffStmt(Stmt):
+    def __repr__(self):
+        return "LED_OFF()"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -233,6 +243,10 @@ class Parser:
             return self.random_char_from_stmt()
         elif self.match(Tok.WAIT_FOR_BUTTON_PRESS):
             return self.wait_for_button_press_stmt()
+        elif self.match(Tok.LED_G):
+            return self.led_on_stmt()
+        elif self.match(Tok.LED_OFF):
+            return self.led_off_stmt()
 
         return self.expression_stmt()
 
@@ -340,6 +354,14 @@ class Parser:
     def wait_for_button_press_stmt(self) -> WaitForButtonPressStmt:
         self.consume_termination("Expected a line break after WAIT_FOR_BUTTON_PRESS")
         return WaitForButtonPressStmt()
+
+    def led_on_stmt(self) -> LedOnStmt:
+        self.consume_termination("Expected a line break after LED_G")
+        return LedOnStmt()
+
+    def led_off_stmt(self) -> LedOffStmt:
+        self.consume_termination("Expected a line break after LED_OFF")
+        return LedOffStmt()
 
     def block(self) -> list[Stmt]:
         statements = []

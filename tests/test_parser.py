@@ -22,6 +22,8 @@ from rasper_ducky.duckyscript.parser import (
     Unary,
     ExpressionStmt,
     WaitForButtonPressStmt,
+    LedOnStmt,
+    LedOffStmt,
 )
 
 
@@ -517,4 +519,24 @@ def test_wait_for_button_press_statement(parser):
     ]
     ast = parser(tokens).parse()
     expected_ast = [WaitForButtonPressStmt()]
+    assert ast == expected_ast
+
+
+def test_led_on_statement(parser):
+    tokens = [
+        Token(Tok.LED_G, "LED_G"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [LedOnStmt()]
+    assert ast == expected_ast
+
+
+def test_led_off_statement(parser):
+    tokens = [
+        Token(Tok.LED_OFF, "LED_OFF"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [LedOffStmt()]
     assert ast == expected_ast

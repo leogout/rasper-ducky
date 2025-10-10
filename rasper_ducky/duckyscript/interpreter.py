@@ -2,6 +2,7 @@ import random
 import time
 
 from .button import Button
+from .led import LED
 from .keyboard import RasperDuckyKeyboard
 from .parser import (
     KeyPressStmt,
@@ -28,6 +29,8 @@ from .parser import (
     KbdStmt,
     RandomCharFromStmt,
     WaitForButtonPressStmt,
+    LedOnStmt,
+    LedOffStmt,
 )
 
 
@@ -97,6 +100,7 @@ class Interpreter:
         self.execution_stack = []
         self.keyboard = RasperDuckyKeyboard("win", "uk")
         self.button = Button()
+        self.led = LED()
         self.eval_stack = []
         self.value_stack = []
         self.stmt_stack = []
@@ -138,6 +142,10 @@ class Interpreter:
             self._execute_random_char_from(node)
         elif isinstance(node, WaitForButtonPressStmt):
             self._execute_wait_for_button_press(node)
+        elif isinstance(node, LedOnStmt):
+            self._execute_led_on(node)
+        elif isinstance(node, LedOffStmt):
+            self._execute_led_off(node)
         elif isinstance(node, Literal):
             pass  # A literal is a value, nothing to execute
         else:
@@ -219,6 +227,12 @@ class Interpreter:
 
     def _execute_wait_for_button_press(self, node: WaitForButtonPressStmt):
         self.button.wait_for_press()
+
+    def _execute_led_on(self, node: LedOnStmt):
+        self.led.on()
+
+    def _execute_led_off(self, node: LedOffStmt):
+        self.led.off()
 
     def _evaluate(self, node: Expr):
         """Stack-based expression evaluator to avoid recursion limits"""

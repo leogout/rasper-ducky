@@ -25,6 +25,8 @@ from rasper_ducky.duckyscript.parser import (
     FunctionStmt,
     ExpressionStmt,
     WaitForButtonPressStmt,
+    LedOnStmt,
+    LedOffStmt,
 )
 
 
@@ -799,3 +801,21 @@ def test_wait_for_button_press(interpreter, mocker):
     interpreter.interpret(ast)
 
     mock_wait.assert_called_once()
+
+
+def test_led_on(interpreter, mocker):
+    mock_on = mocker.patch("rasper_ducky.duckyscript.led.LED.on")
+
+    ast = [LedOnStmt()]
+    interpreter.interpret(ast)
+
+    mock_on.assert_called_once()
+
+
+def test_led_off(interpreter, mocker):
+    mock_off = mocker.patch("rasper_ducky.duckyscript.led.LED.off")
+
+    ast = [LedOffStmt()]
+    interpreter.interpret(ast)
+
+    mock_off.assert_called_once()

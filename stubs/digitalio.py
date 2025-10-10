@@ -15,3 +15,7 @@ class DigitalInOut:
     @property
     def value(self):
         return True
+
+
+class Direction:
+    OUTPUT = 0

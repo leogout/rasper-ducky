@@ -446,3 +446,15 @@ def test_double_char_operator_at_end_of_file():
         Token(Tok.RPAREN, ")", 1, 5),
         Token(Tok.EOF),
     ]
+
+
+def test_led_commands():
+    code = """LED_G
+LED_OFF"""
+    tokens = list(lexer(code).tokenize())
+    assert tokens == [
+        Token(Tok.LED_G, "LED_G", 1, 1),
+        Token(Tok.EOL),
+        Token(Tok.LED_OFF, "LED_OFF", 2, 1),
+        Token(Tok.EOF),
+    ]
