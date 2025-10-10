@@ -185,6 +185,11 @@ class RandomCharFromStmt(Stmt):
         return f"RANDOM_CHAR_FROM({self.type}, {self.value})"
 
 
+class WaitForButtonPressStmt(Stmt):
+    def __repr__(self):
+        return "WAIT_FOR_BUTTON_PRESS()"
+
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -226,6 +231,8 @@ class Parser:
             return self.random_char_stmt()
         elif self.match(Tok.RANDOM_CHAR_FROM):
             return self.random_char_from_stmt()
+        elif self.match(Tok.WAIT_FOR_BUTTON_PRESS):
+            return self.wait_for_button_press_stmt()
 
         return self.expression_stmt()
 
@@ -329,6 +336,10 @@ class Parser:
         value = self.consume(Tok.STRING, "Expected a string after 'RANDOM_CHAR_FROM'")
         self.consume_termination(f"Expected a line break after '{type.value}'")
         return RandomCharFromStmt(type, Literal(value.value))
+
+    def wait_for_button_press_stmt(self) -> WaitForButtonPressStmt:
+        self.consume_termination("Expected a line break after WAIT_FOR_BUTTON_PRESS")
+        return WaitForButtonPressStmt()
 
     def block(self) -> list[Stmt]:
         statements = []

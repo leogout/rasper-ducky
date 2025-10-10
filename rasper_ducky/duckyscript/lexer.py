@@ -116,7 +116,9 @@ class Lexer:
         ")": Tok.RPAREN,
     }
 
-    OPERATORS_SET = set("=><!&|^+-*/%^&|()")
+    OPERATORS_SET = set("=><!|+-*/%^&()")
+
+    ALPHA_EXTRAS = set("$_")
 
     KEYWORDS = {
         "RD_KBD": Tok.RD_KBD,
@@ -271,7 +273,7 @@ class Lexer:
         return char.isdigit() if char else False
 
     def is_alpha(self, char: str | None):
-        return char.isalpha() or char in "$_" if char else False
+        return char.isalpha() or char in self.ALPHA_EXTRAS if char else False
 
     def is_alphanumeric(self, char: str | None):
         return self.is_digit(char) or self.is_alpha(char)
@@ -280,14 +282,17 @@ class Lexer:
         return char in self.OPERATORS_SET if char else False
 
     def is_comment(self, char: str | None):
-        if char is None:
+        if char != "R":
             return False
-        return char == "R" and self.match("EM")
+        return (
+            self.code.startswith("EM", self.current)
+            and not self.code.startswith("EM_BLOCK", self.current)
+        )
 
     def is_comment_block(self, char: str | None):
-        if char is None:
+        if char != "R":
             return False
-        return char == "R" and self.match("EM_BLOCK")
+        return self.code.startswith("EM_BLOCK", self.current)
 
     def number(self):
         while self.is_digit(self.peek()):
@@ -334,12 +339,6 @@ class Lexer:
 
         return self.token(keyword or Tok.IDENTIFIER, identifier)
 
-    def printstring(self, with_ln: bool = False):
-        return self.token(
-            Tok.PRINTSTRINGLN if with_ln else Tok.PRINTSTRING,
-            "STRINGLN" if with_ln else "STRING",
-        )
-
     def column(self):
         return self.start - self.line_start + 1
 
@@ -373,12 +372,14 @@ class Lexer:
         raise self.unexpected_character(prev)
 
     def skip_comment(self):
+        self.match("EM")  # Consume "EM"
         self.advance_while(lambda c: c != "\n")
         if self.peek() == "\n":
             self.advance()
             self.eol()
 
     def skip_comment_block(self):
+        self.match("EM_BLOCK")  # Consume "EM_BLOCK"
         while not self.match("END_REM"):
             self.skip_comment()
 
@@ -399,7 +400,7 @@ class Lexer:
 
         if char == "\n" and self.start == self.line_start:
             self.eol()  # Update line and line_start without yielding EOL
-            return
+            return None
 
         if char == "\n":
             return self.eol()
@@ -424,6 +425,6 @@ class Lexer:
         elif self.is_alpha(char):
             return self.identifier()
         elif char.isspace():
-            return
+            return None
 
         raise self.unexpected_character(char)

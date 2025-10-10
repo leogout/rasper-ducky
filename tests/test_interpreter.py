@@ -24,6 +24,7 @@ from rasper_ducky.duckyscript.parser import (
     Call,
     FunctionStmt,
     ExpressionStmt,
+    WaitForButtonPressStmt,
 )
 
 
@@ -789,3 +790,12 @@ def test_empty_function_body(interpreter):
     ]
     interpreter.interpret(ast)
     assert interpreter.execution_stack == []
+
+
+def test_wait_for_button_press(interpreter, mocker):
+    mock_wait = mocker.patch("rasper_ducky.button.Button.wait_for_press")
+
+    ast = [WaitForButtonPressStmt()]
+    interpreter.interpret(ast)
+
+    mock_wait.assert_called_once()

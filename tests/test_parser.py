@@ -21,6 +21,7 @@ from rasper_ducky.duckyscript.parser import (
     DelayStmt,
     Unary,
     ExpressionStmt,
+    WaitForButtonPressStmt,
 )
 
 
@@ -506,4 +507,14 @@ def test_keypress_hold_release_statement(parser):
         KeyPressStmt([Token(Tok.KEYPRESS, "A")], True, False),
         KeyPressStmt([Token(Tok.KEYPRESS, "A")], False, True),
     ]
+    assert ast == expected_ast
+
+
+def test_wait_for_button_press_statement(parser):
+    tokens = [
+        Token(Tok.WAIT_FOR_BUTTON_PRESS, "WAIT_FOR_BUTTON_PRESS"),
+        Token(Tok.EOF),
+    ]
+    ast = parser(tokens).parse()
+    expected_ast = [WaitForButtonPressStmt()]
     assert ast == expected_ast

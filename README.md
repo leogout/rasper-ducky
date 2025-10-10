@@ -130,7 +130,7 @@ There are some choices in the DuckyScript3 language that I dislike and may want 
 - [ ] Complete the roadmap
 - [ ] Derecursify parts of the parser to limit stack overflows
 - [ ] Complete 1-to-1 DuckyScript3 implementation
-  - [ ] `WAIT_FOR_BUTTON_PRESS`
+  - [x] `WAIT_FOR_BUTTON_PRESS`
   - [ ] `BUTTON_DEF`
   - [ ] `LED_R` / `LED_G` (only one green led on the Raspberry Pi Pico)
   - [x] `RANDOM_LOWERCASE_LETTER`, `RANDOM_UPPERCASE_LETTER`, `RANDOM_LETTER`, `RANDOM_NUMBER`, `RANDOM_SPECIAL`, `RANDOM_CHAR`
