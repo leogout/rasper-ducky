@@ -260,3 +260,15 @@ The `RANDOM_CHAR_FROM` instruction allows you to type a random character from a 
 ```duckyscript
 RANDOM_CHAR_FROM aAzZ!#1,;:!()
 ```
+
+### Waiting for button press
+
+To make the execution of your code halt, waiting for a button press, use `WAIT_FOR_BUTTON_PRESS`.
+This will wait until you connect the PIN 15 to the GND pin of your pico.
+
+```duckyscript
+STRING Hello
+WAIT_FOR_BUTTON_PRESS
+STRING World
+```
+Will output : `Hello`...waiting for you to connect PIN 15 to GND...`World`

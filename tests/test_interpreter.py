@@ -793,7 +793,7 @@ def test_empty_function_body(interpreter):
 
 
 def test_wait_for_button_press(interpreter, mocker):
-    mock_wait = mocker.patch("rasper_ducky.button.Button.wait_for_press")
+    mock_wait = mocker.patch("rasper_ducky.duckyscript.button.Button.wait_for_press")
 
     ast = [WaitForButtonPressStmt()]
     interpreter.interpret(ast)
