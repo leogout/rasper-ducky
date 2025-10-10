@@ -42,8 +42,10 @@ This project aims to provide an open-source implementation of DuckyScript3, a sc
 
 #### Install the rasper-ducky library
 
-- Connect your Raspberry Pi Pico to your computer and copy/paste the content of the `rasper_ducky` folder to the `CIRCUITPY` drive.
-- Edit the `payload.dd` file at the root of the `CIRCUITPY` drive to change the payload.
+- Connect your Raspberry Pi Pico to your computer
+- If there are files inside, delete them all, it needs to be blank to work properly
+- Copy/paste the *content* of the `rasper_ducky` folder (not the folder, it's content) to the `CIRCUITPY` drive
+- Edit the `payload.dd` file at the root of the `CIRCUITPY` drive to change the payload
 <p align="center">
   <img src="docs/img/tuto-add-files-to-pico.png" alt="Add files to Pico">
 </p>
