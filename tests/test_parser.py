@@ -37,11 +37,11 @@ def test_var_declaration(parser):
         Token(Tok.VAR, "VAR"),
         Token(Tok.IDENTIFIER, "$x"),
         Token(Tok.ASSIGN, "="),
-        Token(Tok.NUMBER, "10"),
+        Token(Tok.NUMBER, "10.3"),
         Token(Tok.EOF),
     ]
     ast = parser(tokens).parse()
-    expected_ast = [VarStmt(Token(Tok.IDENTIFIER, "$x"), Literal("10"))]
+    expected_ast = [VarStmt(Token(Tok.IDENTIFIER, "$x"), Literal("10.3"))]
     assert ast == expected_ast
 
 

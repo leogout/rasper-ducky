@@ -9,6 +9,7 @@ from rasper_ducky.duckyscript.parser import (
     VarStmt,
     Literal,
     Binary,
+    Unary,
     Variable,
     IfStmt,
     StringStmt,
@@ -18,6 +19,11 @@ from rasper_ducky.duckyscript.parser import (
     KbdStmt,
     RandomCharStmt,
     KeyPressStmt,
+    Grouping,
+    Assign,
+    Call,
+    FunctionStmt,
+    ExpressionStmt,
 )
 
 
@@ -492,3 +498,294 @@ def test_keypress_statement_with_release(interpreter, mock_keyboard):
     mock_release.assert_called_once_with("A")
     mock_release_all.assert_not_called()
 
+
+def test_unary_plus_operator(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Unary(Token(Tok.OP_PLUS, "+"), Literal("42")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 42
+
+
+def test_unary_minus_operator(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Unary(Token(Tok.OP_MINUS, "-"), Literal("42")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == -42
+
+
+def test_unary_not_operator(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Unary(Token(Tok.OP_NOT, "!"), Literal(True)),
+        ),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$y"),
+            Unary(Token(Tok.OP_NOT, "!"), Literal(False)),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] is False
+    assert interpreter.variables["$y"] is True
+
+
+def test_double_unary_minus(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Unary(
+                Token(Tok.OP_MINUS, "-"),
+                Unary(Token(Tok.OP_MINUS, "-"), Literal("42")),
+            ),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 42
+
+
+def test_unary_with_variable(interpreter):
+    ast = [
+        VarStmt(Token(Tok.IDENTIFIER, "$x"), Literal("10")),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$y"),
+            Unary(Token(Tok.OP_MINUS, "-"), Variable(Token(Tok.IDENTIFIER, "$x"))),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$y"] == -10
+
+
+def test_grouping_basic(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Grouping(Literal("42")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 42
+
+
+def test_grouping_precedence(interpreter):
+    # (2 + 3) * 4 should be 20, not 14
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(
+                Grouping(
+                    Binary(
+                        Literal("2"),
+                        Token(Tok.OP_PLUS, "+"),
+                        Literal("3"),
+                    )
+                ),
+                Token(Tok.OP_MULTIPLY, "*"),
+                Literal("4"),
+            ),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 20
+
+
+def test_nested_grouping(interpreter):
+    # ((2 + 3) * 4) + 1 should be 21
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(
+                Grouping(
+                    Binary(
+                        Grouping(
+                            Binary(
+                                Literal("2"),
+                                Token(Tok.OP_PLUS, "+"),
+                                Literal("3"),
+                            )
+                        ),
+                        Token(Tok.OP_MULTIPLY, "*"),
+                        Literal("4"),
+                    )
+                ),
+                Token(Tok.OP_PLUS, "+"),
+                Literal("1"),
+            ),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 21
+
+
+# 3. Assign expression tests
+def test_inline_assignment(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$y"),
+            Assign(Token(Tok.IDENTIFIER, "$x"), Literal("5")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 5
+    assert interpreter.variables["$y"] == 5
+
+
+# 4. Comparison operator tests
+def test_less_than_or_equal(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(Literal("5"), Token(Tok.OP_LESS_EQUAL, "<="), Literal("5")),
+        ),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$y"),
+            Binary(Literal("4"), Token(Tok.OP_LESS_EQUAL, "<="), Literal("5")),
+        ),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$z"),
+            Binary(Literal("6"), Token(Tok.OP_LESS_EQUAL, "<="), Literal("5")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] is True
+    assert interpreter.variables["$y"] is True
+    assert interpreter.variables["$z"] is False
+
+
+def test_greater_than_or_equal(interpreter):
+    ast = [
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$x"),
+            Binary(Literal("5"), Token(Tok.OP_GREATER_EQUAL, ">="), Literal("5")),
+        ),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$y"),
+            Binary(Literal("6"), Token(Tok.OP_GREATER_EQUAL, ">="), Literal("5")),
+        ),
+        VarStmt(
+            Token(Tok.IDENTIFIER, "$z"),
+            Binary(Literal("4"), Token(Tok.OP_GREATER_EQUAL, ">="), Literal("5")),
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] is True
+    assert interpreter.variables["$y"] is True
+    assert interpreter.variables["$z"] is False
+
+
+# 5. Function call tests
+def test_function_call_basic(interpreter):
+    ast = [
+        FunctionStmt(
+            Token(Tok.IDENTIFIER, "test_func"),
+            [StringStmt(Literal("Hello from function"))],
+        ),
+        ExpressionStmt(Call(Token(Tok.IDENTIFIER, "test_func"))),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == ["Hello from function"]
+
+
+def test_function_call_with_variable_modification(interpreter):
+    ast = [
+        VarStmt(Token(Tok.IDENTIFIER, "$x"), Literal("0")),
+        FunctionStmt(
+            Token(Tok.IDENTIFIER, "increment"),
+            [
+                VarStmt(
+                    Token(Tok.IDENTIFIER, "$x"),
+                    Binary(
+                        Variable(Token(Tok.IDENTIFIER, "$x")),
+                        Token(Tok.OP_PLUS, "+"),
+                        Literal("1"),
+                    ),
+                )
+            ],
+        ),
+        ExpressionStmt(Call(Token(Tok.IDENTIFIER, "increment"))),
+        ExpressionStmt(Call(Token(Tok.IDENTIFIER, "increment"))),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 2
+
+
+# 8. Error handling edge cases
+def test_unknown_random_char_set(interpreter):
+    ast = [RandomCharStmt(Token(Tok.RANDOM_CHAR, "UNKNOWN_SET"))]
+    with pytest.raises(RuntimeError, match="Unknown random character set"):
+        interpreter.interpret(ast)
+
+
+# 9. Stress tests for stack-based interpreter
+def test_deeply_nested_expressions(interpreter):
+    # Create expression: ((((1 + 1) + 1) + 1) + ... ) 100 times
+    expr = Literal("1")
+    for _ in range(100):
+        expr = Binary(expr, Token(Tok.OP_PLUS, "+"), Literal("1"))
+    
+    ast = [VarStmt(Token(Tok.IDENTIFIER, "$x"), expr)]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$x"] == 101
+
+
+def test_long_while_loop(interpreter):
+    # While loop that runs 1000 times
+    ast = [
+        VarStmt(Token(Tok.IDENTIFIER, "$counter"), Literal("0")),
+        WhileStmt(
+            Binary(
+                Variable(Token(Tok.IDENTIFIER, "$counter")),
+                Token(Tok.OP_LESS, "<"),
+                Literal("1000"),
+            ),
+            [
+                VarStmt(
+                    Token(Tok.IDENTIFIER, "$counter"),
+                    Binary(
+                        Variable(Token(Tok.IDENTIFIER, "$counter")),
+                        Token(Tok.OP_PLUS, "+"),
+                        Literal("1"),
+                    ),
+                ),
+            ],
+        ),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.variables["$counter"] == 1000
+
+
+def test_deeply_nested_if_statements(interpreter):
+    # Create 50 nested if statements
+    innermost = [StringStmt(Literal("deep"))]
+    stmt = IfStmt(Literal(True), innermost)
+    
+    for _ in range(49):
+        stmt = IfStmt(Literal(True), [stmt])
+    
+    ast = [stmt]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == ["deep"]
+
+
+# 10. Empty/edge case tests
+def test_empty_ast(interpreter):
+    ast = []
+    interpreter.interpret(ast)
+    assert interpreter.variables == {}
+    assert interpreter.execution_stack == []
+
+
+def test_empty_function_body(interpreter):
+    ast = [
+        FunctionStmt(Token(Tok.IDENTIFIER, "empty_func"), []),
+        ExpressionStmt(Call(Token(Tok.IDENTIFIER, "empty_func"))),
+    ]
+    interpreter.interpret(ast)
+    assert interpreter.execution_stack == []
