@@ -29,6 +29,31 @@ from .parser import (
 )
 
 
+class EvalTask:
+    """Represents a task to evaluate an expression node"""
+    def __init__(self, node):
+        self.node = node
+
+
+class BinaryOpTask:
+    """Represents a binary operation waiting for its operands"""
+    def __init__(self, operator, left_value=None):
+        self.operator = operator
+        self.left_value = left_value
+
+
+class UnaryOpTask:
+    """Represents a unary operation waiting for its operand"""
+    def __init__(self, operator):
+        self.operator = operator
+
+
+class AssignTask:
+    """Represents an assignment waiting for its value"""
+    def __init__(self, var_name):
+        self.var_name = var_name
+
+
 class Interpreter:
     BINARY_OPERATORS = {
         Tok.OP_PLUS: lambda l, r: l + r,
@@ -69,9 +94,16 @@ class Interpreter:
         self.functions = {}
         self.execution_stack = []
         self.keyboard = RasperDuckyKeyboard("win", "uk")
+        self.eval_stack = []
+        self.value_stack = []
+        self.stmt_stack = []
 
     def interpret(self, ast: list[Stmt]):
-        for node in ast:
+        """Stack-based interpreter to avoid recursion limits"""
+        self.stmt_stack = list(reversed(ast))
+
+        while self.stmt_stack:
+            node = self.stmt_stack.pop()
             self._execute(node)
 
     def _execute(self, node: Stmt):
@@ -112,24 +144,26 @@ class Interpreter:
 
     def _execute_if_statement(self, node: IfStmt):
         if self._evaluate(node.condition):
-            self._execute_block(node.then_block)
+            self._push_statements(node.then_block)
         else:
             self._execute_else_if_or_else(node)
 
     def _execute_else_if_or_else(self, node: IfStmt):
         for else_if in node.else_if_blocks:
             if self._evaluate(else_if.condition):
-                self._execute_block(else_if.then_block)
+                self._push_statements(else_if.then_block)
                 return
-        self._execute_block(node.else_block)
+        self._push_statements(node.else_block)
 
-    def _execute_block(self, block: list[Stmt]):
-        for statement in block:
-            self._execute(statement)
+    def _push_statements(self, statements: list[Stmt]):
+        """Push statements onto execution stack in reverse order"""
+        for statement in reversed(statements):
+            self.stmt_stack.append(statement)
 
     def _execute_while_statement(self, node: WhileStmt):
-        while self._evaluate(node.condition):
-            self._execute_block(node.body)
+        if self._evaluate(node.condition):
+            self.stmt_stack.append(node)
+            self._push_statements(node.body)
 
     def _execute_print_string(self, node: StringStmt):
         self.execution_stack.append(node.value.value)
@@ -151,7 +185,7 @@ class Interpreter:
         self.functions[node.name.value] = node.body
 
     def _execute_function_call(self, node: Call):
-        self._execute_block(self.functions[node.name.value])
+        self._push_statements(self.functions[node.name.value])
 
     def _execute_keypress(self, node: KeyPressStmt):
         if node.release:
@@ -179,36 +213,76 @@ class Interpreter:
         self.keyboard.type_string(random.choice(str(node.value.value)))
 
     def _evaluate(self, node: Expr):
-        if isinstance(node, Binary):
-            return self._evaluate_expression(node)
-        elif isinstance(node, Unary):
-            return self._evaluate_unary(node)
-        elif isinstance(node, Literal):
-            return int(node.value)
+        """Stack-based expression evaluator to avoid recursion limits"""
+        self.eval_stack = [EvalTask(node)]
+        self.value_stack = []
+
+        while self.eval_stack:
+            task = self.eval_stack.pop()
+
+            if isinstance(task, EvalTask):
+                self._process_eval_task(task.node)
+            elif isinstance(task, BinaryOpTask):
+                self._process_binary_op(task)
+            elif isinstance(task, UnaryOpTask):
+                self._process_unary_op(task)
+            elif isinstance(task, AssignTask):
+                self._process_assign(task)
+
+        return self.value_stack.pop() if self.value_stack else None
+
+    def _process_eval_task(self, node: Expr):
+        """Process an evaluation task by pushing work onto stacks"""
+        if isinstance(node, Literal):
+            self.value_stack.append(int(node.value))
+
         elif isinstance(node, Variable):
             try:
-                return self.variables[node.name.value]
+                self.value_stack.append(self.variables[node.name.value])
             except KeyError:
                 raise RuntimeError(f"Undefined variable: {node.name.value}")
-        elif isinstance(node, Assign):
-            value = self._evaluate(node.value)
-            self.variables[node.name.value] = value
-            return value
+
+        elif isinstance(node, Binary):
+            self.eval_stack.append(BinaryOpTask(node.operator))
+            self.eval_stack.append(EvalTask(node.right))
+            self.eval_stack.append(EvalTask(node.left))
+
+        elif isinstance(node, Unary):
+            self.eval_stack.append(UnaryOpTask(node.operator))
+            self.eval_stack.append(EvalTask(node.right))
+
         elif isinstance(node, Grouping):
-            return self._evaluate(node.expression)
+            self.eval_stack.append(EvalTask(node.expression))
+
+        elif isinstance(node, Assign):
+            self.eval_stack.append(AssignTask(node.name.value))
+            self.eval_stack.append(EvalTask(node.value))
+
         elif isinstance(node, Call):
-            return self._execute_function_call(node)
+            self._execute_function_call(node)
+            self.value_stack.append(None)
+
         else:
             raise RuntimeError(f"Unknown node type for evaluation: {type(node)}")
 
-    def _evaluate_expression(self, node: Binary):
-        left = self._evaluate(node.left)
-        right = self._evaluate(node.right)
-        return self._apply_operator(node.operator, left, right)
+    def _process_binary_op(self, task: BinaryOpTask):
+        """Process a binary operation with its two operands from value stack"""
+        right = self.value_stack.pop()
+        left = self.value_stack.pop()
+        result = self._apply_operator(task.operator, left, right)
+        self.value_stack.append(result)
 
-    def _evaluate_unary(self, node: Unary):
-        value = self._evaluate(node.right)
-        return self._apply_unary_operator(node.operator, value)
+    def _process_unary_op(self, task: UnaryOpTask):
+        """Process a unary operation with its operand from value stack"""
+        value = self.value_stack.pop()
+        result = self._apply_unary_operator(task.operator, value)
+        self.value_stack.append(result)
+
+    def _process_assign(self, task: AssignTask):
+        """Process an assignment with its value from value stack"""
+        value = self.value_stack.pop()
+        self.variables[task.var_name] = value
+        self.value_stack.append(value)
 
     def _apply_operator(self, operator: Token, left, right):
         if operator.type in self.BINARY_OPERATORS:
